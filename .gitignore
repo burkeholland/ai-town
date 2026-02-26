@@ -2,3 +2,4 @@ dispatch.sh
 node_modules/
 package-lock.json
 package.json
+test-dispatch.sh
