@@ -754,6 +754,53 @@ CUSTOM_BUILDERS['town-hall'] = function (group, building) {
   const towerGlow = new THREE.PointLight(0xfef3c7, 0.5, 10);
   towerGlow.position.set(0, towerBase + towerH * 0.5, 0);
   group.add(towerGlow);
+
+  // ── ROOFTOP GARDEN ──
+  const roofY = towerBase; // top surface of roof slab
+
+  // Potted plants at four corners of the rooftop
+  const potMat = new THREE.MeshStandardMaterial({ color: 0x8b4513, roughness: 0.9 });
+  const soilMat = new THREE.MeshStandardMaterial({ color: 0x5c4033, roughness: 1.0 });
+  const foliageMat = new THREE.MeshStandardMaterial({ color: 0x4a7c59, roughness: 0.8 });
+  for (const [px, pz] of [[-1.5, 1.0], [1.5, 1.0], [-1.5, -1.0], [1.5, -1.0]]) {
+    const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.09, 0.18, 8), potMat);
+    pot.position.set(px, roofY + 0.09, pz);
+    pot.castShadow = true;
+    group.add(pot);
+    const soil = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.03, 8), soilMat);
+    soil.position.set(px, roofY + 0.195, pz);
+    group.add(soil);
+    const leaf = new THREE.Mesh(new THREE.SphereGeometry(0.18, 7, 6), foliageMat);
+    leaf.position.set(px, roofY + 0.36, pz);
+    leaf.castShadow = true;
+    group.add(leaf);
+  }
+
+  // Small bench near front of rooftop
+  const benchWoodMat = new THREE.MeshStandardMaterial({ color: 0x8b6914, roughness: 0.7 });
+  const benchMetalMat = new THREE.MeshStandardMaterial({ color: 0x374151, roughness: 0.5 });
+  const seat = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.06, 0.22), benchWoodMat);
+  seat.position.set(0, roofY + 0.30, D / 2 - 0.25);
+  seat.castShadow = true;
+  group.add(seat);
+  const back = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.22, 0.04), benchWoodMat);
+  back.position.set(0, roofY + 0.50, D / 2 - 0.14);
+  group.add(back);
+  for (const [lx, lz] of [[-0.28, -0.08], [0.28, -0.08], [-0.28, 0.08], [0.28, 0.08]]) {
+    const leg = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.24, 0.04), benchMetalMat);
+    leg.position.set(lx, roofY + 0.12, D / 2 - 0.25 + lz);
+    group.add(leg);
+  }
+
+  // Small flagpole with flag on the back-left corner of the parapet
+  const flagPoleMat = new THREE.MeshStandardMaterial({ color: 0xb8a088, metalness: 0.3 });
+  const flagMat = new THREE.MeshStandardMaterial({ color: 0x1e40af, roughness: 0.8, side: THREE.DoubleSide });
+  const flagpole = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.7, 6), flagPoleMat);
+  flagpole.position.set(-W / 2 + 0.3, roofY + parapetH + 0.35, -D / 2 + 0.3);
+  group.add(flagpole);
+  const flagCloth = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.18), flagMat);
+  flagCloth.position.set(-W / 2 + 0.45, roofY + parapetH + 0.62, -D / 2 + 0.3);
+  group.add(flagCloth);
 };
 
 // ─── Custom Building: The Cat Bookshop ─────────────────────────────────────
