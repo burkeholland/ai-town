@@ -34,6 +34,7 @@ async function init() {
 
   // Initialize 3D renderer
   const renderer = new TownRenderer(container, buildings);
+  window.__townRenderer = renderer;
 
   // Toggle crosshair with pointer lock
   document.addEventListener('pointerlockchange', () => {

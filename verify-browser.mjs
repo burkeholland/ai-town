@@ -3,8 +3,9 @@
 // Usage: node verify-browser.mjs [building-slug]
 //
 // 1. Validates town.json
-// 2. If a slug is provided, generates a styled OG card image
-//    (renders an HTML card via Puppeteer — no WebGL needed)
+// 2. If a slug is provided, loads the 3D town with WebGL,
+//    positions the camera at the building, and screenshots it
+//    into a branded OG card (1200x630).
 
 import { createServer } from 'http';
 import { readFileSync, existsSync, mkdirSync, statSync } from 'fs';
@@ -14,105 +15,43 @@ import { fileURLToPath } from 'url';
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const slug = process.argv[2] || '';
 
-// ─── Building type → emoji mapping ──────────────────────────────────────────
-
-const TYPE_EMOJI = {
-  shop: '🏪',
-  house: '🏠',
-  restaurant: '🍽️',
-  public: '🏛️',
-  entertainment: '🎭',
-  nature: '🌳',
-  other: '🏗️',
+const MIME_TYPES = {
+  '.html': 'text/html',
+  '.css': 'text/css',
+  '.js': 'text/javascript',
+  '.mjs': 'text/javascript',
+  '.json': 'application/json',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.svg': 'image/svg+xml',
 };
 
-// ─── OG Card HTML Template ──────────────────────────────────────────────────
+// ─── Static file server ─────────────────────────────────────────────────────
 
-function buildCardHtml(building) {
-  const emoji = TYPE_EMOJI[building.type] || '🏘️';
-  const name = escapeHtml(building.name);
-  const desc = escapeHtml(building.description);
-  const user = escapeHtml(building.contributor.username);
-  const avatar = building.contributor.avatar;
-
-  return `<!DOCTYPE html>
-<html><head><meta charset="UTF-8">
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    width: 1200px; height: 630px;
-    background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 40%, #7dd3fc 100%);
-    font-family: system-ui, -apple-system, sans-serif;
-    display: flex; align-items: center; justify-content: center;
-    overflow: hidden; position: relative;
-  }
-  .skyline {
-    position: absolute; bottom: 0; left: 0; right: 0; height: 180px;
-    display: flex; align-items: flex-end; justify-content: center; gap: 12px;
-    opacity: 0.12;
-  }
-  .bld { background: #0c4a6e; border-radius: 6px 6px 0 0; }
-  .card {
-    background: white; border-radius: 24px; padding: 48px 56px;
-    max-width: 720px; text-align: center; position: relative; z-index: 1;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.08);
-  }
-  .emoji { font-size: 48px; margin-bottom: 16px; }
-  h1 { font-size: 42px; font-weight: 800; color: #111827; margin-bottom: 10px; }
-  .desc {
-    font-size: 18px; color: #6b7280; line-height: 1.6; margin-bottom: 24px;
-    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  .contributor {
-    display: inline-flex; align-items: center; gap: 10px;
-    background: #f0f9ff; padding: 8px 20px; border-radius: 99px;
-    font-size: 16px; font-weight: 600; color: #0369a1;
-  }
-  .contributor img {
-    width: 32px; height: 32px; border-radius: 50%; border: 2px solid #bae6fd;
-  }
-  .badge {
-    position: absolute; top: 24px; right: 32px;
-    font-size: 13px; font-weight: 700; color: #0ea5e9;
-    letter-spacing: 0.05em; text-transform: uppercase;
-  }
-</style>
-</head>
-<body>
-  <div class="skyline">
-    <div class="bld" style="width:40px;height:90px"></div>
-    <div class="bld" style="width:55px;height:140px"></div>
-    <div class="bld" style="width:35px;height:70px"></div>
-    <div class="bld" style="width:60px;height:160px"></div>
-    <div class="bld" style="width:45px;height:100px"></div>
-    <div class="bld" style="width:50px;height:120px"></div>
-    <div class="bld" style="width:38px;height:80px"></div>
-    <div class="bld" style="width:55px;height:130px"></div>
-    <div class="bld" style="width:42px;height:95px"></div>
-    <div class="bld" style="width:48px;height:110px"></div>
-    <div class="bld" style="width:35px;height:75px"></div>
-  </div>
-  <div class="card">
-    <div class="badge">AI Town</div>
-    <div class="emoji">${emoji}</div>
-    <h1>${name}</h1>
-    <p class="desc">${desc}</p>
-    <div class="contributor">
-      <img src="${escapeHtml(avatar)}" alt="${user}">
-      Built by @${user}
-    </div>
-  </div>
-</body></html>`;
+function startServer() {
+  return new Promise((resolve) => {
+    const server = createServer((req, res) => {
+      const url = new URL(req.url, 'http://localhost');
+      let filePath = join(__dirname, url.pathname === '/' ? 'index.html' : url.pathname);
+      try {
+        const stat = statSync(filePath);
+        if (stat.isDirectory()) filePath = join(filePath, 'index.html');
+      } catch {
+        res.writeHead(404); res.end('Not found'); return;
+      }
+      try {
+        const ext = extname(filePath);
+        res.writeHead(200, { 'Content-Type': MIME_TYPES[ext] || 'application/octet-stream' });
+        res.end(readFileSync(filePath));
+      } catch {
+        res.writeHead(404); res.end('Not found');
+      }
+    });
+    server.listen(0, () => resolve(server));
+  });
 }
 
-function escapeHtml(str) {
-  return String(str || '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
+// ─── Validation helpers ─────────────────────────────────────────────────────
 
 function validateBuilding(b) {
   const required = ['id', 'name', 'description', 'type'];
@@ -128,6 +67,74 @@ function safeSlugs(id) {
   return /^[a-z0-9][a-z0-9-]*$/.test(id);
 }
 
+function escapeHtml(str) {
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// ─── OG Composite Page ─────────────────────────────────────────────────────
+// Renders the 3D scene screenshot inside a branded card frame
+
+function buildCompositeHtml(building, screenshotDataUrl) {
+  const name = escapeHtml(building.name);
+  const user = escapeHtml(building.contributor.username);
+  const avatar = escapeHtml(building.contributor.avatar);
+
+  return `<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1200px; height: 630px;
+    font-family: system-ui, -apple-system, sans-serif;
+    overflow: hidden; position: relative;
+  }
+  .scene {
+    width: 100%; height: 100%;
+    background: url("${screenshotDataUrl}") center/cover no-repeat;
+  }
+  .overlay {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.7));
+    padding: 40px 48px 36px;
+    display: flex; align-items: flex-end; justify-content: space-between;
+  }
+  .info { color: white; }
+  h1 { font-size: 36px; font-weight: 800; text-shadow: 0 2px 8px rgba(0,0,0,0.4); margin-bottom: 6px; }
+  .contributor {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 16px; font-weight: 600; color: rgba(255,255,255,0.9);
+  }
+  .contributor img {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.6);
+  }
+  .badge {
+    background: rgba(255,255,255,0.15); backdrop-filter: blur(8px);
+    padding: 8px 16px; border-radius: 10px;
+    font-size: 14px; font-weight: 700; color: white;
+    letter-spacing: 0.03em;
+  }
+</style>
+</head>
+<body>
+  <div class="scene"></div>
+  <div class="overlay">
+    <div class="info">
+      <h1>${name}</h1>
+      <div class="contributor">
+        <img src="${avatar}" alt="${user}">
+        Built by @${user}
+      </div>
+    </div>
+    <div class="badge">🏘️ AI Town</div>
+  </div>
+</body></html>`;
+}
+
 // ─── Main ───────────────────────────────────────────────────────────────────
 
 async function verify() {
@@ -141,7 +148,6 @@ async function verify() {
     process.exit(1);
   }
 
-  // Step 2: If slug provided, find building and generate OG card
   if (!slug) {
     console.log('✅ Verification complete (no slug — skipping OG image).');
     process.exit(0);
@@ -165,51 +171,136 @@ async function verify() {
   }
   console.log(`✅ Building "${slug}" found and validated in town.json`);
 
-  // Try Puppeteer for OG card generation
   let puppeteer;
   try {
     puppeteer = await import('puppeteer');
   } catch {
     console.log('⚠️  Puppeteer not installed — skipping OG image generation.');
-    console.log('   Install with: npm install puppeteer');
     process.exit(0);
   }
 
-  console.log(`📸 Generating OG card for "${slug}"...`);
-
-  const cardHtml = buildCardHtml(building);
-
-  // Serve the card HTML on a local port
-  const server = createServer((req, res) => {
-    res.writeHead(200, { 'Content-Type': 'text/html' });
-    res.end(cardHtml);
-  });
-
-  await new Promise(resolve => server.listen(0, resolve));
+  // Step 2: Start local server and load the 3D town
+  const server = await startServer();
   const port = server.address().port;
+  console.log(`📸 Generating OG image for "${slug}" (port ${port})...`);
 
   try {
     const browser = await puppeteer.default.launch({
       headless: 'new',
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--use-gl=angle',
+        '--use-angle=swiftshader-webgl',
+      ],
     });
 
     const page = await browser.newPage();
-    await page.setViewport({ width: 1200, height: 630 });
-    await page.goto(`http://localhost:${port}/`, { waitUntil: 'networkidle0', timeout: 10000 });
+    // Render at higher res for the scene capture
+    await page.setViewport({ width: 1200, height: 630, deviceScaleFactor: 2 });
+
+    // Suppress non-critical errors (favicon, etc)
+    page.on('pageerror', () => {});
+
+    await page.goto(`http://localhost:${port}/`, {
+      waitUntil: 'domcontentloaded',
+      timeout: 15000,
+    });
+
+    // Wait for Three.js to initialize, then position camera at the building
+    await new Promise(r => setTimeout(r, 3000));
+
+    // Position camera to look at this building's plot
+    const plotIndex = building.plot || 0;
+    await page.evaluate((plotIdx) => {
+      // Plot positions (duplicated from buildings.js for headless access)
+      const PLOTS = [
+        { x: 25, z: 25 }, { x: 21, z: 21.5 }, { x: 29, z: 21.5 },
+        { x: 21, z: 28.5 }, { x: 29, z: 28.5 }, { x: 15, z: 23 },
+        { x: 10, z: 24 }, { x: 15, z: 29 }, { x: 10, z: 29 },
+        { x: 5, z: 26 }, { x: 35, z: 23 }, { x: 40, z: 23 },
+        { x: 35, z: 29 }, { x: 40, z: 28 }, { x: 45, z: 26 },
+        { x: 22, z: 17 }, { x: 28, z: 16 }, { x: 21, z: 11 },
+        { x: 27, z: 10 }, { x: 24, z: 5 }, { x: 22, z: 33 },
+        { x: 28, z: 34 }, { x: 21, z: 39 }, { x: 27, z: 40 },
+        { x: 24, z: 45 }, { x: 17, z: 18 }, { x: 33, z: 17 },
+        { x: 17, z: 32 }, { x: 33, z: 33 }, { x: 7, z: 20 },
+        { x: 43, z: 20 }, { x: 7, z: 32 }, { x: 43, z: 32 },
+        { x: 13, z: 15 }, { x: 37, z: 15 }, { x: 13, z: 37 },
+        { x: 37, z: 37 }, { x: 25, z: 14 }, { x: 25, z: 36 },
+        { x: 19, z: 25 },
+      ];
+
+      const plot = PLOTS[plotIdx] || PLOTS[0];
+
+      // Hide all UI elements
+      document.querySelector('header').style.display = 'none';
+      document.querySelector('footer').style.display = 'none';
+      const hint = document.getElementById('controls-hint');
+      if (hint) hint.style.display = 'none';
+      const labels = document.getElementById('building-labels');
+      if (labels) labels.style.display = 'none';
+      const crosshair = document.getElementById('crosshair');
+      if (crosshair) crosshair.style.display = 'none';
+      const tooltip = document.getElementById('tooltip');
+      if (tooltip) tooltip.style.display = 'none';
+
+      // Make scene container fullscreen
+      const container = document.getElementById('scene-container');
+      if (container) {
+        container.style.position = 'fixed';
+        container.style.top = '0';
+        container.style.left = '0';
+        container.style.width = '100vw';
+        container.style.height = '100vh';
+      }
+
+      // Access the Three.js renderer instance to reposition camera
+      // The renderer stores camera on the TownRenderer instance
+      // We need to find it via the canvas's parent
+      if (window.__townRenderer) {
+        const r = window.__townRenderer;
+        // Position camera in front of the building, looking at it
+        const camDist = 8;
+        const camHeight = 4;
+        // Place camera to the south-east of the building looking at it
+        r.camera.position.set(plot.x + 5, camHeight, plot.z + 6);
+        r.camera.lookAt(plot.x, 1.5, plot.z);
+        r.camera.updateProjectionMatrix();
+      }
+    }, plotIndex);
+
+    // Let the scene re-render fullscreen
+    await new Promise(r => setTimeout(r, 2000));
+
+    // Take the scene screenshot as a data URL
+    const sceneScreenshot = await page.screenshot({
+      encoding: 'base64',
+      clip: { x: 0, y: 0, width: 1200, height: 630 },
+    });
+
+    // Step 3: Render the composite card (scene + branding overlay)
+    const compositeHtml = buildCompositeHtml(
+      building,
+      `data:image/png;base64,${sceneScreenshot}`
+    );
+
+    // Navigate to composite page
+    await page.setViewport({ width: 1200, height: 630, deviceScaleFactor: 2 });
+    await page.setContent(compositeHtml, { waitUntil: 'networkidle0', timeout: 10000 });
     await new Promise(r => setTimeout(r, 1000));
 
     const ogDir = join(__dirname, 'town', slug);
     mkdirSync(ogDir, { recursive: true });
-
     const ogPath = join(ogDir, 'og.png');
+
     await page.screenshot({
       path: ogPath,
       clip: { x: 0, y: 0, width: 1200, height: 630 },
     });
 
     const size = statSync(ogPath).size;
-    console.log(`✅ OG card saved to town/${slug}/og.png (${(size / 1024).toFixed(0)} KB)`);
+    console.log(`✅ OG image saved to town/${slug}/og.png (${(size / 1024).toFixed(0)} KB)`);
 
     await browser.close();
   } catch (err) {
