@@ -48,6 +48,17 @@ Each building is an object:
 
 3. Each plot has a `facing` direction — buildings are automatically rotated to face the nearest road.
 
+## When Modifying a Building
+
+Issues labeled `building-modification` ask to change an **existing** building. The issue author can only modify their own building.
+
+1. Find the building in `town.json` where `contributor.username` matches the issue author's GitHub login. That is the only building you may change.
+2. Read the issue body to understand what the user wants changed (description, type, custom visuals, etc.).
+3. Update the building's entry in `town.json` as requested (e.g., new `description`, `name`, or `type`).
+4. If the modification involves custom visuals, update or add a `CUSTOM_BUILDERS` entry in `js/buildings.js` keyed by the building's `id`.
+5. Do NOT change the `contributor`, `plot`, `issue`, or `added` fields.
+6. Do NOT touch any other building's data or code.
+
 ## Building Types & Colors
 
 | Type | Roof Color | Wall Color |
