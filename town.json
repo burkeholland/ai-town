@@ -11,5 +11,18 @@
     },
     "issue": 0,
     "added": "2026-02-26"
+  },
+  {
+    "id": "pierces-pub",
+    "name": "Pierce's Pub",
+    "type": "restaurant",
+    "description": "Your friendly neighborhood pub. You don't want to eat off the floor, but at the same time it's home.",
+    "plot": 5,
+    "contributor": {
+      "username": "pierceboggan",
+      "avatar": "https://github.com/pierceboggan.png"
+    },
+    "issue": 8,
+    "added": "2026-02-26"
   }
 ]
