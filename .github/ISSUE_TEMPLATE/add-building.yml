@@ -1,0 +1,37 @@
+name: "🏘️ Add a Building"
+description: "Propose a new building for the town"
+labels: ["building-request"]
+body:
+  - type: input
+    id: name
+    attributes:
+      label: "Building Name"
+      placeholder: "The Cat Bookstore"
+    validations:
+      required: true
+  - type: dropdown
+    id: type
+    attributes:
+      label: "Building Type"
+      options:
+        - Shop
+        - House
+        - Restaurant
+        - Public Building (library, school, etc.)
+        - Entertainment (theater, arcade, etc.)
+        - Nature (park, garden, fountain)
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: "Describe your building"
+      placeholder: "A cozy bookstore with a big window. There's an orange cat sleeping on a stack of books in the window display."
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: "Any special details?"
+      placeholder: "The sign should be hand-painted. Maybe some potted plants by the door."

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Town — An open-source town built by AI, directed by the community</title>
+  <meta name="description" content="A collaborative isometric town built entirely by AI, directed by the community. Add your building by opening a GitHub issue!">
+
+  <!-- OG Tags -->
+  <meta property="og:title" content="AI Town">
+  <meta property="og:description" content="An open-source town built entirely by AI, directed by the community.">
+  <meta property="og:type" content="website">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="AI Town">
+  <meta name="twitter:description" content="An open-source town built entirely by AI, directed by the community.">
+
+  <link rel="stylesheet" href="style.css">
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <h1>🏘️ AI Town</h1>
+      <p class="tagline">An open-source town built entirely by AI, directed by the community.</p>
+      <div class="header-stats">
+        <span class="stat"><strong id="building-count">0</strong> buildings</span>
+        <a href="https://github.com/burkeholland/ai-town/issues/new?template=add-building.yml" class="btn" target="_blank">
+          🏗️ Add a Building
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div id="scene-container"></div>
+    <div id="building-labels"></div>
+  </main>
+
+  <!-- Crosshair (visible when pointer locked) -->
+  <div id="crosshair" class="hidden">+</div>
+
+  <!-- Controls hint -->
+  <div id="controls-hint">
+    <p>Click to explore · <strong>WASD</strong> to move · <strong>Space/Q</strong> up/down · <strong>Mouse</strong> to look · <strong>Shift</strong> to sprint</p>
+  </div>
+
+  <!-- Building tooltip (follows mouse) -->
+  <div id="tooltip" class="hidden"></div>
+
+  <!-- Building info panel -->
+  <div id="info-panel" class="hidden">
+    <button id="info-close" aria-label="Close">&times;</button>
+    <div class="info-header">
+      <h2 id="info-name"></h2>
+      <span id="info-type" class="info-badge"></span>
+    </div>
+    <p id="info-desc"></p>
+    <div class="info-contributor">
+      <img id="info-avatar" width="24" height="24" alt="">
+      <a id="info-username" href="#" target="_blank"></a>
+    </div>
+    <a id="info-share" href="#" class="info-share-link"></a>
+  </div>
+
+  <footer>
+    <p>
+      Built with ❤️ by <a href="https://github.com/burkeholland/ai-town" target="_blank">AI Town</a>
+      — Every building added by the community, built by Copilot
+    </p>
+  </footer>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

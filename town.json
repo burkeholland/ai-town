@@ -1,0 +1,15 @@
+[
+  {
+    "id": "town-hall",
+    "name": "Town Hall",
+    "type": "public",
+    "description": "The grand heart of AI Town — a majestic three-story sandstone building with classical columns, a copper-domed clock tower, and an ornate entrance. Where Mayor Copi presides over the community.",
+    "plot": 0,
+    "contributor": {
+      "username": "burkeholland",
+      "avatar": "https://github.com/burkeholland.png"
+    },
+    "issue": 0,
+    "added": "2026-02-26"
+  }
+]

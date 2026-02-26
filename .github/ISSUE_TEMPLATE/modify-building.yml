@@ -1,0 +1,20 @@
+name: "✏️ Modify Your Building"
+description: "Request changes to your existing building in AI Town"
+labels: ["building-modification"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        You can only modify buildings you own. If you don't have a building yet, please use the **🏘️ Add a Building** template instead.
+  - type: textarea
+    id: changes
+    attributes:
+      label: "What changes do you want?"
+      placeholder: "I'd like to add a rooftop garden with some potted plants, and change the door color to blue."
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: "Any other details?"
+      placeholder: "Keep the overall style the same, just add these new elements."
