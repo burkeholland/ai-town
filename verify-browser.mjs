@@ -115,15 +115,15 @@ async function verify() {
     }
     console.log('✅ No JavaScript errors.');
 
-    // Verify canvas exists and has content
-    const canvasExists = await page.$('#town-canvas');
-    if (!canvasExists) {
-      console.error('❌ Canvas element not found');
+    // Verify scene container exists and has Three.js canvas
+    const sceneExists = await page.$('#scene-container canvas');
+    if (!sceneExists) {
+      console.error('❌ Three.js canvas not found in #scene-container');
       await browser.close();
       server.close();
       process.exit(1);
     }
-    console.log('✅ Canvas element found.');
+    console.log('✅ Three.js canvas found.');
 
     // If slug provided, take OG screenshot
     if (slug) {
