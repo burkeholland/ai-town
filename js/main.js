@@ -19,10 +19,17 @@ async function init() {
     buildings = [];
   }
 
-  // Update building count
+  // Update building count and spots remaining
+  const MAX_BUILDINGS = 100;
   const countEl = document.getElementById('building-count');
   if (countEl) {
     countEl.textContent = buildings.length;
+  }
+  const spotsEl = document.getElementById('spots-left');
+  if (spotsEl) {
+    const remaining = Math.max(0, MAX_BUILDINGS - buildings.length);
+    spotsEl.textContent = remaining;
+    if (remaining === 0) spotsEl.closest('.spots-left').classList.add('full');
   }
 
   // Initialize 3D renderer

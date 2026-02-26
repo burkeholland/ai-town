@@ -64,6 +64,14 @@ header h1 {
   font-size: 1.1rem;
 }
 
+.spots-left strong {
+  color: #0ea5e9;
+}
+
+.spots-left.full strong {
+  color: #ef4444;
+}
+
 .btn {
   display: inline-flex;
   align-items: center;
