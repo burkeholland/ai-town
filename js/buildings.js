@@ -319,6 +319,7 @@ CUSTOM_BUILDERS['town-hall'] = function (group, building) {
   const D = 3.0;        // depth
   const storyH = 1.4;   // height per floor
   const stories = 3;
+  const story4H = 1.8;  // 4th story — tall (~20ft) ceilings
   const baseH = 0.3;    // foundation height
   const totalWallH = stories * storyH;
 
@@ -365,6 +366,124 @@ CUSTOM_BUILDERS['town-hall'] = function (group, building) {
     const t = new THREE.Mesh(tGeo, trimMat);
     t.position.y = baseH + floor * storyH;
     group.add(t);
+  }
+
+  // ── 4th STORY — tall (~20ft) ceilings ──
+  const s4Base = baseH + totalWallH;  // y at base of 4th story = 4.5
+
+  const wall4Geo = new THREE.BoxGeometry(W, story4H, D);
+  const wall4 = new THREE.Mesh(wall4Geo, wallMat);
+  wall4.position.y = s4Base + story4H / 2;
+  wall4.castShadow = true;
+  wall4.receiveShadow = true;
+  group.add(wall4);
+
+  // Trim strip at 4th story base
+  const trim4Geo = new THREE.BoxGeometry(W + 0.08, 0.06, D + 0.08);
+  const trim4 = new THREE.Mesh(trim4Geo, trimMat);
+  trim4.position.y = s4Base;
+  group.add(trim4);
+
+  // ── WRAP-AROUND BALCONY ──
+  const bExt = 0.65;  // how far balcony extends beyond the walls on each side
+  const balconyFloorY = s4Base;
+  const slabMat = new THREE.MeshStandardMaterial({ color: 0xe8e0d0, roughness: 0.9 });
+
+  // Front slab — full width including corners
+  const bFrontGeo = new THREE.BoxGeometry(W + 2 * bExt, 0.1, bExt);
+  const bFront = new THREE.Mesh(bFrontGeo, slabMat);
+  bFront.position.set(0, balconyFloorY + 0.05, D / 2 + bExt / 2);
+  bFront.castShadow = true;
+  bFront.receiveShadow = true;
+  group.add(bFront);
+
+  // Back slab — full width including corners
+  const bBack = new THREE.Mesh(bFrontGeo, slabMat);
+  bBack.position.set(0, balconyFloorY + 0.05, -D / 2 - bExt / 2);
+  group.add(bBack);
+
+  // Left slab — side only (between front and back)
+  const bSideGeo = new THREE.BoxGeometry(bExt, 0.1, D);
+  const bLeft = new THREE.Mesh(bSideGeo, slabMat);
+  bLeft.position.set(-W / 2 - bExt / 2, balconyFloorY + 0.05, 0);
+  bLeft.castShadow = true;
+  bLeft.receiveShadow = true;
+  group.add(bLeft);
+
+  // Right slab
+  const bRight = new THREE.Mesh(bSideGeo, slabMat);
+  bRight.position.set(W / 2 + bExt / 2, balconyFloorY + 0.05, 0);
+  group.add(bRight);
+
+  // Balcony railing
+  const railH = 0.4;
+  const railTopY = balconyFloorY + 0.1 + railH;
+  const postCenterY = balconyFloorY + 0.1 + railH / 2;
+  const bOuterW = W + 2 * bExt;
+  const bOuterD = D + 2 * bExt;
+  const postGeo2 = new THREE.BoxGeometry(0.06, railH, 0.06);
+  const postMat2 = new THREE.MeshStandardMaterial({ color: 0xd4ccc0, roughness: 0.8 });
+  const railMat2 = new THREE.MeshStandardMaterial({ color: 0xd4ccc0, roughness: 0.7 });
+
+  // Front & back railing posts
+  const nFP = 10;
+  for (let i = 0; i <= nFP; i++) {
+    const px = -bOuterW / 2 + (i / nFP) * bOuterW;
+    for (const pz of [D / 2 + bExt - 0.05, -D / 2 - bExt + 0.05]) {
+      const post = new THREE.Mesh(postGeo2, postMat2);
+      post.position.set(px, postCenterY, pz);
+      group.add(post);
+    }
+  }
+
+  // Side railing posts (skip corners, already covered by front/back)
+  const nSP = 7;
+  for (let i = 1; i < nSP; i++) {
+    const pz = -D / 2 + (i / nSP) * D;
+    for (const px of [-W / 2 - bExt + 0.05, W / 2 + bExt - 0.05]) {
+      const post = new THREE.Mesh(postGeo2, postMat2);
+      post.position.set(px, postCenterY, pz);
+      group.add(post);
+    }
+  }
+
+  // Top handrails
+  const fRailGeo = new THREE.BoxGeometry(bOuterW, 0.05, 0.05);
+  const sRailGeo = new THREE.BoxGeometry(0.05, 0.05, bOuterD);
+  for (const pz of [D / 2 + bExt - 0.05, -D / 2 - bExt + 0.05]) {
+    const r = new THREE.Mesh(fRailGeo, railMat2);
+    r.position.set(0, railTopY, pz);
+    group.add(r);
+  }
+  for (const px of [-W / 2 - bExt + 0.05, W / 2 + bExt - 0.05]) {
+    const r = new THREE.Mesh(sRailGeo, railMat2);
+    r.position.set(px, railTopY, 0);
+    group.add(r);
+  }
+
+  // ── 4th FLOOR WINDOWS (tall, matching aesthetic) ──
+  // Front
+  for (const wx of [-1.4, -0.6, 0.6, 1.4]) {
+    const w4 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.7, 0.06), winMat);
+    w4.position.set(wx, s4Base + story4H * 0.52, D / 2 + 0.04);
+    group.add(w4);
+    const sill4 = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.04, 0.1), stoneMat);
+    sill4.position.set(wx, s4Base + story4H * 0.52 - 0.38, D / 2 + 0.06);
+    group.add(sill4);
+  }
+  // Side windows
+  for (const side of [-1, 1]) {
+    for (let i = 0; i < 3; i++) {
+      const w4s = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.6, 0.3), winMat);
+      w4s.position.set(side * (W / 2 + 0.04), s4Base + story4H * 0.52, -D / 3 + i * D / 3);
+      group.add(w4s);
+    }
+  }
+  // Back windows
+  for (const wx of [-1.0, 0, 1.0]) {
+    const w4b = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.65, 0.06), winMat);
+    w4b.position.set(wx, s4Base + story4H * 0.52, -D / 2 - 0.04);
+    group.add(w4b);
   }
 
   // ── FRONT COLUMNS (span ground + 2nd floor) ──
@@ -482,7 +601,7 @@ CUSTOM_BUILDERS['town-hall'] = function (group, building) {
   // ── FLAT ROOF with PARAPET ──
   const roofSlabGeo = new THREE.BoxGeometry(W + 0.3, 0.12, D + 0.3);
   const roofSlab = new THREE.Mesh(roofSlabGeo, roofMat);
-  roofSlab.position.y = baseH + totalWallH + 0.06;
+  roofSlab.position.y = baseH + totalWallH + story4H + 0.06;
   roofSlab.castShadow = true;
   group.add(roofSlab);
 
@@ -495,7 +614,7 @@ CUSTOM_BUILDERS['town-hall'] = function (group, building) {
   ]) {
     const pGeo = new THREE.BoxGeometry(pw, parapetH, pd);
     const p = new THREE.Mesh(pGeo, stoneMat);
-    p.position.set(px, baseH + totalWallH + 0.12 + parapetH / 2, pz);
+    p.position.set(px, baseH + totalWallH + story4H + 0.12 + parapetH / 2, pz);
     group.add(p);
   }
 
@@ -508,18 +627,18 @@ CUSTOM_BUILDERS['town-hall'] = function (group, building) {
   ]) {
     const cpGeo = new THREE.BoxGeometry(0.15, parapetH + 0.12, 0.15);
     const cp = new THREE.Mesh(cpGeo, stoneMat);
-    cp.position.set(cx, baseH + totalWallH + 0.12 + (parapetH + 0.12) / 2, cz);
+    cp.position.set(cx, baseH + totalWallH + story4H + 0.12 + (parapetH + 0.12) / 2, cz);
     group.add(cp);
     // Sphere finial
     const fin = new THREE.Mesh(new THREE.SphereGeometry(0.07, 6, 6), stoneMat);
-    fin.position.set(cx, baseH + totalWallH + 0.12 + parapetH + 0.19, cz);
+    fin.position.set(cx, baseH + totalWallH + story4H + 0.12 + parapetH + 0.19, cz);
     group.add(fin);
   }
 
   // ── CLOCK TOWER ──
   const towerW = 1.2;
   const towerH = 2.0;
-  const towerBase = baseH + totalWallH + 0.12;
+  const towerBase = baseH + totalWallH + story4H + 0.12;
 
   const towerGeo = new THREE.BoxGeometry(towerW, towerH, towerW);
   const tower = new THREE.Mesh(towerGeo, wallMat);
@@ -606,7 +725,7 @@ CUSTOM_BUILDERS['town-hall'] = function (group, building) {
   // ── PLAQUE ANCHOR (HTML overlay shows avatar + username) ──
   const plaqueY = baseH + 1.25;
   const plaqueZ = D / 2 + 0.05;
-  group.userData.plaqueWorldPos = new THREE.Vector3(0, 5.2, plaqueZ + 0.15);
+  group.userData.plaqueWorldPos = new THREE.Vector3(0, 7.0, plaqueZ + 0.15);
 
   // ── DECORATIVE DETAILS ──
   // Lanterns flanking the entrance
