@@ -36,6 +36,14 @@ async function init() {
   const renderer = new TownRenderer(container, buildings);
   window.__townRenderer = renderer;
 
+  // Update controls hint for mobile
+  if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+    const hint = document.getElementById('controls-hint');
+    if (hint) {
+      hint.innerHTML = '<p><strong>Swipe</strong> to orbit · <strong>Pinch</strong> to zoom · <strong>Tap</strong> a building</p>';
+    }
+  }
+
   // Toggle crosshair with pointer lock
   document.addEventListener('pointerlockchange', () => {
     const locked = document.pointerLockElement === container.querySelector('canvas');

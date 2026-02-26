@@ -350,16 +350,54 @@ footer a:hover {
 /* Mobile */
 
 @media (max-width: 640px) {
+  body {
+    height: 100dvh;
+  }
+
   .tagline {
     display: none;
+  }
+
+  header {
+    padding: 8px 12px;
   }
 
   header h1 {
     font-size: 1.1rem;
   }
 
+  .header-content {
+    justify-content: center;
+  }
+
+  .header-stats {
+    gap: 10px;
+  }
+
+  .btn {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
+
+  #controls-hint {
+    bottom: 50px;
+    font-size: 0.72rem;
+    padding: 6px 14px;
+  }
+
   #info-panel {
     bottom: 60px;
     padding: 16px 20px;
+  }
+
+  .building-label {
+    font-size: 0.75rem;
+    padding: 5px 10px 5px 5px;
+    gap: 6px;
+  }
+
+  .building-label img {
+    width: 22px;
+    height: 22px;
   }
 }

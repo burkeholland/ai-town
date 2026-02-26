@@ -18,6 +18,7 @@ export class TownRenderer {
     this.buildingGroups = [];
     this.hoveredGroup = null;
     this.selectedBuilding = null;
+    this.isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
     // Movement state
     this.keys = {};
@@ -31,7 +32,11 @@ export class TownRenderer {
     this.initScene();
     this.initLights();
     this.initCamera();
-    this.initWalkControls();
+    if (this.isMobile) {
+      this.initTouchControls();
+    } else {
+      this.initWalkControls();
+    }
     this.initRaycaster();
 
     this.buildTown();
@@ -204,6 +209,150 @@ export class TownRenderer {
         }
       }
     });
+  }
+
+  initTouchControls() {
+    this.orbit = {
+      angle: Math.PI / 4,
+      height: 12,
+      radius: 20,
+      baseAutoSpeed: 0.12,
+      lastInteraction: 0,
+    };
+
+    // Position camera for orbit view
+    const center = this.getTownCenter();
+    this.camera.position.set(
+      center.x + this.orbit.radius * Math.cos(this.orbit.angle),
+      this.orbit.height,
+      center.z + this.orbit.radius * Math.sin(this.orbit.angle)
+    );
+    this.camera.lookAt(center.x, 1.5, center.z);
+
+    let touchStart = null;
+    let touchStartPos = null;
+    let lastTouchDist = null;
+
+    const canvas = this.renderer.domElement;
+
+    canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      if (e.touches.length === 1) {
+        touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        touchStartPos = { ...touchStart, time: Date.now() };
+      } else if (e.touches.length === 2) {
+        lastTouchDist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+      }
+    }, { passive: false });
+
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      this.orbit.lastInteraction = Date.now();
+      if (e.touches.length === 1 && touchStart) {
+        const dx = e.touches[0].clientX - touchStart.x;
+        const dy = e.touches[0].clientY - touchStart.y;
+        this.orbit.angle -= dx * 0.004;
+        this.orbit.height = Math.max(4, Math.min(25, this.orbit.height - dy * 0.04));
+        touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      } else if (e.touches.length === 2) {
+        const dist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        if (lastTouchDist) {
+          const delta = dist - lastTouchDist;
+          this.orbit.radius = Math.max(8, Math.min(40, this.orbit.radius - delta * 0.08));
+        }
+        lastTouchDist = dist;
+      }
+    }, { passive: false });
+
+    canvas.addEventListener('touchend', (e) => {
+      if (touchStartPos && e.changedTouches.length === 1) {
+        const t = e.changedTouches[0];
+        const dt = Date.now() - touchStartPos.time;
+        const dx = Math.abs(t.clientX - touchStartPos.x);
+        const dy = Math.abs(t.clientY - touchStartPos.y);
+        if (dt < 300 && dx < 10 && dy < 10) {
+          this.handleTap(t);
+        }
+      }
+      touchStart = null;
+      touchStartPos = null;
+      lastTouchDist = null;
+    });
+
+    // Close info panel on tap outside buildings
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Escape') {
+        const panel = document.getElementById('info-panel');
+        if (panel && !panel.classList.contains('hidden')) {
+          panel.classList.add('hidden');
+        }
+      }
+    });
+  }
+
+  handleTap(touch) {
+    const rect = this.renderer.domElement.getBoundingClientRect();
+    const x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
+    const y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
+    this.raycaster.setFromCamera(new THREE.Vector2(x, y), this.camera);
+    const intersects = this.raycaster.intersectObjects(this.scene.children, true);
+
+    let hitGroup = null;
+    for (const hit of intersects) {
+      let obj = hit.object;
+      while (obj.parent && !obj.userData?.id) {
+        obj = obj.parent;
+      }
+      if (obj.userData?.id) {
+        hitGroup = obj;
+        break;
+      }
+    }
+
+    if (hitGroup) {
+      if (this.hoveredGroup) highlightBuilding(this.hoveredGroup, false);
+      this.hoveredGroup = hitGroup;
+      highlightBuilding(hitGroup, true);
+      this.selectedBuilding = hitGroup.userData;
+      this.container.dispatchEvent(new CustomEvent('building-select', {
+        detail: this.selectedBuilding,
+        bubbles: true,
+      }));
+    } else {
+      if (this.hoveredGroup) highlightBuilding(this.hoveredGroup, false);
+      this.hoveredGroup = null;
+      this.selectedBuilding = null;
+      this.container.dispatchEvent(new CustomEvent('building-select', {
+        detail: null,
+        bubbles: true,
+      }));
+    }
+  }
+
+  updateOrbit(dt) {
+    const center = this.getTownCenter();
+    // Gradually resume auto-orbit after interaction
+    const timeSinceInteraction = (Date.now() - this.orbit.lastInteraction) / 1000;
+    const autoFactor = Math.min(1, Math.max(0, (timeSinceInteraction - 0.5) / 2));
+    this.orbit.angle += this.orbit.baseAutoSpeed * autoFactor * dt;
+
+    this.camera.position.set(
+      center.x + this.orbit.radius * Math.cos(this.orbit.angle),
+      this.orbit.height,
+      center.z + this.orbit.radius * Math.sin(this.orbit.angle)
+    );
+    this.camera.lookAt(center.x, 1.5, center.z);
+
+    // Shadow follows camera
+    this.sun.position.set(this.camera.position.x + 15, 20, this.camera.position.z + 10);
+    this.sun.target.position.set(center.x, 0, center.z);
+    this.sun.target.updateMatrixWorld();
   }
 
   updateMovement(dt) {
@@ -446,7 +595,11 @@ export class TownRenderer {
     requestAnimationFrame(() => this.animate());
     const dt = this.clock.getDelta();
 
-    this.updateMovement(dt);
+    if (this.isMobile) {
+      this.updateOrbit(dt);
+    } else {
+      this.updateMovement(dt);
+    }
 
     // Drift clouds
     if (this.clouds) {
@@ -456,7 +609,7 @@ export class TownRenderer {
       }
     }
 
-    if (this.isPointerLocked) {
+    if (!this.isMobile && this.isPointerLocked) {
       this.checkCrosshairHover();
     }
 
