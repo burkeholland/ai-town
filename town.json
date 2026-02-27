@@ -50,5 +50,18 @@
     },
     "issue": 11,
     "added": "2026-02-27"
+  },
+  {
+    "id": "martins-makerspace",
+    "name": "Martin's Makerspace",
+    "type": "public",
+    "description": "A glass-fronted workshop where makers and hackers are always welcome. Inside you'll find workbenches, 3D printers humming away, and pegboards lined with tools. A 'Hackers Welcome' sign glows green above the door — and if you look carefully, something small and fuzzy watches from the corner.",
+    "plot": 11,
+    "contributor": {
+      "username": "martinwoodward",
+      "avatar": "https://github.com/martinwoodward.png"
+    },
+    "issue": 10,
+    "added": "2026-02-27"
   }
 ]
