@@ -32,7 +32,7 @@
     "type": "entertainment",
     "zone": "Main Street East",
     "reasoning": "The grand theatre anchors Main Street East at x=35 — walking east from the plaza, the art-deco marquee draws visitors toward the entertainment district. The scale justifies a prominent Main Street position.",
-    "vision": "Main Street East (x=35 to x=45) is the culture district. Reddington's and Makerspace create a creative corridor. Plot 14 (x=45, eastern terminus) caps the street — an arcade, late-night café, or art gallery. The street has a beginning, middle, and end.",
+    "vision": "Main Street East (x=35 to x=45) is the culture district. Reddington's and Makerspace create a creative corridor. Plots 12-13 (across the street) serve the theatre crowd. The street has a beginning, middle, and end — capped by Fish Soup at the waterfront.",
     "date": "2026-02-27"
   },
   {
@@ -60,6 +60,15 @@
     "zone": "South Path",
     "reasoning": "The gazebo anchors the far south at (24,45) — a village green where the band plays on summer evenings. Walk south through a residential neighborhood and arrive at a park. Parks aren't downtown — they're at the edge where there's SPACE.",
     "vision": "The South Path (z=25 to z=45) mirrors the north with community/nature character. Future plots (20-23) should be homes and community spaces — cottage gardens, a playground. Leave town, arrive at a park.",
+    "date": "2026-02-27"
+  },
+  {
+    "plot": 14,
+    "building": "fish-soup",
+    "type": "restaurant",
+    "zone": "Main Street East (Waterfront)",
+    "reasoning": "Fish Soup is described as 'perched on the coastline' — a swordfish-shaped restaurant needs water. Plot 14 (x=45, z=26) is the easternmost point on the map, the terminus of Main Street East. Imagine the coast running along the eastern edge: this building IS the waterfront. Walk east down Main Street past the theatre and makerspace, and you arrive at the sea — where a giant swordfish restaurant awaits.",
+    "vision": "The eastern edge of the map (x=45) is now the waterfront. Fish Soup establishes this as the coastline. Future waterfront buildings (plots 30, 32) could extend this — a marina, a lighthouse, a fish market. The town faces east toward the sea.",
     "date": "2026-02-27"
   }
 ]
