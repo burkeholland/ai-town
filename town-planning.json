@@ -4,7 +4,8 @@
     "building": "town-hall",
     "type": "public",
     "zone": "Town Square",
-    "reasoning": "The Town Hall anchors the center of the village as the civic heart — every great town starts here.",
+    "reasoning": "The Town Hall is the anchor of AI Town — every village needs a civic heart. Plot 0 at the dead center establishes the visual and symbolic center of gravity. All roads radiate outward from here, making the clock tower visible from every approach. This sets the tone: AI Town is a proper community, not a random collection of buildings.",
+    "vision": "The Town Square should remain dignified and civic-minded. Future square plots (1-4) are reserved for landmark buildings that complement the Town Hall — think library, post office, or an iconic shop. Nothing should overshadow the clock tower.",
     "date": "2026-02-26"
   },
   {
@@ -12,7 +13,8 @@
     "building": "ashleys-antiques",
     "type": "shop",
     "zone": "Town Square",
-    "reasoning": "A quirky antique shop adds character to the town square. Positioned NW so visitors see it immediately when arriving.",
+    "reasoning": "An antique shop adds warmth and nostalgia to the town square — it's the kind of quirky, beloved store that defines a village's character. Positioned NW of the fountain, visitors see it immediately when arriving. The early internet artifacts give the town personality and humor, perfectly complementing the formal Town Hall across the square.",
+    "vision": "The square is developing a 'civic + character' identity. The remaining plots (3, 4) should balance this — perhaps a community-facing public building on one side, and another distinctive shop on the other. We want the square to feel like a place you'd linger.",
     "date": "2026-02-27"
   },
   {
@@ -20,7 +22,8 @@
     "building": "hilberts-hotel",
     "type": "other",
     "zone": "Town Square",
-    "reasoning": "The infinite hotel is a landmark — its mathematical grandeur earns a prominent spot NE of the square, visible from Main Street East.",
+    "reasoning": "Hilbert's Hotel is a mathematical landmark — its infinite-rooms concept makes it a genuine curiosity and conversation piece. The brutalist high-rise with golden mathematical symbols creates a striking visual contrast with the classical Town Hall, giving the square architectural tension. NE of the square, it's the first thing visitors see coming from Main Street East.",
+    "vision": "With the antique shop (quirky-warm) and the hotel (intellectual-bold), the square has a nice duality. The remaining SW plot (3) would be perfect for something community-oriented — a garden, library, or café — to soften the square. Plot 4 (SE) could be another landmark with character.",
     "date": "2026-02-27"
   },
   {
@@ -28,7 +31,8 @@
     "building": "pierces-pub",
     "type": "restaurant",
     "zone": "Main Street West",
-    "reasoning": "A neighborhood pub belongs on Main Street where people naturally gather. First stop on the western commercial strip.",
+    "reasoning": "Every village needs a pub, and it belongs on Main Street where people naturally gather. Plot 5 anchors the western commercial strip — it's the first storefront you encounter heading west from the square. The 'not fancy but it's home' vibe sets the tone for a friendly, accessible commercial district.",
+    "vision": "Main Street West is becoming the 'everyday essentials' strip. The pub sets a warm, welcoming tone. Next plots (6-9) should build on this with complementary businesses — a bakery, a bookshop, a general store, a café. We want this street to feel like a place locals go daily, not a tourist trap.",
     "date": "2026-02-26"
   },
   {
@@ -36,7 +40,8 @@
     "building": "reddingtons",
     "type": "entertainment",
     "zone": "Main Street East",
-    "reasoning": "A grand West End theatre anchors the entertainment district on Main Street East. Its marquee draws people eastward.",
+    "reasoning": "A grand West End theatre anchors the entertainment district on Main Street East. Its 300-seat auditorium and art-deco styling bring culture and grandeur to the east side — the marquee advertising 'Octocats Code' is a delightful community touch. This plot faces the road prominently, drawing people eastward from the square.",
+    "vision": "Main Street East is the 'culture and nightlife' district. With the theatre as anchor, future plots (12-14) could host an arcade, a music venue, or an art gallery. We want this side of town to feel vibrant and a bit more glamorous than the cozy west side. The contrast between west (everyday) and east (entertainment) gives the town character.",
     "date": "2026-02-27"
   },
   {
@@ -44,7 +49,8 @@
     "building": "martins-makerspace",
     "type": "public",
     "zone": "Main Street East",
-    "reasoning": "A public makerspace next to the theatre creates a creative hub on the east side — makers and performers side by side.",
+    "reasoning": "A public makerspace next to the theatre creates a creative hub on the east side. Makers and performers share a creative spirit — 3D printers humming next door to rehearsals feels natural. The glass-fronted workshop and green 'Hackers Welcome' sign add visual variety to the streetscape alongside the theatre's art-deco facade.",
+    "vision": "The east side creative corridor is taking shape: theatre + makerspace. Future additions should continue this theme — perhaps an art supply shop, a gallery, or a music venue. The 'something fuzzy watching from the corner' detail adds whimsy that balances the institutional feel of a public building.",
     "date": "2026-02-27"
   }
 ]
