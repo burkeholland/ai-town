@@ -1063,10 +1063,11 @@ CUSTOM_BUILDERS['the-cat-bookshop'] = function (group, building) {
 
   // ── Second floor round window ──
   const roundWinGeo = new THREE.CircleGeometry(0.18, 16);
-  const roundWinMat = new THREE.MeshStandardMaterial({
+  const roundWinMat = new THREE.MeshPhysicalMaterial({
     color: 0xbfdbfe,
     emissive: 0x60a5fa,
     emissiveIntensity: 0.15,
+    transparent: true, opacity: 0.35, transmission: 0.6, roughness: 0.1, thickness: 0.05,
   });
   const roundWin = new THREE.Mesh(roundWinGeo, roundWinMat);
   roundWin.position.set(0, floor1H + 0.12 + floor2H * 0.5, wallD / 2 + 0.03);
@@ -1080,10 +1081,11 @@ CUSTOM_BUILDERS['the-cat-bookshop'] = function (group, building) {
 
   // Side windows (2nd floor)
   const sideWinGeo = new THREE.BoxGeometry(0.05, 0.28, 0.22);
-  const sideWinMat = new THREE.MeshStandardMaterial({
+  const sideWinMat = new THREE.MeshPhysicalMaterial({
     color: 0xbfdbfe,
     emissive: 0x60a5fa,
     emissiveIntensity: 0.1,
+    transparent: true, opacity: 0.35, transmission: 0.6, roughness: 0.1, thickness: 0.05,
   });
   const sideWin = new THREE.Mesh(sideWinGeo, sideWinMat);
   sideWin.position.set(wallW / 2 + 0.03, floor1H + 0.12 + floor2H * 0.5, 0);
@@ -1137,7 +1139,7 @@ CUSTOM_BUILDERS['ashleys-antiques'] = function (group, building) {
   const roofMat     = new THREE.MeshStandardMaterial({ color: 0x2d0a4e, roughness: 0.9 });  // very dark purple
   const trimMat     = new THREE.MeshStandardMaterial({ color: 0x7c3aed, roughness: 0.7 });  // mid purple trim
   const doorMat     = new THREE.MeshStandardMaterial({ color: 0x1e0a3c, roughness: 0.7 });  // near-black door
-  const winMat      = new THREE.MeshStandardMaterial({ color: 0xc4b5fd, emissive: 0x8b5cf6, emissiveIntensity: 0.3 }); // lavender glow
+  const winMat      = new THREE.MeshPhysicalMaterial({ color: 0xc4b5fd, emissive: 0x8b5cf6, emissiveIntensity: 0.3, transparent: true, opacity: 0.35, transmission: 0.6, roughness: 0.1, thickness: 0.05 });
   const woodMat     = new THREE.MeshStandardMaterial({ color: 0x6b3a1f, roughness: 0.9 });  // shelf wood
   const counterMat  = new THREE.MeshStandardMaterial({ color: 0x7c3d0c, roughness: 0.8 });  // counter wood
   const counterTopMat = new THREE.MeshStandardMaterial({ color: 0x5c2d0a, roughness: 0.6 });
@@ -1477,7 +1479,7 @@ CUSTOM_BUILDERS['martins-makerspace'] = function (group, building) {
   const concreteMat  = new THREE.MeshStandardMaterial({ color: 0xd1d5db, roughness: 0.9 });
   const wallMat      = new THREE.MeshStandardMaterial({ color: 0xf0f9ff, roughness: 0.8 });
   const metalMat     = new THREE.MeshStandardMaterial({ color: 0x4b5563, metalness: 0.5, roughness: 0.5 });
-  const glassMat     = new THREE.MeshStandardMaterial({ color: 0xbfdbfe, transparent: true, opacity: 0.38, roughness: 0.05 });
+  const glassMat     = new THREE.MeshPhysicalMaterial({ color: 0xbfdbfe, transparent: true, opacity: 0.35, transmission: 0.6, roughness: 0.1, thickness: 0.05 });
   const roofMat      = new THREE.MeshStandardMaterial({ color: 0x0ea5e9, roughness: 0.7 });
   const benchMat     = new THREE.MeshStandardMaterial({ color: 0x92400e, roughness: 0.8 });
   const metalLegMat  = new THREE.MeshStandardMaterial({ color: 0x374151, metalness: 0.4, roughness: 0.6 });
@@ -2291,7 +2293,7 @@ CUSTOM_BUILDERS['hilberts-hotel'] = function (group, building) {
   const concreteMat = new THREE.MeshStandardMaterial({ color: 0x4a5568, roughness: 0.85 });
   const darkMat     = new THREE.MeshStandardMaterial({ color: 0x2d3748, roughness: 0.9 });
   const trimMat     = new THREE.MeshStandardMaterial({ color: 0x718096, roughness: 0.7 });
-  const winMat      = new THREE.MeshStandardMaterial({ color: 0x93c5fd, emissive: 0x3b82f6, emissiveIntensity: 0.28 });
+  const winMat      = new THREE.MeshPhysicalMaterial({ color: 0x93c5fd, emissive: 0x3b82f6, emissiveIntensity: 0.28, transparent: true, opacity: 0.35, transmission: 0.6, roughness: 0.1, thickness: 0.05 });
   const goldMat     = new THREE.MeshStandardMaterial({ color: 0xd4a843, metalness: 0.55, roughness: 0.35 });
   const neonMat     = new THREE.MeshStandardMaterial({ color: 0x7c3aed, emissive: 0x7c3aed, emissiveIntensity: 0.9 });
   const doorMat     = new THREE.MeshStandardMaterial({ color: 0x1a1a2e, roughness: 0.5 });
