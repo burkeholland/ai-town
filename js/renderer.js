@@ -84,7 +84,7 @@ export class TownRenderer {
 
     // Renderer
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
-    this.renderer.setPixelRatio(window.devicePixelRatio);
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -330,7 +330,7 @@ export class TownRenderer {
     const x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
     const y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
     this.raycaster.setFromCamera(new THREE.Vector2(x, y), this.camera);
-    const intersects = this.raycaster.intersectObjects(this.scene.children, true);
+    const intersects = this.raycaster.intersectObjects(this.buildingGroups, true);
 
     let hitGroup = null;
     for (const hit of intersects) {
@@ -436,9 +436,9 @@ export class TownRenderer {
   }
 
   checkCrosshairInteraction() {
-    // Raycast from center of screen
+    // Raycast from center of screen — only against buildings, not full scene
     this.raycaster.setFromCamera(new THREE.Vector2(0, 0), this.camera);
-    const intersects = this.raycaster.intersectObjects(this.scene.children, true);
+    const intersects = this.raycaster.intersectObjects(this.buildingGroups, true);
 
     let hitGroup = null;
     for (const hit of intersects) {
@@ -470,7 +470,7 @@ export class TownRenderer {
 
   checkHover() {
     this.raycaster.setFromCamera(this.mouse, this.camera);
-    const intersects = this.raycaster.intersectObjects(this.scene.children, true);
+    const intersects = this.raycaster.intersectObjects(this.buildingGroups, true);
 
     let hitGroup = null;
     for (const hit of intersects) {
@@ -512,7 +512,7 @@ export class TownRenderer {
   // When pointer locked, highlight building at crosshair
   checkCrosshairHover() {
     this.raycaster.setFromCamera(new THREE.Vector2(0, 0), this.camera);
-    const intersects = this.raycaster.intersectObjects(this.scene.children, true);
+    const intersects = this.raycaster.intersectObjects(this.buildingGroups, true);
 
     let hitGroup = null;
     for (const hit of intersects) {
@@ -637,7 +637,9 @@ export class TownRenderer {
       }
     }
 
-    if (!this.isMobile && this.isPointerLocked) {
+    // Throttle raycasting to every 3rd frame
+    this._frameCount = (this._frameCount || 0) + 1;
+    if (!this.isMobile && this.isPointerLocked && this._frameCount % 3 === 0) {
       this.checkCrosshairHover();
     }
 

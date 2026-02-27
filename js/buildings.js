@@ -2,6 +2,14 @@
 
 import * as THREE from 'three';
 
+// Lightweight glow orb — replaces PointLight for zero GPU cost.
+// Returns a small emissive sphere that can be positioned and added like a light.
+const _glowGeo = new THREE.SphereGeometry(0.08, 4, 4);
+function createGlowOrb(color) {
+  const mat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.6 });
+  return new THREE.Mesh(_glowGeo, mat);
+}
+
 // Building type color schemes
 export const BUILDING_TYPES = {
   shop:          { roof: 0xff7f50, wall: 0xfef3c7, accent: 0xea580c, door: 0x92400e },
@@ -151,15 +159,13 @@ function buildStructure(group, building, type) {
 
   // Windows
   const winGeo = new THREE.BoxGeometry(0.3, 0.3, 0.05);
-  const winMat = new THREE.MeshPhysicalMaterial({
+  const winMat = new THREE.MeshStandardMaterial({
     color: 0xbfdbfe,
     emissive: 0x3b82f6,
     emissiveIntensity: 0.15,
     transparent: true,
     opacity: 0.35,
-    transmission: 0.6,
     roughness: 0.1,
-    thickness: 0.05,
   });
 
   // Front windows
@@ -336,7 +342,7 @@ CUSTOM_BUILDERS['town-hall'] = function (group, building) {
   const columnMat = new THREE.MeshStandardMaterial({ color: 0xf5f0e8, roughness: 0.5 });
   const roofMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.7 });
   const doorMat = new THREE.MeshStandardMaterial({ color: 0x3b1a0e, roughness: 0.6 });
-  const winMat = new THREE.MeshPhysicalMaterial({ color: 0xbfdbfe, emissive: 0x3b82f6, emissiveIntensity: 0.12, transparent: true, opacity: 0.35, transmission: 0.6, roughness: 0.1, thickness: 0.05 });
+  const winMat = new THREE.MeshStandardMaterial({ color: 0xbfdbfe, emissive: 0x3b82f6, emissiveIntensity: 0.12, transparent: true, opacity: 0.35, roughness: 0.1 });
   const goldMat = new THREE.MeshStandardMaterial({ color: 0xd4a843, metalness: 0.6, roughness: 0.3 });
 
   // ── STONE STEPS (3 wide steps leading up) ──
@@ -747,17 +753,17 @@ CUSTOM_BUILDERS['town-hall'] = function (group, building) {
     lb.position.set(lx, baseH + 1.42, D / 2 + 0.18);
     group.add(lb);
     // Lantern glow
-    const lanternLight = new THREE.PointLight(0xfbbf24, 0.3, 3);
+    const lanternLight = createGlowOrb(0xfbbf24);
     lanternLight.position.set(lx, baseH + 1.42, D / 2 + 0.25);
     group.add(lanternLight);
   }
 
   // ── INTERIOR GLOW ──
-  const glow = new THREE.PointLight(0xfbbf24, 0.8, 8);
+  const glow = createGlowOrb(0xfbbf24);
   glow.position.set(0, baseH + 1.5, 0);
   group.add(glow);
 
-  const towerGlow = new THREE.PointLight(0xfef3c7, 0.5, 10);
+  const towerGlow = createGlowOrb(0xfef3c7);
   towerGlow.position.set(0, towerBase + towerH * 0.5, 0);
   group.add(towerGlow);
 
@@ -954,13 +960,11 @@ CUSTOM_BUILDERS['the-cat-bookshop'] = function (group, building) {
 
   // Bay window glass — very transparent so you can see the cat + books
   const glassGeo = new THREE.BoxGeometry(bayW - 0.08, bayH - 0.1, 0.02);
-  const glassMat = new THREE.MeshPhysicalMaterial({
+  const glassMat = new THREE.MeshStandardMaterial({
     color: 0xffffff,
-    transmission: 0.9,
     transparent: true,
     opacity: 0.2,
     roughness: 0.05,
-    thickness: 0.02,
   });
   const glass = new THREE.Mesh(glassGeo, glassMat);
   glass.position.set(0.35, 0.6, wallD / 2 + bayD + 0.01);
@@ -1064,11 +1068,11 @@ CUSTOM_BUILDERS['the-cat-bookshop'] = function (group, building) {
 
   // ── Second floor round window ──
   const roundWinGeo = new THREE.CircleGeometry(0.18, 16);
-  const roundWinMat = new THREE.MeshPhysicalMaterial({
+  const roundWinMat = new THREE.MeshStandardMaterial({
     color: 0xbfdbfe,
     emissive: 0x60a5fa,
     emissiveIntensity: 0.15,
-    transparent: true, opacity: 0.35, transmission: 0.6, roughness: 0.1, thickness: 0.05,
+    transparent: true, opacity: 0.35, roughness: 0.1,
   });
   const roundWin = new THREE.Mesh(roundWinGeo, roundWinMat);
   roundWin.position.set(0, floor1H + 0.12 + floor2H * 0.5, wallD / 2 + 0.03);
@@ -1082,11 +1086,11 @@ CUSTOM_BUILDERS['the-cat-bookshop'] = function (group, building) {
 
   // Side windows (2nd floor)
   const sideWinGeo = new THREE.BoxGeometry(0.05, 0.28, 0.22);
-  const sideWinMat = new THREE.MeshPhysicalMaterial({
+  const sideWinMat = new THREE.MeshStandardMaterial({
     color: 0xbfdbfe,
     emissive: 0x60a5fa,
     emissiveIntensity: 0.1,
-    transparent: true, opacity: 0.35, transmission: 0.6, roughness: 0.1, thickness: 0.05,
+    transparent: true, opacity: 0.35, roughness: 0.1,
   });
   const sideWin = new THREE.Mesh(sideWinGeo, sideWinMat);
   sideWin.position.set(wallW / 2 + 0.03, floor1H + 0.12 + floor2H * 0.5, 0);
@@ -1118,7 +1122,7 @@ CUSTOM_BUILDERS['the-cat-bookshop'] = function (group, building) {
   group.add(awning);
 
   // Warm interior glow (point light)
-  const glow = new THREE.PointLight(0xfbbf24, 0.5, 4);
+  const glow = createGlowOrb(0xfbbf24);
   glow.position.set(0, 0.8, 0);
   group.add(glow);
 
@@ -1140,7 +1144,7 @@ CUSTOM_BUILDERS['ashleys-antiques'] = function (group, building) {
   const roofMat     = new THREE.MeshStandardMaterial({ color: 0x2d0a4e, roughness: 0.9 });  // very dark purple
   const trimMat     = new THREE.MeshStandardMaterial({ color: 0x7c3aed, roughness: 0.7 });  // mid purple trim
   const doorMat     = new THREE.MeshStandardMaterial({ color: 0x1e0a3c, roughness: 0.7 });  // near-black door
-  const winMat      = new THREE.MeshPhysicalMaterial({ color: 0xc4b5fd, emissive: 0x8b5cf6, emissiveIntensity: 0.3, transparent: true, opacity: 0.35, transmission: 0.6, roughness: 0.1, thickness: 0.05 });
+  const winMat      = new THREE.MeshStandardMaterial({ color: 0xc4b5fd, emissive: 0x8b5cf6, emissiveIntensity: 0.3, transparent: true, opacity: 0.35, roughness: 0.1 });
   const woodMat     = new THREE.MeshStandardMaterial({ color: 0x6b3a1f, roughness: 0.9 });  // shelf wood
   const counterMat  = new THREE.MeshStandardMaterial({ color: 0x7c3d0c, roughness: 0.8 });  // counter wood
   const counterTopMat = new THREE.MeshStandardMaterial({ color: 0x5c2d0a, roughness: 0.6 });
@@ -1280,7 +1284,7 @@ CUSTOM_BUILDERS['pierces-pub'] = function (group, building) {
   const beamMat    = new THREE.MeshStandardMaterial({ color: 0x4a2e0e, roughness: 0.9 });  // dark oak beams
   const roofMat    = new THREE.MeshStandardMaterial({ color: 0x3d2b1a, roughness: 0.95 }); // near-black thatch/slate
   const doorMat    = new THREE.MeshStandardMaterial({ color: 0x2e1a0e, roughness: 0.7 });
-  const winMat     = new THREE.MeshPhysicalMaterial({ color: 0xfde68a, emissive: 0xfbbf24, emissiveIntensity: 0.35, transparent: true, opacity: 0.4, transmission: 0.5, roughness: 0.1, thickness: 0.05 }); // warm amber glow
+  const winMat     = new THREE.MeshStandardMaterial({ color: 0xfde68a, emissive: 0xfbbf24, emissiveIntensity: 0.35, transparent: true, opacity: 0.4, roughness: 0.1 }); // warm amber glow
   const metalMat   = new THREE.MeshStandardMaterial({ color: 0x4b3621, metalness: 0.5, roughness: 0.5 });
   const barrelMat  = new THREE.MeshStandardMaterial({ color: 0x6b3a1f, roughness: 0.9 });
   const hoopMat    = new THREE.MeshStandardMaterial({ color: 0x374151, metalness: 0.4, roughness: 0.6 });
@@ -1450,7 +1454,7 @@ CUSTOM_BUILDERS['pierces-pub'] = function (group, building) {
   group.add(step);
 
   // ── WARM INTERIOR GLOW ──
-  const glow = new THREE.PointLight(0xfbbf24, 0.8, 5);
+  const glow = createGlowOrb(0xfbbf24);
   glow.position.set(0, baseH + wallH * 0.5, 0);
   group.add(glow);
 
@@ -1460,7 +1464,7 @@ CUSTOM_BUILDERS['pierces-pub'] = function (group, building) {
   const lantern = new THREE.Mesh(lanternBodyGeo, lanternMat);
   lantern.position.set(-0.35, baseH + wallH * 0.88, D / 2 + 0.12);
   group.add(lantern);
-  const lanternLight = new THREE.PointLight(0xfbbf24, 0.5, 2.5);
+  const lanternLight = createGlowOrb(0xfbbf24);
   lanternLight.position.set(-0.35, baseH + wallH * 0.85, D / 2 + 0.2);
   group.add(lanternLight);
 
@@ -1480,7 +1484,7 @@ CUSTOM_BUILDERS['martins-makerspace'] = function (group, building) {
   const concreteMat  = new THREE.MeshStandardMaterial({ color: 0xd1d5db, roughness: 0.9 });
   const wallMat      = new THREE.MeshStandardMaterial({ color: 0xf0f9ff, roughness: 0.8 });
   const metalMat     = new THREE.MeshStandardMaterial({ color: 0x4b5563, metalness: 0.5, roughness: 0.5 });
-  const glassMat     = new THREE.MeshPhysicalMaterial({ color: 0xbfdbfe, transparent: true, opacity: 0.35, transmission: 0.6, roughness: 0.1, thickness: 0.05 });
+  const glassMat     = new THREE.MeshStandardMaterial({ color: 0xbfdbfe, transparent: true, opacity: 0.35, roughness: 0.1 });
   const roofMat      = new THREE.MeshStandardMaterial({ color: 0x0ea5e9, roughness: 0.7 });
   const benchMat     = new THREE.MeshStandardMaterial({ color: 0x92400e, roughness: 0.8 });
   const metalLegMat  = new THREE.MeshStandardMaterial({ color: 0x374151, metalness: 0.4, roughness: 0.6 });
@@ -1777,11 +1781,11 @@ CUSTOM_BUILDERS['martins-makerspace'] = function (group, building) {
   group.add(screen2);
 
   // ── INTERIOR LIGHT ──
-  const glow = new THREE.PointLight(0xe0f2fe, 1.2, 6);
+  const glow = createGlowOrb(0xe0f2fe);
   glow.position.set(0, baseH + wallH * 0.7, 0);
   group.add(glow);
   // Sign glow
-  const signGlow = new THREE.PointLight(0x00e676, 0.4, 1.5);
+  const signGlow = createGlowOrb(0x00e676);
   signGlow.position.set(0, signY, D / 2 + 0.2);
   group.add(signGlow);
 
@@ -1885,7 +1889,7 @@ CUSTOM_BUILDERS['reddingtons'] = function (group, building) {
   const trimMat     = new THREE.MeshStandardMaterial({ color: 0xFFFEF0, roughness: 0.7 });
   const roofMat     = new THREE.MeshStandardMaterial({ color: 0x2a2a3a, roughness: 0.8 });
   const doorMat     = new THREE.MeshStandardMaterial({ color: 0x1A1A1A, roughness: 0.6 });
-  const winMat      = new THREE.MeshPhysicalMaterial({ color: 0xbfdbfe, emissive: 0x3b82f6, emissiveIntensity: 0.15, transparent: true, opacity: 0.35, transmission: 0.6, roughness: 0.1, thickness: 0.05 });
+  const winMat      = new THREE.MeshStandardMaterial({ color: 0xbfdbfe, emissive: 0x3b82f6, emissiveIntensity: 0.15, transparent: true, opacity: 0.35, roughness: 0.1 });
   const glowWinMat  = new THREE.MeshStandardMaterial({ color: 0xfde68a, emissive: 0xfbbf24, emissiveIntensity: 0.5 });
   const goldMat     = new THREE.MeshStandardMaterial({ color: 0xD4AF37, metalness: 0.6, roughness: 0.3 });
   const brassMat    = new THREE.MeshStandardMaterial({ color: 0xFFD700, metalness: 0.5, roughness: 0.35 });
@@ -2149,7 +2153,7 @@ CUSTOM_BUILDERS['reddingtons'] = function (group, building) {
     lTop.position.set(lx, baseH + 0.8, z_front + 0.16);
     lTop.rotation.y = Math.PI / 4;
     group.add(lTop);
-    const lLight = new THREE.PointLight(0xfbbf24, 0.4, 2.5);
+    const lLight = createGlowOrb(0xfbbf24);
     lLight.position.set(lx, baseH + 0.65, z_front + 0.23);
     group.add(lLight);
   }
@@ -2266,13 +2270,13 @@ CUSTOM_BUILDERS['reddingtons'] = function (group, building) {
   }
 
   // ── INTERIOR GLOW ──
-  const glow1 = new THREE.PointLight(0xc4b5fd, 0.9, 7);
+  const glow1 = createGlowOrb(0xc4b5fd);
   glow1.position.set(0, baseH + floor1H * 0.5, z_fC);
   group.add(glow1);
-  const glow2 = new THREE.PointLight(0xfbbf24, 0.5, 4);
+  const glow2 = createGlowOrb(0xfbbf24);
   glow2.position.set(0, floor2Base + 0.55, z_fC);
   group.add(glow2);
-  const glow3 = new THREE.PointLight(0xff8800, 0.3, 5);
+  const glow3 = createGlowOrb(0xff8800);
   glow3.position.set(0, baseH + 1.2, z_flyC);
   group.add(glow3);
 
@@ -2294,7 +2298,7 @@ CUSTOM_BUILDERS['hilberts-hotel'] = function (group, building) {
   const concreteMat = new THREE.MeshStandardMaterial({ color: 0x4a5568, roughness: 0.85 });
   const darkMat     = new THREE.MeshStandardMaterial({ color: 0x2d3748, roughness: 0.9 });
   const trimMat     = new THREE.MeshStandardMaterial({ color: 0x718096, roughness: 0.7 });
-  const winMat      = new THREE.MeshPhysicalMaterial({ color: 0x93c5fd, emissive: 0x3b82f6, emissiveIntensity: 0.28, transparent: true, opacity: 0.35, transmission: 0.6, roughness: 0.1, thickness: 0.05 });
+  const winMat      = new THREE.MeshStandardMaterial({ color: 0x93c5fd, emissive: 0x3b82f6, emissiveIntensity: 0.28, transparent: true, opacity: 0.35, roughness: 0.1 });
   const goldMat     = new THREE.MeshStandardMaterial({ color: 0xd4a843, metalness: 0.55, roughness: 0.35 });
   const neonMat     = new THREE.MeshStandardMaterial({ color: 0x7c3aed, emissive: 0x7c3aed, emissiveIntensity: 0.9 });
   const doorMat     = new THREE.MeshStandardMaterial({ color: 0x1a1a2e, roughness: 0.5 });
@@ -2528,10 +2532,10 @@ CUSTOM_BUILDERS['hilberts-hotel'] = function (group, building) {
   group.add(penthouse);
 
   // ── INTERIOR GLOW ──
-  const glow = new THREE.PointLight(0x7c3aed, 0.55, 9);
+  const glow = createGlowOrb(0x7c3aed);
   glow.position.set(0, baseH + totalWallH * 0.45, 0);
   group.add(glow);
-  const roofGlow = new THREE.PointLight(0xd4a843, 0.45, 4);
+  const roofGlow = createGlowOrb(0xd4a843);
   roofGlow.position.set(0, roofY + 1.1, D / 2 + 0.1);
   group.add(roofGlow);
 
@@ -2885,7 +2889,7 @@ CUSTOM_BUILDERS['town-green-gazebo'] = function (group, building) {
     const lantern = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.16, 0.12), brassMat);
     lantern.position.set(ld.x, ceilY - ld.drop, ld.z);
     group.add(lantern);
-    const glow = new THREE.PointLight(0xfbbf24, 0.25, 3.5);
+    const glow = createGlowOrb(0xfbbf24);
     glow.position.set(ld.x, ceilY - ld.drop - 0.05, ld.z);
     group.add(glow);
   }
@@ -2917,13 +2921,13 @@ CUSTOM_BUILDERS['fish-soup'] = function (group, building) {
   const eyeHLMat   = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.5 });
   const neonMat    = new THREE.MeshStandardMaterial({ color: 0xff6b9d, emissive: 0xff6b9d, emissiveIntensity: 0.8 });
   const ropeMat    = new THREE.MeshStandardMaterial({ color: 0xD2691E, roughness: 0.9 });
-  const winMat     = new THREE.MeshPhysicalMaterial({
+  const winMat     = new THREE.MeshStandardMaterial({
     color: 0xbfdbfe, emissive: 0x3b82f6, emissiveIntensity: 0.15,
-    transparent: true, opacity: 0.35, transmission: 0.6, roughness: 0.1, thickness: 0.05,
+    transparent: true, opacity: 0.35, roughness: 0.1,
   });
-  const billMat    = new THREE.MeshPhysicalMaterial({
+  const billMat    = new THREE.MeshStandardMaterial({
     color: 0xbfdbfe, emissive: 0x3b82f6, emissiveIntensity: 0.12,
-    transparent: true, opacity: 0.4, transmission: 0.6, roughness: 0.05, thickness: 0.04,
+    transparent: true, opacity: 0.4, roughness: 0.05,
   });
   const tealIntMat = new THREE.MeshStandardMaterial({ color: 0x2C5F7D, emissive: 0x7dd3fc, emissiveIntensity: 0.2 });
 
@@ -3107,7 +3111,7 @@ CUSTOM_BUILDERS['fish-soup'] = function (group, building) {
   group.add(estLine);
 
   // Neon glow point light
-  const neonGlow = new THREE.PointLight(0xff6b9d, 0.7, 3);
+  const neonGlow = createGlowOrb(0xff6b9d);
   neonGlow.position.set(0, 1.97, 0.65);
   group.add(neonGlow);
 
@@ -3207,11 +3211,11 @@ CUSTOM_BUILDERS['fish-soup'] = function (group, building) {
   }
 
   // ── INTERIOR AQUATIC GLOW ─────────────────────────────────────────────────
-  const aquaGlow = new THREE.PointLight(0x7dd3fc, 0.7, 4.5);
+  const aquaGlow = createGlowOrb(0x7dd3fc);
   aquaGlow.position.set(0, 1.2, 0);
   group.add(aquaGlow);
 
-  const warmGlow = new THREE.PointLight(0xfbbf24, 0.45, 3);
+  const warmGlow = createGlowOrb(0xfbbf24);
   warmGlow.position.set(0, 1.0, 0.6);
   group.add(warmGlow);
 
@@ -3244,9 +3248,9 @@ CUSTOM_BUILDERS['serenity'] = function (group, building) {
   const coalMat      = new THREE.MeshStandardMaterial({ color: 0x1A1A1A });
   const hatMat       = new THREE.MeshStandardMaterial({ color: 0x111111 });
   const treeGreenMat = new THREE.MeshStandardMaterial({ color: 0x1B4D1B });
-  const warmWinMat   = new THREE.MeshPhysicalMaterial({
+  const warmWinMat   = new THREE.MeshStandardMaterial({
     color: 0xFFC857, emissive: 0xFFC857, emissiveIntensity: 0.4,
-    transparent: true, opacity: 0.45, transmission: 0.4, roughness: 0.1, thickness: 0.05,
+    transparent: true, opacity: 0.45, roughness: 0.1,
   });
 
   // ── FOUNDATION ──────────────────────────────────────────────────────────────
@@ -3367,7 +3371,7 @@ CUSTOM_BUILDERS['serenity'] = function (group, building) {
     flame.position.set(wx, baseH + wallH * 0.26 + 0.17, D / 2 - 0.08);
     group.add(flame);
     // Candle light
-    const cLight = new THREE.PointLight(0xFFC857, 0.35, 1.8);
+    const cLight = createGlowOrb(0xFFC857);
     cLight.position.set(wx, baseH + wallH * 0.45, D / 2 - 0.2);
     group.add(cLight);
   }
@@ -3430,7 +3434,7 @@ CUSTOM_BUILDERS['serenity'] = function (group, building) {
     group.add(ribbon);
   }
   // Tree glow
-  const treeLight = new THREE.PointLight(0xFFFFCC, 0.5, 1.4);
+  const treeLight = createGlowOrb(0xFFFFCC);
   treeLight.position.set(treeX, baseH + 0.6, treeZ);
   group.add(treeLight);
 
@@ -3520,7 +3524,7 @@ CUSTOM_BUILDERS['serenity'] = function (group, building) {
   }
 
   // ── WARM INTERIOR GLOW ─────────────────────────────────────────────────────
-  const warmGlow = new THREE.PointLight(0xFFE5B4, 0.5, 2.5);
+  const warmGlow = createGlowOrb(0xFFE5B4);
   warmGlow.position.set(0, baseH + 0.8, D / 2 - 0.3);
   group.add(warmGlow);
 
@@ -3630,45 +3634,38 @@ function seedRandom(seed) {
 }
 
 // Scenery tree
+// Shared materials for scenery (avoid per-object allocations)
+const _treeTrunkMat = new THREE.MeshStandardMaterial({ color: 0x6b3a1f });
+const _treeCanopyMats = [0x2d7d32, 0x388e3c, 0x43a047, 0x4caf50].map(
+  c => new THREE.MeshStandardMaterial({ color: c, roughness: 0.9, flatShading: true })
+);
+const _rockMat = new THREE.MeshStandardMaterial({ color: 0x9ca3af, roughness: 0.95, flatShading: true });
+
 export function createSceneryTree(x, z, scale = 1) {
   const group = new THREE.Group();
   const rand = seedRandom(Math.floor(x * 100 + z * 7));
 
   const trunkH = (1.2 + rand() * 0.8) * scale;
-  const trunkGeo = new THREE.CylinderGeometry(0.08 * scale, 0.14 * scale, trunkH, 6);
-  const trunkMat = new THREE.MeshStandardMaterial({ color: 0x6b3a1f });
-  const trunk = new THREE.Mesh(trunkGeo, trunkMat);
+  const trunkGeo = new THREE.CylinderGeometry(0.08 * scale, 0.14 * scale, trunkH, 5);
+  const trunk = new THREE.Mesh(trunkGeo, _treeTrunkMat);
   trunk.position.y = trunkH / 2;
-  trunk.castShadow = true;
   group.add(trunk);
 
   // Single large canopy (cone shape — like an evergreen)
   const canopyH = (1.5 + rand() * 1.0) * scale;
   const canopyR = (0.7 + rand() * 0.4) * scale;
-  const canopyGeo = new THREE.ConeGeometry(canopyR, canopyH, 7);
-  const greens = [0x2d7d32, 0x388e3c, 0x43a047, 0x4caf50];
-  const canopyMat = new THREE.MeshStandardMaterial({
-    color: greens[Math.floor(rand() * greens.length)],
-    roughness: 0.9,
-    flatShading: true,
-  });
+  const canopyGeo = new THREE.ConeGeometry(canopyR, canopyH, 6);
+  const canopyMat = _treeCanopyMats[Math.floor(rand() * _treeCanopyMats.length)];
   const canopy = new THREE.Mesh(canopyGeo, canopyMat);
   canopy.position.y = trunkH + canopyH * 0.35;
-  canopy.castShadow = true;
   group.add(canopy);
 
   // Second smaller layer on top
   const topH = canopyH * 0.6;
   const topR = canopyR * 0.55;
-  const topGeo = new THREE.ConeGeometry(topR, topH, 7);
-  const topMat = new THREE.MeshStandardMaterial({
-    color: 0x2e7d32,
-    roughness: 0.9,
-    flatShading: true,
-  });
-  const top = new THREE.Mesh(topGeo, topMat);
+  const topGeo = new THREE.ConeGeometry(topR, topH, 6);
+  const top = new THREE.Mesh(topGeo, _treeCanopyMats[0]);
   top.position.y = trunkH + canopyH * 0.7;
-  top.castShadow = true;
   group.add(top);
 
   group.position.set(x, 0, z);
@@ -3678,17 +3675,11 @@ export function createSceneryTree(x, z, scale = 1) {
 // Rock
 export function createRock(x, z, scale = 1) {
   const geo = new THREE.DodecahedronGeometry(0.3 * scale, 0);
-  const mat = new THREE.MeshStandardMaterial({
-    color: 0x9ca3af,
-    roughness: 0.95,
-    flatShading: true,
-  });
-  const rock = new THREE.Mesh(geo, mat);
+  const rock = new THREE.Mesh(geo, _rockMat);
   rock.position.set(x, 0.12 * scale, z);
   const s = Math.floor(x * 7 + z * 13);
   rock.rotation.set(s * 0.3, s * 0.7, s * 0.5);
   rock.scale.set(1, 0.5 + (s % 5) * 0.1, 1);
-  rock.castShadow = true;
   rock.receiveShadow = true;
   return rock;
 }
@@ -3778,9 +3769,9 @@ CUSTOM_BUILDERS['the-bug-museum'] = function (group, building) {
   const cyanMat      = new THREE.MeshStandardMaterial({ color: 0x00ffff, roughness: 0.5 });
   const blackMat     = new THREE.MeshStandardMaterial({ color: 0x000000, roughness: 0.8 });
   const magentaMat   = new THREE.MeshStandardMaterial({ color: 0xff00ff, roughness: 0.7 });
-  const winMat       = new THREE.MeshPhysicalMaterial({
+  const winMat       = new THREE.MeshStandardMaterial({
     color: 0xbfdbfe, emissive: 0x3b82f6, emissiveIntensity: 0.15,
-    transparent: true, opacity: 0.35, transmission: 0.6, roughness: 0.1, thickness: 0.05,
+    transparent: true, opacity: 0.35, roughness: 0.1,
   });
   const goldMat      = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.5, roughness: 0.4 });
   const floorMat     = new THREE.MeshStandardMaterial({ color: 0xf9fafb, roughness: 0.7 });
@@ -4014,9 +4005,9 @@ CUSTOM_BUILDERS['the-bug-museum'] = function (group, building) {
   }
 
   // ── INTERIOR: GLASS DISPLAY CASE (404 Fossil, center) ──
-  const caseMat = new THREE.MeshPhysicalMaterial({
+  const caseMat = new THREE.MeshStandardMaterial({
     color: 0x00ffff, emissive: 0x00ffff, emissiveIntensity: 0.05,
-    transparent: true, opacity: 0.15, transmission: 0.8, roughness: 0.05, thickness: 0.04,
+    transparent: true, opacity: 0.15, roughness: 0.05,
   });
   // Case walls
   const caseGroup = new THREE.Group();
@@ -4094,7 +4085,7 @@ CUSTOM_BUILDERS['the-bug-museum'] = function (group, building) {
     spotBody.position.set(sx, spotY, sz);
     group.add(spotBody);
     // Warm glow downward
-    const spotLight = new THREE.PointLight(0xfef3c7, 0.4, 2.5);
+    const spotLight = createGlowOrb(0xfef3c7);
     spotLight.position.set(sx, spotY - 0.1, sz);
     group.add(spotLight);
   }
@@ -4107,7 +4098,7 @@ CUSTOM_BUILDERS['the-bug-museum'] = function (group, building) {
   }
 
   // ── INTERIOR LIGHT ──
-  const glow = new THREE.PointLight(0xffffff, 0.8, 6);
+  const glow = createGlowOrb(0xffffff);
   glow.position.set(0, baseH + floor1H * 0.7, 0);
   group.add(glow);
 
@@ -4133,9 +4124,9 @@ CUSTOM_BUILDERS['the-cinnamon-roll'] = function (group, building) {
   const ironMat     = new THREE.MeshStandardMaterial({ color: 0x1f2937, roughness: 0.7 });  // Wrought iron
   const amberMat    = new THREE.MeshStandardMaterial({ color: 0xfbbf24, emissive: 0xfbbf24, emissiveIntensity: 0.2, transparent: true, opacity: 0.85 });
   const herbMat     = new THREE.MeshStandardMaterial({ color: 0x22c55e, roughness: 0.8 });
-  const winMat      = new THREE.MeshPhysicalMaterial({
+  const winMat      = new THREE.MeshStandardMaterial({
     color: 0xbfdbfe, emissive: 0x3b82f6, emissiveIntensity: 0.15,
-    transparent: true, opacity: 0.35, transmission: 0.6, roughness: 0.1, thickness: 0.05,
+    transparent: true, opacity: 0.35, roughness: 0.1,
   });
 
   // ── BASE PLATFORM (caramel plate) ──
@@ -4412,7 +4403,7 @@ CUSTOM_BUILDERS['the-cinnamon-roll'] = function (group, building) {
   }
 
   // ── INTERIOR WARM GLOW ──
-  const glow = new THREE.PointLight(0xfbbf24, 1.0, 6);
+  const glow = createGlowOrb(0xfbbf24);
   glow.position.set(0, baseH + H * 0.5, 0);
   group.add(glow);
 
@@ -4446,15 +4437,13 @@ CUSTOM_BUILDERS['bobbys-house'] = function (group, building) {
   const coralMat      = new THREE.MeshStandardMaterial({ color: CORAL_COLOR, roughness: 0.7 });
   const frameMat      = new THREE.MeshStandardMaterial({ color: WIN_TEAL, roughness: 0.5 });
   const goldMat       = new THREE.MeshStandardMaterial({ color: 0xD4A843, metalness: 0.6, roughness: 0.3 });
-  const winMat        = new THREE.MeshPhysicalMaterial({
+  const winMat        = new THREE.MeshStandardMaterial({
     color: 0xbfdbfe,
     emissive: 0x3b82f6,
     emissiveIntensity: 0.15,
     transparent: true,
     opacity: 0.35,
-    transmission: 0.6,
     roughness: 0.1,
-    thickness: 0.05,
   });
 
   // ── PINEAPPLE BODY (3 stacked cylinders for a bulbous look) ──
@@ -4595,7 +4584,7 @@ CUSTOM_BUILDERS['bobbys-house'] = function (group, building) {
     const flame = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.18, 6), flameMat);
     flame.position.set(tx, 1.40, 0.65);
     group.add(flame);
-    const torchLight = new THREE.PointLight(0xFF8C00, 0.4, 2.5);
+    const torchLight = createGlowOrb(0xFF8C00);
     torchLight.position.set(tx, 1.4, 0.7);
     group.add(torchLight);
   }
@@ -4671,7 +4660,7 @@ CUSTOM_BUILDERS['bobbys-house'] = function (group, building) {
   }
 
   // ── INTERIOR WARM GLOW ──
-  const interiorGlow = new THREE.PointLight(0xFFC107, 0.65, 4);
+  const interiorGlow = createGlowOrb(0xFFC107);
   interiorGlow.position.set(0, 1.2, 0);
   group.add(interiorGlow);
 
@@ -4705,8 +4694,8 @@ CUSTOM_BUILDERS['hot-yoga-studio-charlie'] = function (group, building) {
   const goldMat    = new THREE.MeshStandardMaterial({ color: 0xfbbf24, metalness: 0.4, roughness: 0.3, emissive: 0xfbbf24, emissiveIntensity: 0.2 });
   const fairyMat   = new THREE.MeshStandardMaterial({ color: 0xfef3c7, emissive: 0xfbbf24, emissiveIntensity: 0.55 });
   const candleMat  = new THREE.MeshStandardMaterial({ color: 0xfbbf24, emissive: 0xfbbf24, emissiveIntensity: 0.6 });
-  const winMat     = new THREE.MeshPhysicalMaterial({ color: 0xbfdbfe, emissive: 0x3b82f6, emissiveIntensity: 0.15, transparent: true, opacity: 0.35, transmission: 0.6, roughness: 0.1, thickness: 0.05 });
-  const skyMat     = new THREE.MeshPhysicalMaterial({ color: 0xbfdbfe, emissive: 0x93c5fd, emissiveIntensity: 0.2, transparent: true, opacity: 0.4, transmission: 0.5, roughness: 0.1, thickness: 0.05 });
+  const winMat     = new THREE.MeshStandardMaterial({ color: 0xbfdbfe, emissive: 0x3b82f6, emissiveIntensity: 0.15, transparent: true, opacity: 0.35, roughness: 0.1 });
+  const skyMat     = new THREE.MeshStandardMaterial({ color: 0xbfdbfe, emissive: 0x93c5fd, emissiveIntensity: 0.2, transparent: true, opacity: 0.4, roughness: 0.1 });
   const lampMat    = new THREE.MeshStandardMaterial({ color: 0xf59e0b, emissive: 0xfbbf24, emissiveIntensity: 0.3, transparent: true, opacity: 0.7 });
 
   // ── FOUNDATION ──────────────────────────────────────────────────────────────
@@ -4767,7 +4756,7 @@ CUSTOM_BUILDERS['hot-yoga-studio-charlie'] = function (group, building) {
   }
 
   // ── DOUBLE GLASS DOORS ──────────────────────────────────────────────────────
-  const doorGlassMat = new THREE.MeshPhysicalMaterial({ color: 0xbfdbfe, emissive: 0x60a5fa, emissiveIntensity: 0.2, transparent: true, opacity: 0.5, transmission: 0.4, roughness: 0.1 });
+  const doorGlassMat = new THREE.MeshStandardMaterial({ color: 0xbfdbfe, emissive: 0x60a5fa, emissiveIntensity: 0.2, transparent: true, opacity: 0.5, roughness: 0.1 });
   const doorH2 = wallH * 0.82;
   for (const dx of [-doorW / 4, doorW / 4]) {
     const door = new THREE.Mesh(new THREE.BoxGeometry(doorW / 2 - 0.04, doorH2, 0.07), doorGlassMat);
@@ -4913,7 +4902,7 @@ CUSTOM_BUILDERS['hot-yoga-studio-charlie'] = function (group, building) {
     group.add(succ);
   }
   // Quartz crystals
-  const xtalMat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, transparent: true, opacity: 0.3, transmission: 0.75, roughness: 0.0, metalness: 0.2, emissive: 0xffffff, emissiveIntensity: 0.08 });
+  const xtalMat = new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: 0.3, roughness: 0.0, metalness: 0.2, emissive: 0xffffff, emissiveIntensity: 0.08 });
   for (let i = 0; i < 3; i++) {
     const ang = (i / 3) * Math.PI * 2 + 0.4;
     const xtal = new THREE.Mesh(new THREE.OctahedronGeometry(0.065), xtalMat);
@@ -5001,7 +4990,7 @@ CUSTOM_BUILDERS['hot-yoga-studio-charlie'] = function (group, building) {
     const cord = new THREE.Mesh(new THREE.CylinderGeometry(0.007, 0.007, 0.42, 4), bronzeMat);
     cord.position.set(lx, baseH + wallH - 0.21, lz);
     group.add(cord);
-    const glow = new THREE.PointLight(0xfbbf24, 0.25, 1.4);
+    const glow = createGlowOrb(0xfbbf24);
     glow.position.set(lx, baseH + wallH - 0.5, lz);
     group.add(glow);
   }
@@ -5029,7 +5018,7 @@ CUSTOM_BUILDERS['hot-yoga-studio-charlie'] = function (group, building) {
     const [cx, cy, cz] = crystalPositions[i];
     const xtal = new THREE.Mesh(
       i % 2 === 0 ? new THREE.OctahedronGeometry(0.075) : new THREE.TetrahedronGeometry(0.085),
-      new THREE.MeshPhysicalMaterial({ color: crystalPalette[i], transparent: true, opacity: 0.28, transmission: 0.7, roughness: 0.0, emissive: crystalPalette[i], emissiveIntensity: 0.14 })
+      new THREE.MeshStandardMaterial({ color: crystalPalette[i], transparent: true, opacity: 0.28, roughness: 0.0, emissive: crystalPalette[i], emissiveIntensity: 0.14 })
     );
     xtal.position.set(cx, baseH + cy, cz);
     xtal.rotation.y = i * 0.8;
@@ -5047,7 +5036,7 @@ CUSTOM_BUILDERS['hot-yoga-studio-charlie'] = function (group, building) {
   }
 
   // ── WARM AMBIENT GLOW ────────────────────────────────────────────────────────
-  const warmGlow = new THREE.PointLight(0xfbbf24, 0.6, 4.2);
+  const warmGlow = createGlowOrb(0xfbbf24);
   warmGlow.position.set(0, baseH + wallH * 0.4, 0);
   group.add(warmGlow);
 
@@ -5074,9 +5063,9 @@ CUSTOM_BUILDERS['motz-coffee-co'] = function (group, building) {
   const roasterMat  = new THREE.MeshStandardMaterial({ color: 0xcc2200, roughness: 0.7 });
   const floorMat    = new THREE.MeshStandardMaterial({ color: 0x4a4a4a, roughness: 0.9 });
   const interiorMat = new THREE.MeshStandardMaterial({ color: 0x2a1a0e, emissive: 0xf59e0b, emissiveIntensity: 0.12, roughness: 0.9 });
-  const winMat      = new THREE.MeshPhysicalMaterial({
+  const winMat      = new THREE.MeshStandardMaterial({
     color: 0xbfdbfe, emissive: 0x3b82f6, emissiveIntensity: 0.15,
-    transparent: true, opacity: 0.35, transmission: 0.6, roughness: 0.1, thickness: 0.05,
+    transparent: true, opacity: 0.35, roughness: 0.1,
   });
   const chalkMat    = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.95 });
   const neonMat     = new THREE.MeshStandardMaterial({ color: 0x00d9ff, emissive: 0x00d9ff, emissiveIntensity: 0.9 });
@@ -5142,9 +5131,9 @@ CUSTOM_BUILDERS['motz-coffee-co'] = function (group, building) {
   const doorX = -0.55;
   const doorW = 0.48;
   const doorH = 1.2;
-  const doorMat2 = new THREE.MeshPhysicalMaterial({
+  const doorMat2 = new THREE.MeshStandardMaterial({
     color: 0x111111, emissive: 0x1a1a1a, emissiveIntensity: 0.05,
-    transparent: true, opacity: 0.65, transmission: 0.3, roughness: 0.1,
+    transparent: true, opacity: 0.65, roughness: 0.1,
   });
   const door = new THREE.Mesh(new THREE.BoxGeometry(doorW, doorH, 0.05), doorMat2);
   door.position.set(doorX, baseH + doorH / 2 + 0.02, D / 2 + 0.03);
@@ -5187,7 +5176,7 @@ CUSTOM_BUILDERS['motz-coffee-co'] = function (group, building) {
     group.add(bracket);
   }
   // Neon glow light
-  const neonGlow = new THREE.PointLight(0x00d9ff, 0.6, 3.0);
+  const neonGlow = createGlowOrb(0x00d9ff);
   neonGlow.position.set(-W / 2 - 0.1, baseH + wallH * 0.55, D / 2 - 0.5);
   group.add(neonGlow);
 
@@ -5369,7 +5358,7 @@ CUSTOM_BUILDERS['motz-coffee-co'] = function (group, building) {
   }
 
   // ── WARM INTERIOR GLOW ──
-  const warmGlow = new THREE.PointLight(0xf59e0b, 0.8, 5);
+  const warmGlow = createGlowOrb(0xf59e0b);
   warmGlow.position.set(0, baseH + 0.8, 0);
   group.add(warmGlow);
 
@@ -5387,16 +5376,14 @@ CUSTOM_BUILDERS['the-nz-beehive'] = function (group, building) {
   const poleMat      = new THREE.MeshStandardMaterial({ color: 0x888070, metalness: 0.3, roughness: 0.5 });
   const flagRedMat   = new THREE.MeshStandardMaterial({ color: 0xcc0000, side: THREE.DoubleSide });
   const flagBlueMat  = new THREE.MeshStandardMaterial({ color: 0x003399, side: THREE.DoubleSide });
-  const winMat       = new THREE.MeshPhysicalMaterial({
+  const winMat       = new THREE.MeshStandardMaterial({
     color: 0x8b7355,
     emissive: 0x5c4d3d,
     emissiveIntensity: 0.1,
     transparent: true,
     opacity: 0.4,
-    transmission: 0.5,
     metalness: 0.3,
     roughness: 0.15,
-    thickness: 0.05,
   });
 
   // ── FORECOURT PLAZA ──
@@ -5430,7 +5417,7 @@ CUSTOM_BUILDERS['the-nz-beehive'] = function (group, building) {
   const glassH = floorH - slabThick;
   const baseR = 5.0;
   const topR = 3.0;
-  const numSegs = 48;  // smooth cylinder
+  const numSegs = 24;  // smooth enough cylinder, half the geometry
 
   for (let i = 0; i < numFloors; i++) {
     const t = i / (numFloors - 1);
@@ -5573,10 +5560,10 @@ CUSTOM_BUILDERS['the-nz-beehive'] = function (group, building) {
   group.add(core);
 
   // ── WARM INTERIOR GLOW (executive amber) ──
-  const glow = new THREE.PointLight(0xf59e0b, 0.5, 8);
+  const glow = createGlowOrb(0xf59e0b);
   glow.position.set(0, towerH * 0.6, 0);
   group.add(glow);
-  const groundGlow = new THREE.PointLight(0xfbbf24, 0.3, 5);
+  const groundGlow = createGlowOrb(0xfbbf24);
   groundGlow.position.set(0, 1.0, 0);
   group.add(groundGlow);
 
