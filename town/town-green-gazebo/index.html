@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Town Green Gazebo — AI Town</title>
+  <meta name="description" content="A pristine white octagonal Victorian gazebo in classic New England style, large enough for a community band concert or a mayor's proclamation. Seven arches adorned with hanging flower baskets overflow with red geraniums and trailing ivy. Stairs on one side, an accessibility ramp on the other.">
+
+  <!-- OG Tags for X/Twitter unfurling -->
+  <meta property="og:title" content="Town Green Gazebo — AI Town">
+  <meta property="og:description" content="A pristine white octagonal Victorian gazebo in classic New England style, large enough for a community band concert or a mayor's proclamation. Seven arches adorned with hanging flower baskets overflow with red geraniums and trailing ivy. Stairs on one side, an accessibility ramp on the other. — Built by @Jeffrey-Luszcz">
+  <meta property="og:image" content="https://burkeholland.github.io/ai-town/town/town-green-gazebo/og.png">
+  <meta property="og:url" content="https://burkeholland.github.io/ai-town/town/town-green-gazebo/">
+  <meta property="og:type" content="website">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Town Green Gazebo — AI Town">
+  <meta name="twitter:description" content="A pristine white octagonal Victorian gazebo in classic New England style, large enough for a community band concert or a mayor's proclamation. Seven arches adorned with hanging flower baskets overflow with red geraniums and trailing ivy. Stairs on one side, an accessibility ramp on the other. — Built by @Jeffrey-Luszcz">
+  <meta name="twitter:image" content="https://burkeholland.github.io/ai-town/town/town-green-gazebo/og.png">
+
+  <style>
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: #e0f2fe;
+      color: #111827;
+      text-align: center;
+      padding: 20px;
+      margin: 0;
+    }
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 0;
+      max-width: 440px;
+      width: 100%;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.10);
+      overflow: hidden;
+    }
+    .card-preview {
+      width: 100%;
+      aspect-ratio: 1200/630;
+      background: #f3f4f6 url('og.png') center/cover no-repeat;
+    }
+    .card-body { padding: 24px 28px 28px; }
+    h1 { font-size: 1.4rem; margin: 0 0 6px; }
+    .desc { color: #6b7280; margin: 0 0 16px; font-size: 0.92rem; line-height: 1.5; }
+    .contributor {
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px; margin-bottom: 20px;
+    }
+    .contributor img {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 2px solid #e5e7eb;
+    }
+    .contributor a {
+      font-size: 0.9rem; color: #0ea5e9; text-decoration: none; font-weight: 600;
+    }
+    .contributor a:hover { text-decoration: underline; }
+    .actions { display: flex; gap: 10px; }
+    .btn {
+      flex: 1; padding: 10px 16px; border-radius: 10px;
+      font-size: 0.88rem; font-weight: 600; cursor: pointer;
+      text-decoration: none; text-align: center;
+      transition: background 0.15s, transform 0.1s;
+      border: none;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary {
+      background: #111827; color: #fff;
+    }
+    .btn-primary:hover { background: #374151; }
+    .btn-secondary {
+      background: #f3f4f6; color: #111827;
+    }
+    .btn-secondary:hover { background: #e5e7eb; }
+    .copied {
+      background: #10b981 !important; color: #fff !important;
+    }
+    .tagline {
+      margin-top: 20px; font-size: 0.78rem; color: #9ca3af;
+    }
+    .tagline a { color: #6b7280; text-decoration: none; }
+    .tagline a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="card-preview"></div>
+    <div class="card-body">
+      <h1>🏛️ Town Green Gazebo</h1>
+      <p class="desc">A pristine white octagonal Victorian gazebo in classic New England style, large enough for a community band concert or a mayor's proclamation. Seven arches adorned with hanging flower baskets overflow with red geraniums and trailing ivy. Stairs on one side, an accessibility ramp on the other.</p>
+      <div class="contributor">
+        <img src="https://github.com/Jeffrey-Luszcz.png" alt="Jeffrey-Luszcz" width="28" height="28">
+        <a href="https://github.com/Jeffrey-Luszcz">@Jeffrey-Luszcz</a>
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary" onclick="copyLink(this)">📋 Copy link</button>
+        <a class="btn btn-secondary" href="https://burkeholland.github.io/ai-town/#town-green-gazebo">🏘️ Visit town</a>
+      </div>
+      <p class="tagline">
+        <a href="https://github.com/burkeholland/ai-town">AI Town</a> — an open-source town built entirely by AI, directed by the community.
+      </p>
+    </div>
+  </div>
+  <script>
+    function copyLink(btn) {
+      var url = window.location.href;
+      var done = function() {
+        btn.textContent = '✅ Copied!';
+        btn.classList.add('copied');
+        setTimeout(function() {
+          btn.textContent = '📋 Copy link';
+          btn.classList.remove('copied');
+        }, 2000);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(done).catch(function() {
+          fallbackCopy(url, btn, done);
+        });
+      } else {
+        fallbackCopy(url, btn, done);
+      }
+    }
+    function fallbackCopy(text, btn, done) {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); done(); }
+      catch(e) { btn.textContent = '⚠️ Copy failed'; }
+      document.body.removeChild(ta);
+    }
+  </script>
+</body>
+</html>

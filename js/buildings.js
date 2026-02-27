@@ -2538,6 +2538,370 @@ CUSTOM_BUILDERS['hilberts-hotel'] = function (group, building) {
   buildPlaque(group, building, D / 2 + 0.04, 2.8);
 };
 
+// ─── Custom Building: Town Green Gazebo ────────────────────────────────────
+
+CUSTOM_BUILDERS['town-green-gazebo'] = function (group, building) {
+  const R      = 1.8;   // radius from center to column
+  const baseH  = 0.3;   // stone foundation height
+  const colH   = 2.2;   // column height above foundation
+  const roofH  = 1.4;   // main roof cone height
+  const totalH = baseH + colH;  // top of columns
+
+  // Materials
+  const whiteMat   = new THREE.MeshStandardMaterial({ color: 0xF8F8F8, roughness: 0.5 });
+  const stoneMat   = new THREE.MeshStandardMaterial({ color: 0xc8c0b0, roughness: 0.9 });
+  const shingleMat = new THREE.MeshStandardMaterial({ color: 0x8B7355, roughness: 0.95 });
+  const brickMat   = new THREE.MeshStandardMaterial({ color: 0x8B4513, roughness: 0.9 });
+  const brassMat   = new THREE.MeshStandardMaterial({ color: 0xB8860B, metalness: 0.5, roughness: 0.4 });
+  const woodMat    = new THREE.MeshStandardMaterial({ color: 0x8B6914, roughness: 0.8 });
+  const flowerMat  = new THREE.MeshStandardMaterial({ color: 0xE63946 });
+  const ivyMat     = new THREE.MeshStandardMaterial({ color: 0x2D5016 });
+  const darkMat    = new THREE.MeshStandardMaterial({ color: 0x1f2937 });
+
+  // ── BRICK WALKWAY ──
+  const walkGeo = new THREE.CylinderGeometry(R + 1.3, R + 1.3, 0.04, 8);
+  const walk = new THREE.Mesh(walkGeo, brickMat);
+  walk.rotation.y = Math.PI / 8;
+  walk.position.y = 0.02;
+  walk.receiveShadow = true;
+  group.add(walk);
+
+  // ── OCTAGONAL STONE FOUNDATION ──
+  const foundGeo = new THREE.CylinderGeometry(R + 0.2, R + 0.25, baseH, 8);
+  const found = new THREE.Mesh(foundGeo, stoneMat);
+  found.rotation.y = Math.PI / 8;
+  found.position.y = baseH / 2;
+  found.castShadow = true;
+  found.receiveShadow = true;
+  group.add(found);
+
+  // ── FLOOR ──
+  const floorGeo = new THREE.CylinderGeometry(R + 0.05, R + 0.05, 0.06, 8);
+  const floorMesh = new THREE.Mesh(floorGeo, whiteMat);
+  floorMesh.rotation.y = Math.PI / 8;
+  floorMesh.position.y = baseH + 0.03;
+  floorMesh.receiveShadow = true;
+  group.add(floorMesh);
+
+  // Column positions: vertices of a regular octagon, offset by π/8 so faces
+  // align with cardinal directions.  Face 1 (midAngle ≈ π/2) = south (+Z) → stairs.
+  // Face 5 (midAngle ≈ 3π/2) = north (-Z) → ramp.
+  const colAngleOffset = Math.PI / 8;
+
+  // ── EIGHT COLUMNS ──
+  for (let i = 0; i < 8; i++) {
+    const angle = (i / 8) * Math.PI * 2 + colAngleOffset;
+    const cx = Math.cos(angle) * (R - 0.05);
+    const cz = Math.sin(angle) * (R - 0.05);
+
+    const colGeo = new THREE.CylinderGeometry(0.1, 0.12, colH, 10);
+    const col = new THREE.Mesh(colGeo, whiteMat);
+    col.position.set(cx, baseH + colH / 2, cz);
+    col.castShadow = true;
+    group.add(col);
+
+    // Corinthian-style capital
+    const cap = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.1, 0.28), whiteMat);
+    cap.position.set(cx, baseH + colH + 0.05, cz);
+    group.add(cap);
+    const capDetail = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.08, 0.22), whiteMat);
+    capDetail.position.set(cx, baseH + colH - 0.02, cz);
+    group.add(capDetail);
+
+    // Column base
+    const cb = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.08, 0.25), whiteMat);
+    cb.position.set(cx, baseH + 0.04, cz);
+    group.add(cb);
+  }
+
+  // ── ROOF BEAM RING at top of columns ──
+  const beamRingGeo = new THREE.CylinderGeometry(R + 0.05, R + 0.05, 0.12, 8);
+  const beamRing = new THREE.Mesh(beamRingGeo, whiteMat);
+  beamRing.rotation.y = Math.PI / 8;
+  beamRing.position.y = totalH + 0.06;
+  group.add(beamRing);
+
+  // ── OCTAGONAL SHINGLE ROOF ──
+  const roofGeo = new THREE.ConeGeometry(R + 0.18, roofH, 8);
+  const roof = new THREE.Mesh(roofGeo, shingleMat);
+  roof.rotation.y = Math.PI / 8;
+  roof.position.y = totalH + 0.12 + roofH / 2;
+  roof.castShadow = true;
+  group.add(roof);
+
+  // Shingle row rings (simulate overlapping cedar shingles)
+  for (let row = 0; row < 4; row++) {
+    const t = (row + 0.5) / 4;
+    const rowR = (R + 0.18) * (1 - t * 0.85);
+    const rowY = totalH + 0.15 + t * roofH * 0.9;
+    const shingleRing = new THREE.Mesh(
+      new THREE.CylinderGeometry(rowR + 0.03, rowR + 0.03, 0.04, 8),
+      shingleMat
+    );
+    shingleRing.rotation.y = Math.PI / 8;
+    shingleRing.position.y = rowY;
+    group.add(shingleRing);
+  }
+
+  // ── CUPOLA ──
+  const cupolaH = 0.55;
+  const cupola = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.4, cupolaH, 8), whiteMat);
+  cupola.rotation.y = Math.PI / 8;
+  cupola.position.y = totalH + 0.12 + roofH + cupolaH / 2;
+  group.add(cupola);
+
+  const cupolaRoof = new THREE.Mesh(new THREE.ConeGeometry(0.42, 0.32, 8), shingleMat);
+  cupolaRoof.rotation.y = Math.PI / 8;
+  cupolaRoof.position.y = totalH + 0.12 + roofH + cupolaH + 0.16;
+  group.add(cupolaRoof);
+
+  // Brass finial sphere
+  const finial = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 8), brassMat);
+  finial.position.y = totalH + 0.12 + roofH + cupolaH + 0.35;
+  group.add(finial);
+
+  // ── RAILINGS between columns (6 open faces; skip face 1=south/stairs, face 5=north/ramp) ──
+  for (let i = 0; i < 8; i++) {
+    if (i === 1) continue; // south face — stairs here
+    if (i === 5) continue; // north face — ramp here
+
+    const a1 = (i / 8) * Math.PI * 2 + colAngleOffset;
+    const a2 = ((i + 1) / 8) * Math.PI * 2 + colAngleOffset;
+    const midAngle = (a1 + a2) / 2;
+
+    const x1 = Math.cos(a1) * (R - 0.05);
+    const z1 = Math.sin(a1) * (R - 0.05);
+    const x2 = Math.cos(a2) * (R - 0.05);
+    const z2 = Math.sin(a2) * (R - 0.05);
+    const midX = (x1 + x2) / 2;
+    const midZ = (z1 + z2) / 2;
+
+    const dx = x2 - x1;
+    const dz = z2 - z1;
+    const len = Math.sqrt(dx * dx + dz * dz);
+    const railAngle = Math.atan2(dx, dz);
+    const railH = 0.5;
+
+    // Top and bottom rails
+    for (const ry of [baseH + 0.18, baseH + railH]) {
+      const rail = new THREE.Mesh(new THREE.BoxGeometry(len * 0.84, 0.04, 0.04), whiteMat);
+      rail.position.set(midX, ry, midZ);
+      rail.rotation.y = railAngle;
+      group.add(rail);
+    }
+
+    // Turned balusters
+    for (let b = 1; b <= 3; b++) {
+      const t = b / 4;
+      const bx = x1 + (x2 - x1) * t;
+      const bz = z1 + (z2 - z1) * t;
+      const bal = new THREE.Mesh(new THREE.BoxGeometry(0.04, railH, 0.04), whiteMat);
+      bal.position.set(bx, baseH + railH / 2, bz);
+      group.add(bal);
+    }
+
+    // Gingerbread bracket at top of arch
+    const bktX = Math.cos(midAngle) * (R - 0.18);
+    const bktZ = Math.sin(midAngle) * (R - 0.18);
+    const bkt = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.32, 0.06), whiteMat);
+    bkt.position.set(bktX, totalH - 0.18, bktZ);
+    group.add(bkt);
+    // Diagonal brace on bracket
+    for (const side of [-1, 1]) {
+      const braceAngle = Math.atan2(bktZ, bktX);
+      const br = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.2, 0.04), whiteMat);
+      br.position.set(bktX + Math.cos(braceAngle + side * 0.3) * 0.1,
+                      totalH - 0.3,
+                      bktZ + Math.sin(braceAngle + side * 0.3) * 0.1);
+      group.add(br);
+    }
+  }
+
+  // ── STAIRS on south face (face 1, midAngle ≈ π/2 → +Z) ──
+  // Columns of face 1 are at angles 3π/8 and 5π/8; z ≈ 0.924*(R-0.05)
+  const stairBaseZ = Math.sin(3 * Math.PI / 8) * (R - 0.05); // ≈ front edge z
+  for (let s = 0; s < 5; s++) {
+    const stepW = 1.3 - s * 0.04;
+    const step = new THREE.Mesh(new THREE.BoxGeometry(stepW, 0.06, 0.22), stoneMat);
+    step.position.set(0, s * 0.06 + 0.03, stairBaseZ + 0.12 + (4 - s) * 0.22);
+    step.castShadow = true;
+    step.receiveShadow = true;
+    group.add(step);
+  }
+  // Stair handrails
+  for (const sx of [-0.56, 0.56]) {
+    const hrPost = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.36, 0.04), whiteMat);
+    hrPost.position.set(sx, 0.18, stairBaseZ + 1.2);
+    group.add(hrPost);
+    const hr = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.04, 1.1), whiteMat);
+    hr.position.set(sx, 0.32, stairBaseZ + 0.65);
+    hr.rotation.x = -0.24;
+    group.add(hr);
+  }
+
+  // ── RAMP on north face (face 5, midAngle ≈ 3π/2 → -Z) ──
+  const rampLength = 1.5;
+  const rampAngle = Math.atan2(baseH, rampLength);
+  const rampCenterZ = -(stairBaseZ + rampLength / 2);
+  const ramp = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.05, rampLength), stoneMat);
+  ramp.position.set(0, baseH / 2, rampCenterZ);
+  ramp.rotation.x = rampAngle;
+  ramp.castShadow = true;
+  group.add(ramp);
+  // Ramp railings
+  for (const rx of [-0.44, 0.44]) {
+    const rRail = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.04, rampLength + 0.05), whiteMat);
+    rRail.position.set(rx, 0.35, rampCenterZ);
+    rRail.rotation.x = rampAngle;
+    group.add(rRail);
+    const rPost = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.35, 0.04), whiteMat);
+    rPost.position.set(rx, 0.18, rampCenterZ - rampLength / 2);
+    group.add(rPost);
+  }
+
+  // ── HANGING FLOWER BASKETS (7 arches — skip face 1=south/stairs) ──
+  for (let i = 0; i < 8; i++) {
+    if (i === 1) continue; // south face has stairs
+
+    const a1 = (i / 8) * Math.PI * 2 + colAngleOffset;
+    const a2 = ((i + 1) / 8) * Math.PI * 2 + colAngleOffset;
+    const midAngle = (a1 + a2) / 2;
+    const bx = Math.cos(midAngle) * (R - 0.3);
+    const bz = Math.sin(midAngle) * (R - 0.3);
+    const hangY = totalH - 0.12;
+
+    // Chain
+    const chainMat = new THREE.MeshStandardMaterial({ color: 0xa0a0a0, metalness: 0.5 });
+    const chain = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 0.25, 4), chainMat);
+    chain.position.set(bx, hangY - 0.1, bz);
+    group.add(chain);
+
+    // Wire basket
+    const basketMat = new THREE.MeshStandardMaterial({ color: 0x6B3A1F, roughness: 0.9 });
+    const basket = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.08, 0.1, 8), basketMat);
+    basket.position.set(bx, hangY - 0.28, bz);
+    group.add(basket);
+
+    // Red geranium clusters (asymmetric count)
+    const fCount = 3 + (i % 3);
+    for (let f = 0; f < fCount; f++) {
+      const fa = (f / fCount) * Math.PI * 2 + i * 0.53;
+      const fr = 0.05 + (f % 2) * 0.04;
+      const flower = new THREE.Mesh(
+        new THREE.SphereGeometry(0.04 + (i % 2) * 0.01, 5, 4),
+        flowerMat
+      );
+      flower.position.set(bx + Math.cos(fa) * fr, hangY - 0.22, bz + Math.sin(fa) * fr);
+      group.add(flower);
+    }
+
+    // Trailing ivy tendrils
+    const ivyLen = 0.12 + (i % 3) * 0.06;
+    const ivy1 = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.005, ivyLen, 4), ivyMat);
+    ivy1.position.set(bx + 0.06, hangY - 0.38, bz + 0.03);
+    ivy1.rotation.z = 0.35 + (i % 2) * 0.2;
+    group.add(ivy1);
+    const ivy2 = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.004, ivyLen * 0.8, 4), ivyMat);
+    ivy2.position.set(bx - 0.04, hangY - 0.35, bz + 0.05);
+    ivy2.rotation.z = -0.3 - (i % 3) * 0.15;
+    group.add(ivy2);
+  }
+
+  // ── INTERIOR BENCHES (6 benches along inner wall faces) ──
+  const benchFaces = [0, 2, 3, 4, 6, 7]; // skip face 1 (south entry) and face 5 (north ramp)
+  for (const fi of benchFaces) {
+    const a1 = (fi / 8) * Math.PI * 2 + colAngleOffset;
+    const a2 = ((fi + 1) / 8) * Math.PI * 2 + colAngleOffset;
+    const midAngle = (a1 + a2) / 2;
+    const bx = Math.cos(midAngle) * (R - 0.62);
+    const bz = Math.sin(midAngle) * (R - 0.62);
+
+    const seat = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.05, 0.22), woodMat);
+    seat.position.set(bx, baseH + 0.28, bz);
+    seat.rotation.y = midAngle;
+    group.add(seat);
+
+    const backX = bx + Math.cos(midAngle) * 0.12;
+    const backZ = bz + Math.sin(midAngle) * 0.12;
+    const back = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.2, 0.04), woodMat);
+    back.position.set(backX, baseH + 0.42, backZ);
+    back.rotation.y = midAngle;
+    group.add(back);
+
+    // Bench legs
+    for (const off of [-0.28, 0.28]) {
+      const legX = bx + Math.sin(midAngle) * off;
+      const legZ = bz - Math.cos(midAngle) * off;
+      const leg = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.24, 0.04), woodMat);
+      leg.position.set(legX, baseH + 0.14, legZ);
+      group.add(leg);
+    }
+  }
+
+  // ── MUSIC STANDS (3 in center performance area) ──
+  for (let i = 0; i < 3; i++) {
+    const sx = -0.38 + i * 0.38;
+    const sz = 0.25 - (i % 2) * 0.15;
+
+    const standPole = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.8, 5), darkMat);
+    standPole.position.set(sx, baseH + 0.4, sz);
+    group.add(standPole);
+
+    const standTop = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.02, 0.14), darkMat);
+    standTop.position.set(sx, baseH + 0.85, sz);
+    standTop.rotation.x = 0.4;
+    group.add(standTop);
+  }
+
+  // ── PODIUM on west side ──
+  const podMat = new THREE.MeshStandardMaterial({ color: 0x654321, roughness: 0.7 });
+  const pod = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.6, 0.3), podMat);
+  pod.position.set(-0.9, baseH + 0.3, 0);
+  group.add(pod);
+  const podTop = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.04, 0.34), podMat);
+  podTop.position.set(-0.9, baseH + 0.62, 0);
+  group.add(podTop);
+  // Brass microphone
+  const micPole = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 0.22, 5), darkMat);
+  micPole.position.set(-0.9, baseH + 0.75, 0);
+  group.add(micPole);
+  const mic = new THREE.Mesh(new THREE.SphereGeometry(0.025, 6, 6), brassMat);
+  mic.position.set(-0.9, baseH + 0.87, 0);
+  group.add(mic);
+
+  // ── BRASS LANTERNS hanging from ceiling beams ──
+  const lanternData = [
+    { x: 0,    z: 0,    drop: 0.5  },
+    { x: 0.55, z: 0.32, drop: 0.65 },
+    { x: -0.5, z: -0.3, drop: 0.55 },
+  ];
+  const wireMat = new THREE.MeshStandardMaterial({ color: 0xB8860B, metalness: 0.5 });
+  for (const ld of lanternData) {
+    const ceilY = totalH + 0.08;
+    const wire = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, ld.drop, 4), wireMat);
+    wire.position.set(ld.x, ceilY - ld.drop / 2, ld.z);
+    group.add(wire);
+    const lantern = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.16, 0.12), brassMat);
+    lantern.position.set(ld.x, ceilY - ld.drop, ld.z);
+    group.add(lantern);
+    const glow = new THREE.PointLight(0xfbbf24, 0.25, 3.5);
+    glow.position.set(ld.x, ceilY - ld.drop - 0.05, ld.z);
+    group.add(glow);
+  }
+
+  // ── COMMEMORATIVE BRASS PLAQUE "Dedicated 1887" on front-right column ──
+  const comPlaqueMesh = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.18, 0.02), brassMat);
+  const plqAngle = (2 / 8) * Math.PI * 2 + colAngleOffset; // front-right column angle
+  const plqCx = Math.cos(plqAngle) * (R - 0.05);
+  const plqCz = Math.sin(plqAngle) * (R - 0.05);
+  comPlaqueMesh.position.set(plqCx, baseH + 0.6, plqCz);
+  comPlaqueMesh.rotation.y = -plqAngle + Math.PI;
+  group.add(comPlaqueMesh);
+
+  // ── CONTRIBUTOR PLAQUE ANCHOR ──
+  buildPlaque(group, building, R + 0.25, 2.2);
+};
+
 // Create organic village ground with winding roads
 export function createGround() {
   const group = new THREE.Group();
