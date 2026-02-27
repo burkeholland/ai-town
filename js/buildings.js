@@ -1321,6 +1321,384 @@ CUSTOM_BUILDERS['pierces-pub'] = function (group, building) {
   buildPlaque(group, building, D / 2 + 0.04, 3.2);
 };
 
+// ─── Custom Building: Martin's Makerspace ──────────────────────────────────
+
+CUSTOM_BUILDERS['martins-makerspace'] = function (group, building) {
+  const W = 2.4;
+  const D = 1.8;
+  const wallH = 1.8;
+  const baseH = 0.12;
+
+  // Materials
+  const concreteMat  = new THREE.MeshStandardMaterial({ color: 0xd1d5db, roughness: 0.9 });
+  const wallMat      = new THREE.MeshStandardMaterial({ color: 0xf0f9ff, roughness: 0.8 });
+  const metalMat     = new THREE.MeshStandardMaterial({ color: 0x4b5563, metalness: 0.5, roughness: 0.5 });
+  const glassMat     = new THREE.MeshStandardMaterial({ color: 0xbfdbfe, transparent: true, opacity: 0.38, roughness: 0.05 });
+  const roofMat      = new THREE.MeshStandardMaterial({ color: 0x0ea5e9, roughness: 0.7 });
+  const benchMat     = new THREE.MeshStandardMaterial({ color: 0x92400e, roughness: 0.8 });
+  const metalLegMat  = new THREE.MeshStandardMaterial({ color: 0x374151, metalness: 0.4, roughness: 0.6 });
+  const doorMat      = new THREE.MeshStandardMaterial({ color: 0x1e3a5f, roughness: 0.5, metalness: 0.3 });
+  const printerMat   = new THREE.MeshStandardMaterial({ color: 0xe5e7eb, roughness: 0.6 });
+  const printerAccMat = new THREE.MeshStandardMaterial({ color: 0x0ea5e9, emissive: 0x0ea5e9, emissiveIntensity: 0.4 });
+  const screenMat    = new THREE.MeshStandardMaterial({ color: 0x1e40af, emissive: 0x60a5fa, emissiveIntensity: 0.7 });
+  const pegboardMat  = new THREE.MeshStandardMaterial({ color: 0xf5deb3, roughness: 0.9 });
+  const toolMat      = new THREE.MeshStandardMaterial({ color: 0x6b7280, metalness: 0.6, roughness: 0.4 });
+  const handleYellowMat = new THREE.MeshStandardMaterial({ color: 0xfbbf24, roughness: 0.7 });
+
+  // ── FOUNDATION ──
+  const base = new THREE.Mesh(new THREE.BoxGeometry(W + 0.3, baseH, D + 0.3), concreteMat);
+  base.position.y = baseH / 2;
+  base.castShadow = true;
+  base.receiveShadow = true;
+  group.add(base);
+
+  // ── BACK WALL ──
+  const backWall = new THREE.Mesh(new THREE.BoxGeometry(W, wallH, 0.1), wallMat);
+  backWall.position.set(0, baseH + wallH / 2, -D / 2 + 0.05);
+  backWall.castShadow = true;
+  backWall.receiveShadow = true;
+  group.add(backWall);
+
+  // ── SIDE WALLS ──
+  for (const sx of [-W / 2 + 0.05, W / 2 - 0.05]) {
+    const sw = new THREE.Mesh(new THREE.BoxGeometry(0.1, wallH, D), wallMat);
+    sw.position.set(sx, baseH + wallH / 2, 0);
+    sw.castShadow = true;
+    sw.receiveShadow = true;
+    group.add(sw);
+  }
+
+  // ── FRONT FACE: steel pillars, glass panels, door ──
+  // Corner steel pillars
+  for (const cx of [-W / 2 + 0.06, W / 2 - 0.06]) {
+    const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.1, wallH, 0.1), metalMat);
+    pillar.position.set(cx, baseH + wallH / 2, D / 2 - 0.05);
+    pillar.castShadow = true;
+    group.add(pillar);
+  }
+  // Centre door-frame pillar (right side of door)
+  for (const cx of [-0.3, 0.3]) {
+    const dp = new THREE.Mesh(new THREE.BoxGeometry(0.06, wallH, 0.06), metalMat);
+    dp.position.set(cx, baseH + wallH / 2, D / 2 - 0.03);
+    group.add(dp);
+  }
+  // Horizontal top beam
+  const topBeam = new THREE.Mesh(new THREE.BoxGeometry(W, 0.08, 0.1), metalMat);
+  topBeam.position.set(0, baseH + wallH - 0.04, D / 2 - 0.05);
+  group.add(topBeam);
+  // Horizontal mid beam (above door, below sign)
+  const midBeam = new THREE.Mesh(new THREE.BoxGeometry(W, 0.06, 0.08), metalMat);
+  midBeam.position.set(0, baseH + wallH * 0.72, D / 2 - 0.04);
+  group.add(midBeam);
+
+  // Large glass panels (left + right of door)
+  const glassH = wallH * 0.68;
+  for (const gx of [-0.73, 0.73]) {
+    const gp = new THREE.Mesh(new THREE.BoxGeometry(0.55, glassH, 0.04), glassMat);
+    gp.position.set(gx, baseH + glassH / 2 + 0.04, D / 2);
+    gp.renderOrder = 1;
+    group.add(gp);
+    // Horizontal glazing bars
+    for (const gy of [0.35, 0.7, 1.05]) {
+      const bar = new THREE.Mesh(new THREE.BoxGeometry(0.57, 0.025, 0.05), metalMat);
+      bar.position.set(gx, baseH + gy, D / 2 + 0.01);
+      group.add(bar);
+    }
+  }
+  // Transom glass above door
+  const transom = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.22, 0.04), glassMat);
+  transom.position.set(0, baseH + wallH * 0.76, D / 2);
+  transom.renderOrder = 1;
+  group.add(transom);
+
+  // ── DOOR ──
+  const door = new THREE.Mesh(new THREE.BoxGeometry(0.52, wallH * 0.67, 0.06), doorMat);
+  door.position.set(0, baseH + (wallH * 0.67) / 2, D / 2 + 0.04);
+  group.add(door);
+  // Door glass panel
+  const doorGlass = new THREE.Mesh(new THREE.BoxGeometry(0.36, wallH * 0.35, 0.04), glassMat);
+  doorGlass.position.set(0, baseH + wallH * 0.51, D / 2 + 0.07);
+  doorGlass.renderOrder = 1;
+  group.add(doorGlass);
+  // Door handle (horizontal push bar)
+  const handleMat2 = new THREE.MeshStandardMaterial({ color: 0xb8bcc8, metalness: 0.8, roughness: 0.2 });
+  const pushBar = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.025, 0.025), handleMat2);
+  pushBar.position.set(0.14, baseH + wallH * 0.33, D / 2 + 0.09);
+  group.add(pushBar);
+
+  // ── "HACKERS WELCOME" PIXEL SIGN above door ──
+  const signBoardMat = new THREE.MeshStandardMaterial({ color: 0x0d1117, roughness: 0.9 });
+  const signBoard = new THREE.Mesh(new THREE.BoxGeometry(0.88, 0.22, 0.06), signBoardMat);
+  const signY = baseH + wallH * 0.84;
+  signBoard.position.set(0, signY, D / 2 + 0.09);
+  group.add(signBoard);
+  // Green LED border
+  const borderMat = new THREE.MeshStandardMaterial({ color: 0x00e676, emissive: 0x00e676, emissiveIntensity: 0.6 });
+  for (const [bw, bh, bx, by] of [
+    [0.9, 0.018, 0, signY + 0.1],
+    [0.9, 0.018, 0, signY - 0.1],
+    [0.018, 0.22, -0.44, signY],
+    [0.018, 0.22,  0.44, signY],
+  ]) {
+    const bl = new THREE.Mesh(new THREE.BoxGeometry(bw, bh, 0.02), borderMat);
+    bl.position.set(bx, by, D / 2 + 0.13);
+    group.add(bl);
+  }
+  // Pixel art "HW" (Hackers Welcome) in green
+  const pixMat = new THREE.MeshStandardMaterial({ color: 0x00e676, emissive: 0x00e676, emissiveIntensity: 0.8 });
+  const ps = 0.018;   // pixel size
+  const pstep = 0.023; // pixel step
+  const H5 = [[1,0,0,0,1],[1,0,0,0,1],[1,1,1,1,1],[1,0,0,0,1],[1,0,0,0,1]];
+  const W5 = [[1,0,0,0,1],[1,0,0,0,1],[1,0,1,0,1],[0,1,0,1,0],[0,1,0,1,0]];
+  const letters = [H5, W5];
+  const totalLettersW = 2 * 5 * pstep + 0.02;
+  const startPx = -totalLettersW / 2 + pstep / 2;
+  for (let li = 0; li < letters.length; li++) {
+    const lx = startPx + li * (5 * pstep + 0.02);
+    letters[li].forEach((row, ri) => {
+      row.forEach((on, ci) => {
+        if (!on) return;
+        const px = new THREE.Mesh(new THREE.BoxGeometry(ps, ps, 0.01), pixMat);
+        px.position.set(lx + ci * pstep, signY + 0.05 - ri * pstep, D / 2 + 0.13);
+        group.add(px);
+      });
+    });
+  }
+
+  // ── FLAT ROOF ──
+  const roofSlab = new THREE.Mesh(new THREE.BoxGeometry(W + 0.2, 0.12, D + 0.2), roofMat);
+  roofSlab.position.y = baseH + wallH + 0.06;
+  roofSlab.castShadow = true;
+  group.add(roofSlab);
+  // Parapet
+  const parapetMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.8 });
+  for (const [pw, pd, px, pz] of [
+    [W + 0.2, 0.06, 0,         D / 2 + 0.07],
+    [W + 0.2, 0.06, 0,        -D / 2 - 0.07],
+    [0.06,    D + 0.2, -W / 2 - 0.07, 0],
+    [0.06,    D + 0.2,  W / 2 + 0.07, 0],
+  ]) {
+    const p = new THREE.Mesh(new THREE.BoxGeometry(pw, 0.22, pd), parapetMat);
+    p.position.set(px, baseH + wallH + 0.12 + 0.11, pz);
+    group.add(p);
+  }
+  // Rooftop AC unit
+  const acUnit = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.22, 0.3), concreteMat);
+  acUnit.position.set(-0.7, baseH + wallH + 0.12 + 0.11, -0.4);
+  group.add(acUnit);
+  const acVent = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.04, 0.28), metalMat);
+  acVent.position.set(-0.7, baseH + wallH + 0.12 + 0.24, -0.4);
+  group.add(acVent);
+
+  // ── INTERIOR BACK WALL (lit, visible through glass) ──
+  const interiorMat = new THREE.MeshStandardMaterial({ color: 0xe0f2fe, emissive: 0xdbeafe, emissiveIntensity: 0.12 });
+  const intBack = new THREE.Mesh(new THREE.BoxGeometry(W - 0.15, wallH - 0.1, 0.04), interiorMat);
+  intBack.position.set(0, baseH + wallH / 2 + 0.05, -D / 2 + 0.15);
+  group.add(intBack);
+
+  // ── PEGBOARD (on back wall, upper portion) ──
+  const pegboard = new THREE.Mesh(new THREE.BoxGeometry(W * 0.75, wallH * 0.45, 0.05), pegboardMat);
+  pegboard.position.set(0.1, baseH + wallH * 0.68, -D / 2 + 0.17);
+  group.add(pegboard);
+  // Pegboard holes grid
+  const holeMat = new THREE.MeshStandardMaterial({ color: 0x374151 });
+  for (let row = 0; row < 4; row++) {
+    for (let col = 0; col < 8; col++) {
+      const hole = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.04, 0.02), holeMat);
+      hole.position.set(-W * 0.75 / 2 + 0.1 + col * 0.22, baseH + wallH * 0.5 + row * 0.14, -D / 2 + 0.19);
+      group.add(hole);
+    }
+  }
+
+  // Tools on pegboard
+  // Hammer
+  const hammerHandle = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.17, 0.03), handleYellowMat);
+  hammerHandle.position.set(-0.55, baseH + wallH * 0.71, -D / 2 + 0.23);
+  group.add(hammerHandle);
+  const hammerHead = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.05, 0.04), toolMat);
+  hammerHead.position.set(-0.55, baseH + wallH * 0.81, -D / 2 + 0.23);
+  group.add(hammerHead);
+
+  // Wrench
+  const wrenchBody = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.18, 0.03), toolMat);
+  wrenchBody.rotation.z = 0.2;
+  wrenchBody.position.set(-0.2, baseH + wallH * 0.72, -D / 2 + 0.23);
+  group.add(wrenchBody);
+  const wrenchEnd = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.04, 0.03), toolMat);
+  wrenchEnd.position.set(-0.2, baseH + wallH * 0.82, -D / 2 + 0.23);
+  group.add(wrenchEnd);
+
+  // Screwdriver
+  const screwHandle = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.12, 0.04), handleYellowMat);
+  screwHandle.position.set(0.15, baseH + wallH * 0.73, -D / 2 + 0.23);
+  group.add(screwHandle);
+  const screwShank = new THREE.Mesh(new THREE.BoxGeometry(0.018, 0.1, 0.018), toolMat);
+  screwShank.position.set(0.15, baseH + wallH * 0.59, -D / 2 + 0.23);
+  group.add(screwShank);
+
+  // Pliers
+  const pliersBody = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.16, 0.03), toolMat);
+  pliersBody.position.set(0.5, baseH + wallH * 0.72, -D / 2 + 0.23);
+  group.add(pliersBody);
+  const pliersJaw = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.04, 0.03), toolMat);
+  pliersJaw.position.set(0.5, baseH + wallH * 0.81, -D / 2 + 0.23);
+  group.add(pliersJaw);
+
+  // ── WORKBENCHES (along side walls) ──
+  for (const bx of [-W / 2 + 0.32, W / 2 - 0.32]) {
+    // Bench top
+    const benchTop = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.06, D * 0.72), benchMat);
+    benchTop.position.set(bx, baseH + wallH * 0.44, 0);
+    benchTop.castShadow = true;
+    group.add(benchTop);
+    // Legs
+    for (const lz of [-D * 0.29, D * 0.29]) {
+      const leg = new THREE.Mesh(new THREE.BoxGeometry(0.05, wallH * 0.44, 0.05), metalLegMat);
+      leg.position.set(bx, baseH + wallH * 0.22, lz);
+      group.add(leg);
+    }
+    // Lower shelf
+    const shelf = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.04, D * 0.68), benchMat);
+    shelf.position.set(bx, baseH + wallH * 0.18, 0);
+    group.add(shelf);
+  }
+
+  // ── 3D PRINTERS on benches ──
+  // Printer 1 — left bench
+  const p1x = -W / 2 + 0.32;
+  const p1y = baseH + wallH * 0.44 + 0.03;
+  for (const [pz, col] of [[-0.2, 0x0ea5e9], [0.2, 0x8b5cf6]]) {
+    const pBody = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.26, 0.22), printerMat);
+    pBody.position.set(p1x, p1y + 0.13, pz);
+    pBody.castShadow = true;
+    group.add(pBody);
+    // Accent top bar (printer gantry rod)
+    const gantry = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.02, 0.02), printerAccMat);
+    gantry.position.set(p1x, p1y + 0.24, pz - 0.09);
+    group.add(gantry);
+    // Screen
+    const scr = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.05, 0.02), screenMat);
+    scr.position.set(p1x + 0.06, p1y + 0.2, pz + 0.12);
+    group.add(scr);
+    // Print bed
+    const bed = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.015, 0.14), new THREE.MeshStandardMaterial({ color: 0x1c1917 }));
+    bed.position.set(p1x, p1y + 0.025, pz);
+    group.add(bed);
+    // Tiny print object on bed
+    const blob = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.04, 0.05), new THREE.MeshStandardMaterial({ color: col }));
+    blob.position.set(p1x, p1y + 0.055, pz);
+    group.add(blob);
+  }
+
+  // Printer 2 — right bench (single, larger)
+  const p2x = W / 2 - 0.32;
+  const p2y = p1y;
+  const p2Body = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.3, 0.25), printerMat);
+  p2Body.position.set(p2x, p2y + 0.15, 0);
+  p2Body.castShadow = true;
+  group.add(p2Body);
+  const p2Gantry = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.02, 0.27), printerAccMat);
+  p2Gantry.position.set(p2x + 0.1, p2y + 0.27, 0);
+  group.add(p2Gantry);
+  const p2Screen = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.06, 0.02), screenMat);
+  p2Screen.position.set(p2x - 0.07, p2y + 0.24, 0.14);
+  group.add(p2Screen);
+  const p2Bed = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.015, 0.16), new THREE.MeshStandardMaterial({ color: 0x1c1917 }));
+  p2Bed.position.set(p2x, p2y + 0.025, 0);
+  group.add(p2Bed);
+  const p2Job = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.07, 0.06), new THREE.MeshStandardMaterial({ color: 0xef4444 }));
+  p2Job.position.set(p2x, p2y + 0.072, 0);
+  group.add(p2Job);
+
+  // ── CENTRE WORKBENCH ──
+  const ctbTop = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.05, 0.6), benchMat);
+  ctbTop.position.set(0, baseH + wallH * 0.38, -0.2);
+  ctbTop.castShadow = true;
+  group.add(ctbTop);
+  for (const [cx, cz] of [[-0.25, -0.24], [0.25, -0.24], [-0.25, 0.24], [0.25, 0.24]]) {
+    const leg = new THREE.Mesh(new THREE.BoxGeometry(0.04, wallH * 0.38, 0.04), metalLegMat);
+    leg.position.set(cx, baseH + wallH * 0.19, -0.2 + cz);
+    group.add(leg);
+  }
+  // Laptop / soldering station on central bench
+  const laptop = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.02, 0.18), new THREE.MeshStandardMaterial({ color: 0x374151 }));
+  laptop.position.set(-0.1, baseH + wallH * 0.38 + 0.035, -0.2);
+  group.add(laptop);
+  const screen2 = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.14, 0.01), screenMat);
+  screen2.rotation.x = -0.5;
+  screen2.position.set(-0.1, baseH + wallH * 0.38 + 0.1, -0.2 - 0.07);
+  group.add(screen2);
+
+  // ── INTERIOR LIGHT ──
+  const glow = new THREE.PointLight(0xe0f2fe, 1.2, 6);
+  glow.position.set(0, baseH + wallH * 0.7, 0);
+  group.add(glow);
+  // Sign glow
+  const signGlow = new THREE.PointLight(0x00e676, 0.4, 1.5);
+  signGlow.position.set(0, signY, D / 2 + 0.2);
+  group.add(signGlow);
+
+  // ── 🐾 HIDDEN FURBY (purple/pink, tucked in back-right corner) ──
+  const frbX  = W / 2 - 0.55;
+  const frbZ  = -D / 2 + 0.35;
+  const frbY  = baseH;
+  const fBodyMat  = new THREE.MeshStandardMaterial({ color: 0xd946ef, roughness: 0.95 }); // fuchsia
+  const fEarMat   = new THREE.MeshStandardMaterial({ color: 0xf0abfc, roughness: 0.95 }); // lighter pink
+  const fBellyMat = new THREE.MeshStandardMaterial({ color: 0xfce7f3, roughness: 0.95 }); // pale pink
+  const fEyeMat   = new THREE.MeshStandardMaterial({ color: 0xffffff });
+  const fPupilMat = new THREE.MeshStandardMaterial({ color: 0x1e1b4b });
+  const fBeakMat  = new THREE.MeshStandardMaterial({ color: 0xfbbf24, roughness: 0.6 });
+
+  // Body
+  const fBody = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 7), fBodyMat);
+  fBody.scale.set(1.0, 1.15, 0.95);
+  fBody.position.set(frbX, frbY + 0.11, frbZ);
+  group.add(fBody);
+  // Belly patch
+  const fBelly = new THREE.Mesh(new THREE.SphereGeometry(0.065, 7, 6), fBellyMat);
+  fBelly.scale.set(0.75, 0.85, 0.4);
+  fBelly.position.set(frbX, frbY + 0.12, frbZ + 0.09);
+  group.add(fBelly);
+  // Ear bumps
+  for (const ex of [-0.075, 0.075]) {
+    const ear = new THREE.Mesh(new THREE.SphereGeometry(0.04, 7, 6), fEarMat);
+    ear.position.set(frbX + ex, frbY + 0.24, frbZ - 0.01);
+    group.add(ear);
+  }
+  // Hair tuft
+  const tuft = new THREE.Mesh(new THREE.ConeGeometry(0.022, 0.07, 5), fBodyMat);
+  tuft.position.set(frbX, frbY + 0.3, frbZ);
+  group.add(tuft);
+  // Big eyes
+  for (const ex of [-0.042, 0.042]) {
+    const eye = new THREE.Mesh(new THREE.SphereGeometry(0.028, 7, 6), fEyeMat);
+    eye.position.set(frbX + ex, frbY + 0.18, frbZ + 0.09);
+    group.add(eye);
+    const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.014, 6, 6), fPupilMat);
+    pupil.position.set(frbX + ex, frbY + 0.18, frbZ + 0.115);
+    group.add(pupil);
+    // Shine dot
+    const shine = new THREE.Mesh(new THREE.SphereGeometry(0.005, 5, 5), new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 1 }));
+    shine.position.set(frbX + ex + 0.01, frbY + 0.19, frbZ + 0.122);
+    group.add(shine);
+  }
+  // Beak
+  const beak = new THREE.Mesh(new THREE.ConeGeometry(0.022, 0.03, 4), fBeakMat);
+  beak.rotation.x = Math.PI / 2;
+  beak.position.set(frbX, frbY + 0.14, frbZ + 0.11);
+  group.add(beak);
+  // Feet
+  for (const fx of [-0.045, 0.045]) {
+    const foot = new THREE.Mesh(new THREE.SphereGeometry(0.028, 6, 5), fBodyMat);
+    foot.scale.set(1.2, 0.5, 1.3);
+    foot.position.set(frbX + fx, frbY + 0.025, frbZ + 0.05);
+    group.add(foot);
+  }
+
+  // ── PLAQUE ANCHOR ──
+  buildPlaque(group, building, D / 2 + 0.1, 3.0);
+};
+
 // Create organic village ground with winding roads
 export function createGround() {
   const group = new THREE.Group();
