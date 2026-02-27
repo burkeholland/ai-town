@@ -287,7 +287,7 @@ async function verify() {
 
     // Navigate to composite page
     await page.setViewport({ width: 1200, height: 630, deviceScaleFactor: 2 });
-    await page.setContent(compositeHtml, { waitUntil: 'networkidle0', timeout: 10000 });
+    await page.setContent(compositeHtml, { waitUntil: 'load', timeout: 30000 });
     await new Promise(r => setTimeout(r, 1000));
 
     const ogDir = join(__dirname, 'town', slug);
