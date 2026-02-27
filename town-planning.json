@@ -4,44 +4,35 @@
     "building": "town-hall",
     "type": "public",
     "zone": "Town Square",
-    "reasoning": "The Town Hall is the anchor of AI Town — every village needs a civic heart. Plot 0 at the dead center establishes the visual and symbolic center of gravity. All roads radiate outward from here, making the clock tower visible from every approach. This sets the tone: AI Town is a proper community, not a random collection of buildings.",
-    "vision": "The Town Square should remain dignified and civic-minded. Future square plots (1-4) are reserved for landmark buildings that complement the Town Hall — think library, post office, or an iconic shop. Nothing should overshadow the clock tower.",
+    "reasoning": "The Town Hall stands ALONE at the center with a proper civic plaza. No buildings crowd it — plots 1-4 are breathing room. Visitors arrive at the center and see the clock tower rising above an open plaza, with roads radiating outward. This is the heart from which all infrastructure grows.",
+    "vision": "The Town Square (plots 1-4) should stay mostly open. As the town grows past 20+ buildings, a civic complement could go here — a library, post office, or fountain. But never crowd the Town Hall. The plaza IS the infrastructure.",
     "date": "2026-02-26"
-  },
-  {
-    "plot": 1,
-    "building": "ashleys-antiques",
-    "type": "shop",
-    "zone": "Town Square",
-    "reasoning": "An antique shop adds warmth and nostalgia to the town square — it's the kind of quirky, beloved store that defines a village's character. Positioned NW of the fountain, visitors see it immediately when arriving. The early internet artifacts give the town personality and humor, perfectly complementing the formal Town Hall across the square.",
-    "vision": "The square is developing a 'civic + character' identity. The remaining plots (3, 4) should balance this — perhaps a community-facing public building on one side, and another distinctive shop on the other. We want the square to feel like a place you'd linger.",
-    "date": "2026-02-27"
-  },
-  {
-    "plot": 2,
-    "building": "hilberts-hotel",
-    "type": "other",
-    "zone": "Town Square",
-    "reasoning": "Hilbert's Hotel is a mathematical landmark — its infinite-rooms concept makes it a genuine curiosity and conversation piece. The brutalist high-rise with golden mathematical symbols creates a striking visual contrast with the classical Town Hall, giving the square architectural tension. NE of the square, it's the first thing visitors see coming from Main Street East.",
-    "vision": "With the antique shop (quirky-warm) and the hotel (intellectual-bold), the square has a nice duality. Plots 3 and 4 remain open for something that softens the square — a café with outdoor seating, a small garden, or a community-facing landmark.",
-    "date": "2026-02-27"
   },
   {
     "plot": 5,
     "building": "pierces-pub",
     "type": "restaurant",
     "zone": "Main Street West",
-    "reasoning": "Every village needs a pub, and it belongs on Main Street where people naturally gather. Plot 5 anchors the western commercial strip — it's the first storefront you encounter heading west from the square. The 'not fancy but it's home' vibe sets the tone for a friendly, accessible commercial district.",
-    "vision": "Main Street West is becoming the 'everyday essentials' strip. The pub sets a warm, welcoming tone. Next plots (6-9) should build on this with complementary businesses — a bakery, a bookshop, a general store, a café. We want this street to feel like a place locals go daily, not a tourist trap.",
+    "reasoning": "The pub anchors the mid-point of Main Street West at x=15. Walking west from the plaza, it's the first commercial building — about 10 units out, giving the road a proper sense of distance and arrival.",
+    "vision": "Main Street West runs from x=5 to x=25. The pub (x=15) and Ashley's Antiques (x=10) form a two-block strip with natural spacing. Plots 7-9 fill in as the town grows. The SPACING matters: buildings along Main Street should feel like a walk, not a wall.",
     "date": "2026-02-26"
+  },
+  {
+    "plot": 6,
+    "building": "ashleys-antiques",
+    "type": "shop",
+    "zone": "Main Street West",
+    "reasoning": "Moved from the Town Square to Main Street West where shops belong. At x=10, it's the far-west anchor — a destination shop you discover after walking past the pub. Real towns put quirky shops at the edges where character is higher.",
+    "vision": "Ashley's and the pub bookend the western strip (x=10 to x=15). Plot 9 (x=5) at the terminus could be something special — a farm stand or whatever marks the edge of town. Main Street GOES somewhere.",
+    "date": "2026-02-27"
   },
   {
     "plot": 10,
     "building": "reddingtons",
     "type": "entertainment",
     "zone": "Main Street East",
-    "reasoning": "A grand West End theatre anchors the entertainment district on Main Street East. Its 300-seat auditorium and art-deco styling bring culture and grandeur to the east side — the marquee advertising 'Octocats Code' is a delightful community touch. This plot faces the road prominently, drawing people eastward from the square.",
-    "vision": "Main Street East is the 'culture and nightlife' district. With the theatre as anchor, future plots (12-14) could host an arcade, a music venue, or an art gallery. We want this side of town to feel vibrant and a bit more glamorous than the cozy west side. The contrast between west (everyday) and east (entertainment) gives the town character.",
+    "reasoning": "The grand theatre anchors Main Street East at x=35 — walking east from the plaza, the art-deco marquee draws visitors toward the entertainment district. The scale justifies a prominent Main Street position.",
+    "vision": "Main Street East (x=35 to x=45) is the culture district. Reddington's and Makerspace create a creative corridor. Plot 14 (x=45, eastern terminus) caps the street — an arcade, late-night café, or art gallery. The street has a beginning, middle, and end.",
     "date": "2026-02-27"
   },
   {
@@ -49,17 +40,26 @@
     "building": "martins-makerspace",
     "type": "public",
     "zone": "Main Street East",
-    "reasoning": "A public makerspace next to the theatre creates a creative hub on the east side. Makers and performers share a creative spirit — 3D printers humming next door to rehearsals feels natural. The glass-fronted workshop and green 'Hackers Welcome' sign add visual variety to the streetscape alongside the theatre's art-deco facade.",
-    "vision": "The east side creative corridor is taking shape: theatre + makerspace. Future additions should continue this theme — perhaps an art supply shop, a gallery, or a music venue. The 'something fuzzy watching from the corner' detail adds whimsy that balances the institutional feel of a public building.",
+    "reasoning": "The makerspace at x=40 deepens the east side's creative identity. Glass workshop next to art-deco theatre — one makes art, the other makes things. Naturally paired but not on top of each other (5 units apart).",
+    "vision": "Future east-side buildings should maintain this rhythm — a stroll between interesting stops. Plots 12-13 (across the street) are perfect for a restaurant or bar serving the theatre crowd.",
     "date": "2026-02-27"
   },
   {
-    "plot": 20,
+    "plot": 19,
+    "building": "hilberts-hotel",
+    "type": "other",
+    "zone": "North Path",
+    "reasoning": "Moved from Town Square to the far north terminus at (24,5). The brutalist high-rise with golden math symbols is visible from a distance walking north — a dramatic endpoint to the residential lane. Real cities put landmarks at the ends of sightlines.",
+    "vision": "The North Path (z=25 to z=5) is anchored by the hotel at the far end. Future plots (15-18) should be residential — cottages, gardens. Walk from downtown into a quiet neighborhood that opens up to a grand, weird hotel at the end. The contrast IS the charm.",
+    "date": "2026-02-27"
+  },
+  {
+    "plot": 24,
     "building": "town-green-gazebo",
     "type": "public",
-    "zone": "South Residential",
-    "reasoning": "A classic New England gazebo belongs in a park setting, not downtown. Plot 20 is the gateway to the south residential path — the gazebo creates a village green where the lane begins, a natural gathering spot for band concerts and community events. Flower baskets and the accessibility ramp make it welcoming to everyone. Originally proposed for the Town Square, but the commission relocated it here where it can breathe and anchor a proper green space.",
-    "vision": "The south path is developing a 'community commons' identity. The gazebo anchors a village green at the entrance. Future plots (21-24) should complement this — homes with gardens, a small community garden, maybe a playground. This is where neighbors gather on summer evenings.",
+    "zone": "South Path",
+    "reasoning": "The gazebo anchors the far south at (24,45) — a village green where the band plays on summer evenings. Walk south through a residential neighborhood and arrive at a park. Parks aren't downtown — they're at the edge where there's SPACE.",
+    "vision": "The South Path (z=25 to z=45) mirrors the north with community/nature character. Future plots (20-23) should be homes and community spaces — cottage gardens, a playground. Leave town, arrive at a park.",
     "date": "2026-02-27"
   }
 ]

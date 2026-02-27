@@ -17,7 +17,7 @@
     "name": "Ashley's Antiques",
     "type": "shop",
     "description": "A warm, slightly dusty antique shop filled with carefully preserved artifacts from the early internet. Shelves stacked with old modems, floppy disks, tamagotchis. A hand-lettered sign on the counter reads: Be kind. Rewind.",
-    "plot": 1,
+    "plot": 6,
     "contributor": {
       "username": "ashleywolf",
       "avatar": "https://github.com/ashleywolf.png"
@@ -43,7 +43,7 @@
     "name": "Hilbert's Hotel",
     "type": "other",
     "description": "The famous set-theory Hotel with infinitely many rooms — all perpetually occupied. When a new guest arrives, every guest shifts one room up (1→2, 2→3 …), freeing room 1. A brutalist high-rise draped in golden mathematical symbols: ∞, ℵ₀, Σ, and more.",
-    "plot": 2,
+    "plot": 19,
     "contributor": {
       "username": "colindembovsky",
       "avatar": "https://github.com/colindembovsky.png"
@@ -82,7 +82,7 @@
     "name": "Town Green Gazebo",
     "type": "public",
     "description": "A pristine white octagonal Victorian gazebo in classic New England style, large enough for a community band concert or a mayor's proclamation. Seven arches adorned with hanging flower baskets overflow with red geraniums and trailing ivy. Stairs on one side, an accessibility ramp on the other.",
-    "plot": 20,
+    "plot": 24,
     "contributor": {
       "username": "Jeffrey-Luszcz",
       "avatar": "https://github.com/Jeffrey-Luszcz.png"
