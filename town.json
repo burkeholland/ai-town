@@ -156,6 +156,19 @@
     "added": "2026-02-27"
   },
   {
+    "id": "motz-coffee-co",
+    "name": "Motz Coffee Co. & Roastery",
+    "type": "shop",
+    "description": "A sleek matte-black urban coffee temple where craft roasting meets espresso artistry. Big front windows with brass trim reveal the espresso bar and a back-corner micro-roastery. The glowing cyan neon sign on the side wall is an iconic beacon—serious coffee lives here.",
+    "plot": 8,
+    "contributor": {
+      "username": "jamesmontemagno",
+      "avatar": "https://github.com/jamesmontemagno.png"
+    },
+    "issue": 38,
+    "added": "2026-02-27"
+  },
+  {
     "id": "hot-yoga-studio-charlie",
     "name": "Hot Yoga, Studio Charlie",
     "type": "shop",
