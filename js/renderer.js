@@ -212,26 +212,29 @@ export class TownRenderer {
   }
 
   initTouchControls() {
+    const center = this.getTownCenter();
     this.orbit = {
       angle: Math.PI / 4,
       height: 12,
       radius: 20,
       baseAutoSpeed: 0.12,
       lastInteraction: 0,
+      centerX: center.x,
+      centerZ: center.z,
     };
 
     // Position camera for orbit view
-    const center = this.getTownCenter();
     this.camera.position.set(
-      center.x + this.orbit.radius * Math.cos(this.orbit.angle),
+      this.orbit.centerX + this.orbit.radius * Math.cos(this.orbit.angle),
       this.orbit.height,
-      center.z + this.orbit.radius * Math.sin(this.orbit.angle)
+      this.orbit.centerZ + this.orbit.radius * Math.sin(this.orbit.angle)
     );
-    this.camera.lookAt(center.x, 1.5, center.z);
+    this.camera.lookAt(this.orbit.centerX, 1.5, this.orbit.centerZ);
 
     let touchStart = null;
     let touchStartPos = null;
     let lastTouchDist = null;
+    let lastTouchAngle = null;
 
     const canvas = this.renderer.domElement;
 
@@ -245,6 +248,10 @@ export class TownRenderer {
           e.touches[0].clientX - e.touches[1].clientX,
           e.touches[0].clientY - e.touches[1].clientY
         );
+        lastTouchAngle = Math.atan2(
+          e.touches[1].clientY - e.touches[0].clientY,
+          e.touches[1].clientX - e.touches[0].clientX
+        );
       }
     }, { passive: false });
 
@@ -254,10 +261,18 @@ export class TownRenderer {
       if (e.touches.length === 1 && touchStart) {
         const dx = e.touches[0].clientX - touchStart.x;
         const dy = e.touches[0].clientY - touchStart.y;
-        this.orbit.angle -= dx * 0.004;
-        this.orbit.height = Math.max(4, Math.min(25, this.orbit.height - dy * 0.04));
+
+        // Pan: move orbit center relative to camera orientation
+        const panSpeed = this.orbit.radius * 0.002;
+        const sinA = Math.sin(this.orbit.angle);
+        const cosA = Math.cos(this.orbit.angle);
+        // Right vector: (sinA, 0, -cosA), Forward vector: (-cosA, 0, -sinA)
+        this.orbit.centerX += (dx * sinA + dy * (-cosA)) * panSpeed;
+        this.orbit.centerZ += (dx * (-cosA) + dy * (-sinA)) * panSpeed;
+
         touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
       } else if (e.touches.length === 2) {
+        // Pinch to zoom
         const dist = Math.hypot(
           e.touches[0].clientX - e.touches[1].clientX,
           e.touches[0].clientY - e.touches[1].clientY
@@ -267,6 +282,19 @@ export class TownRenderer {
           this.orbit.radius = Math.max(8, Math.min(40, this.orbit.radius - delta * 0.08));
         }
         lastTouchDist = dist;
+
+        // Twist to rotate orbit angle
+        const angle = Math.atan2(
+          e.touches[1].clientY - e.touches[0].clientY,
+          e.touches[1].clientX - e.touches[0].clientX
+        );
+        if (lastTouchAngle !== null) {
+          let da = angle - lastTouchAngle;
+          if (da > Math.PI) da -= 2 * Math.PI;
+          if (da < -Math.PI) da += 2 * Math.PI;
+          this.orbit.angle -= da;
+        }
+        lastTouchAngle = angle;
       }
     }, { passive: false });
 
@@ -283,9 +311,10 @@ export class TownRenderer {
       touchStart = null;
       touchStartPos = null;
       lastTouchDist = null;
+      lastTouchAngle = null;
     });
 
-    // Close info panel on tap outside buildings
+    // Close info panel on ESC
     document.addEventListener('keydown', (e) => {
       if (e.code === 'Escape') {
         const panel = document.getElementById('info-panel');
@@ -336,22 +365,21 @@ export class TownRenderer {
   }
 
   updateOrbit(dt) {
-    const center = this.getTownCenter();
     // Gradually resume auto-orbit after interaction
     const timeSinceInteraction = (Date.now() - this.orbit.lastInteraction) / 1000;
     const autoFactor = Math.min(1, Math.max(0, (timeSinceInteraction - 0.5) / 2));
     this.orbit.angle += this.orbit.baseAutoSpeed * autoFactor * dt;
 
     this.camera.position.set(
-      center.x + this.orbit.radius * Math.cos(this.orbit.angle),
+      this.orbit.centerX + this.orbit.radius * Math.cos(this.orbit.angle),
       this.orbit.height,
-      center.z + this.orbit.radius * Math.sin(this.orbit.angle)
+      this.orbit.centerZ + this.orbit.radius * Math.sin(this.orbit.angle)
     );
-    this.camera.lookAt(center.x, 1.5, center.z);
+    this.camera.lookAt(this.orbit.centerX, 1.5, this.orbit.centerZ);
 
     // Shadow follows camera
     this.sun.position.set(this.camera.position.x + 15, 20, this.camera.position.z + 10);
-    this.sun.target.position.set(center.x, 0, center.z);
+    this.sun.target.position.set(this.orbit.centerX, 0, this.orbit.centerZ);
     this.sun.target.updateMatrixWorld();
   }
 

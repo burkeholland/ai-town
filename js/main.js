@@ -40,7 +40,7 @@ async function init() {
   if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
     const hint = document.getElementById('controls-hint');
     if (hint) {
-      hint.innerHTML = '<p><strong>Swipe</strong> to orbit · <strong>Pinch</strong> to zoom · <strong>Tap</strong> a building</p>';
+      hint.innerHTML = '<p><strong>Swipe</strong> to move · <strong>Pinch</strong> to zoom · <strong>Twist</strong> to rotate · <strong>Tap</strong> a building</p>';
     }
   }
 
