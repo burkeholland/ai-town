@@ -39,7 +39,7 @@ Each building is an object:
    - `name`: the building's display name
    - `type`: one of `shop`, `house`, `restaurant`, `public`, `entertainment`, `nature`, `other`
    - `description`: brief description of the building
-   - `plot`: use the plot number assigned in the build context comment. If no plot is specified, check existing buildings in `town.json` and pick an unoccupied plot number (0-39). See `PLOTS` array in `js/buildings.js` for world coordinates.
+   - `plot`: You **MUST** use the exact plot number assigned in the build context comment. Do NOT change it. If no plot is specified (legacy), check existing buildings in `town.json` and pick an unoccupied plot number (5-40, avoiding 1-4). Plots 1-4 are **RESERVED** — never place buildings there. See `PLOTS` array in `js/buildings.js` for world coordinates.
    - `contributor`: `{ "username": "...", "avatar": "https://github.com/{username}.png" }`
    - `issue`: the issue number this building was requested in
    - `added`: today's date in YYYY-MM-DD format
@@ -56,7 +56,8 @@ Issues labeled `building-modification` ask to change an **existing** building. T
 2. Read the issue body to understand what the user wants changed (description, type, custom visuals, etc.).
 3. Update the building's entry in `town.json` as requested (e.g., new `description`, `name`, or `type`).
 4. If the modification involves custom visuals, update or add a `CUSTOM_BUILDERS` entry in `js/buildings.js` keyed by the building's `id`.
-5. Do NOT change the `contributor`, `plot`, `issue`, or `added` fields.
+5. Do NOT change the `contributor`, `plot`, `issue`, or `added` fields. The `plot` field is assigned by the AI planning committee and is **non-negotiable**.
+6. Plots 1-4 (Town Square) are **permanently reserved** as open civic space. Never place any building on these plots.
 6. Do NOT touch any other building's data or code.
 
 ## Building Types & Colors

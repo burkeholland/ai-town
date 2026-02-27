@@ -242,6 +242,7 @@ async function verify() {
         { x: 13, z: 15 }, { x: 37, z: 15 }, { x: 13, z: 37 },
         { x: 37, z: 37 }, { x: 31, z: 12 }, { x: 31, z: 38 },
         { x: 6, z: 38 },
+        { x: 50, z: 8 },
       ];
 
       const plot = PLOTS[plotIdx] || PLOTS[0];
