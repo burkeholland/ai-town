@@ -3805,6 +3805,311 @@ CUSTOM_BUILDERS['the-bug-museum'] = function (group, building) {
   buildPlaque(group, building, D / 2 + 0.05, 4.0);
 };
 
+// ─── Custom Building: The Cinnamon Roll ────────────────────────────────────
+
+CUSTOM_BUILDERS['the-cinnamon-roll'] = function (group, building) {
+  const R      = 2.0;   // main roll radius
+  const H      = 2.6;   // roll height
+  const baseH  = 0.4;   // base platform height
+  const baseR  = 2.35;  // base platform radius
+
+  // ── MATERIALS ──
+  const rollMat     = new THREE.MeshStandardMaterial({ color: 0x8B4513, roughness: 0.85 }); // Saddle Brown
+  const rollLightMat = new THREE.MeshStandardMaterial({ color: 0xD4A574, roughness: 0.8 }); // Tan highlight
+  const frostMat    = new THREE.MeshStandardMaterial({ color: 0xF5E6D3, roughness: 0.6 });  // Cream frosting
+  const caramelMat  = new THREE.MeshStandardMaterial({ color: 0xC19A6B, roughness: 0.85 }); // Caramel base
+  const darkMat     = new THREE.MeshStandardMaterial({ color: 0x2d1810, roughness: 0.8 });  // Dark chocolate
+  const signWoodMat = new THREE.MeshStandardMaterial({ color: 0xD4A574, roughness: 0.9 });  // Sign wood
+  const ironMat     = new THREE.MeshStandardMaterial({ color: 0x1f2937, roughness: 0.7 });  // Wrought iron
+  const amberMat    = new THREE.MeshStandardMaterial({ color: 0xfbbf24, emissive: 0xfbbf24, emissiveIntensity: 0.2, transparent: true, opacity: 0.85 });
+  const herbMat     = new THREE.MeshStandardMaterial({ color: 0x22c55e, roughness: 0.8 });
+  const winMat      = new THREE.MeshPhysicalMaterial({
+    color: 0xbfdbfe, emissive: 0x3b82f6, emissiveIntensity: 0.15,
+    transparent: true, opacity: 0.35, transmission: 0.6, roughness: 0.1, thickness: 0.05,
+  });
+
+  // ── BASE PLATFORM (caramel plate) ──
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(baseR, baseR, baseH, 32), caramelMat);
+  base.position.y = baseH / 2;
+  base.castShadow = true;
+  base.receiveShadow = true;
+  group.add(base);
+
+  // ── MAIN ROLL BODY ──
+  const rollBody = new THREE.Mesh(new THREE.CylinderGeometry(R, R, H, 32), rollMat);
+  rollBody.position.y = baseH + H / 2;
+  rollBody.castShadow = true;
+  rollBody.receiveShadow = true;
+  group.add(rollBody);
+
+  // Top face (slightly lighter baked highlights)
+  const rollTop = new THREE.Mesh(new THREE.CircleGeometry(R, 32), rollLightMat);
+  rollTop.rotation.x = -Math.PI / 2;
+  rollTop.position.y = baseH + H + 0.01;
+  group.add(rollTop);
+
+  // ── SPIRAL RIBBON (helix around exterior, 3.5 turns bottom→top) ──
+  const spiralSegs  = 160;
+  const turns       = 3.5;
+  const ribW        = (2 * Math.PI * turns * R) / spiralSegs * 1.15; // slightly overlap
+  const ribH        = 0.13;
+  const ribD        = 0.1;
+  const spiralMat   = new THREE.MeshStandardMaterial({ color: 0x5c2d0a, roughness: 0.9 });
+  for (let i = 0; i < spiralSegs; i++) {
+    const t     = i / spiralSegs;
+    const angle = t * Math.PI * 2 * turns;
+    const y     = baseH + 0.05 + t * (H - 0.1);
+    const seg   = new THREE.Mesh(new THREE.BoxGeometry(ribW, ribH, ribD), spiralMat);
+    seg.position.set(Math.cos(angle) * (R + ribD / 2), y, Math.sin(angle) * (R + ribD / 2));
+    seg.rotation.y = angle + Math.PI / 2; // align width tangentially
+    seg.castShadow = true;
+    group.add(seg);
+  }
+
+  // ── FROSTING DRIPS (irregular cream blobs from top) ──
+  const frostAngles = [0, 0.7, 1.4, 2.0, 2.6, 3.2, 3.9, 4.6, 5.2, 5.8, Math.PI, Math.PI * 1.5];
+  const frostDropY  = [0, -0.18, -0.08, -0.24, -0.12, -0.20, -0.06, -0.22, -0.14, -0.10, -0.20, -0.16];
+  for (let i = 0; i < frostAngles.length; i++) {
+    const a  = frostAngles[i];
+    const dy = frostDropY[i];
+    const fr = R * 0.78 + (i % 3) * 0.06;
+    // Top mound blob
+    const blob = new THREE.Mesh(new THREE.SphereGeometry(0.28 + (i % 3) * 0.04, 8, 6), frostMat);
+    blob.position.set(Math.cos(a) * fr, baseH + H + 0.12, Math.sin(a) * fr);
+    group.add(blob);
+    // Drip stretching down the side
+    const drip = new THREE.Mesh(new THREE.SphereGeometry(0.15, 7, 6), frostMat);
+    drip.scale.set(0.9, 1.7, 0.9);
+    drip.position.set(Math.cos(a) * (R - 0.05), baseH + H + dy, Math.sin(a) * (R - 0.05));
+    group.add(drip);
+  }
+  // Centre swirl rings on top
+  for (let si = 0; si < 3; si++) {
+    const swirl = new THREE.Mesh(new THREE.TorusGeometry(0.45 - si * 0.14, 0.09 - si * 0.01, 6, 24), frostMat);
+    swirl.rotation.x = Math.PI / 2;
+    swirl.position.y = baseH + H + 0.06 + si * 0.07;
+    group.add(swirl);
+  }
+
+  // ── ARCHED ENTRANCE (front face, carved into roll) ──
+  const doorW = 0.72;
+  const doorH = 1.1;
+  const doorZ = R + 0.02;
+  // Door frame uprights
+  for (const dx of [-doorW / 2, doorW / 2]) {
+    const post = new THREE.Mesh(new THREE.BoxGeometry(0.07, doorH, 0.07), darkMat);
+    post.position.set(dx, baseH + doorH / 2, doorZ);
+    group.add(post);
+  }
+  // Arch
+  const arch = new THREE.Mesh(new THREE.TorusGeometry(doorW / 2 + 0.04, 0.055, 8, 16, Math.PI), darkMat);
+  arch.position.set(0, baseH + doorH, doorZ);
+  group.add(arch);
+  // Glass door panel
+  const glassDoor = new THREE.Mesh(new THREE.BoxGeometry(doorW - 0.04, doorH - 0.04, 0.04), winMat);
+  glassDoor.position.set(0, baseH + doorH / 2, doorZ);
+  glassDoor.renderOrder = 1;
+  group.add(glassDoor);
+
+  // ── CIRCULAR PORTHOLE WINDOWS (4 around the roll) ──
+  const winR    = 0.28;
+  const winRing = new THREE.MeshStandardMaterial({ color: 0x2d1810, roughness: 0.7 });
+  for (const angle of [Math.PI / 4, -Math.PI / 4, Math.PI * 3 / 4, -Math.PI * 3 / 4]) {
+    const wx = Math.cos(angle) * (R + 0.02);
+    const wz = Math.sin(angle) * (R + 0.02);
+    const win = new THREE.Mesh(new THREE.CircleGeometry(winR, 16), winMat);
+    win.rotation.y = -angle;
+    win.position.set(wx, baseH + H * 0.58, wz);
+    group.add(win);
+    const frame = new THREE.Mesh(new THREE.TorusGeometry(winR + 0.04, 0.04, 6, 20), winRing);
+    frame.rotation.y = -angle;
+    frame.position.set(wx, baseH + H * 0.58, wz);
+    group.add(frame);
+  }
+
+  // ── CINNAMON STICK COLUMNS (flanking entrance) ──
+  for (const sx of [-0.6, 0.6]) {
+    const stick = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.09, 1.6, 8), rollMat);
+    stick.position.set(sx, 0.8, R + 0.12);
+    group.add(stick);
+    // Horizontal groove rings
+    for (let gi = 0; gi < 5; gi++) {
+      const groove = new THREE.Mesh(new THREE.TorusGeometry(0.09, 0.018, 4, 12), spiralMat);
+      groove.rotation.x = Math.PI / 2;
+      groove.position.set(sx, 0.22 + gi * 0.28, R + 0.12);
+      group.add(groove);
+    }
+  }
+
+  // ── STRIPED AWNING above entrance ──
+  const awningGeo = new THREE.CylinderGeometry(0.55, 0.55, 1.5, 14, 1, true, -Math.PI / 2, Math.PI);
+  const awning = new THREE.Mesh(awningGeo, frostMat);
+  awning.rotation.z = Math.PI / 2;
+  awning.position.set(0, baseH + doorH + 0.35, R + 0.55);
+  group.add(awning);
+  // Tan stripes on awning
+  const stripMat = new THREE.MeshStandardMaterial({ color: 0xD4A574, roughness: 0.9 });
+  for (let si = 0; si < 4; si++) {
+    const stripe = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.03, 0.54), stripMat);
+    stripe.position.set(-0.51 + si * 0.34, baseH + doorH + 0.35, R + 0.55);
+    group.add(stripe);
+  }
+
+  // ── WOODEN SIGN (to the right of entrance, on two posts) ──
+  const signX = 1.05;
+  const signZ = R + 0.45;
+  for (const sx of [0.7, 1.4]) {
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.5, 6), signWoodMat);
+    post.position.set(sx, 0.75, signZ);
+    group.add(post);
+  }
+  const signBoard = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.34, 0.07), signWoodMat);
+  signBoard.position.set(signX, 1.38, signZ);
+  group.add(signBoard);
+  // Dark border on sign
+  const signBorder = new THREE.Mesh(new THREE.BoxGeometry(0.89, 0.38, 0.04), darkMat);
+  signBorder.position.set(signX, 1.38, signZ - 0.02);
+  group.add(signBorder);
+  // Text lines on sign
+  for (const [tw, ty] of [[0.68, 0.07], [0.55, -0.07]]) {
+    const line = new THREE.Mesh(new THREE.BoxGeometry(tw, 0.045, 0.02), darkMat);
+    line.position.set(signX, 1.38 + ty, signZ + 0.055);
+    group.add(line);
+  }
+
+  // ── STEAM VENTS on top of roll ──
+  const ventMat = new THREE.MeshStandardMaterial({ color: 0x8B4513, roughness: 0.9 });
+  const steamMat = new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: 0.35 });
+  for (const [vx, vz] of [[-0.5, 0.3], [0.4, -0.35], [0.1, -0.65]]) {
+    const vent = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 0.38, 8), ventMat);
+    vent.position.set(vx, baseH + H + 0.19, vz);
+    group.add(vent);
+    for (let s = 0; s < 2; s++) {
+      const steam = new THREE.Mesh(new THREE.SphereGeometry(0.07 - s * 0.01, 6, 6), steamMat);
+      steam.position.set(vx + s * 0.04, baseH + H + 0.44 + s * 0.14, vz);
+      group.add(steam);
+    }
+  }
+
+  // ── OUTDOOR BISTRO TABLES (3 on the caramel base) ──
+  const tablePositions = [
+    { x: -R - 0.68, z: 0.5 },
+    { x: -R - 0.68, z: -0.5 },
+    { x:  R + 0.68, z: -0.4 },
+  ];
+  for (const tp of tablePositions) {
+    // Table top (amber glass)
+    const tabTop = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.04, 12), amberMat);
+    tabTop.position.set(tp.x, baseH + 0.5, tp.z);
+    group.add(tabTop);
+    // Table leg
+    const tabLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.04, 0.5, 8), ironMat);
+    tabLeg.position.set(tp.x, baseH + 0.25, tp.z);
+    group.add(tabLeg);
+    // 2 chairs around each table
+    for (const ca of [0, Math.PI]) {
+      const cx = tp.x + Math.cos(ca) * 0.43;
+      const cz = tp.z + Math.sin(ca) * 0.43;
+      const seat = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.03, 0.22), ironMat);
+      seat.position.set(cx, baseH + 0.33, cz);
+      group.add(seat);
+      const back = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.18, 0.03), ironMat);
+      back.position.set(cx, baseH + 0.46, cz + Math.cos(ca) * 0.11);
+      group.add(back);
+    }
+  }
+
+  // ── TERRACOTTA PLANTERS with herb bushes ──
+  const planterMat = new THREE.MeshStandardMaterial({ color: 0xb45309, roughness: 0.9 });
+  for (const [px, pz] of [[R + 0.9, 0.55], [R + 0.9, -0.55], [-R - 1.0, 0]]) {
+    const planter = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.11, 0.2, 8), planterMat);
+    planter.position.set(px, baseH + 0.1, pz);
+    group.add(planter);
+    const herb = new THREE.Mesh(new THREE.SphereGeometry(0.17, 6, 6), herbMat);
+    herb.position.set(px, baseH + 0.29, pz);
+    group.add(herb);
+  }
+
+  // ── INTERIOR (visible through porthole windows and glass door) ──
+  // Interior warm back wall
+  const intWallMat = new THREE.MeshStandardMaterial({ color: 0xfef3c7, emissive: 0xfbbf24, emissiveIntensity: 0.1 });
+  const intBack = new THREE.Mesh(new THREE.CylinderGeometry(R - 0.14, R - 0.14, H - 0.2, 32), intWallMat);
+  intBack.position.y = baseH + H / 2;
+  group.add(intBack);
+
+  // Interior floor (caramel/honey wood)
+  const intFloor = new THREE.Mesh(new THREE.CylinderGeometry(R - 0.15, R - 0.15, 0.04, 32),
+    new THREE.MeshStandardMaterial({ color: 0xC19A6B, roughness: 0.8 }));
+  intFloor.position.y = baseH + 0.02;
+  group.add(intFloor);
+
+  // Display bakery case (against back wall)
+  const caseMat = new THREE.MeshStandardMaterial({ color: 0x4a2e0e, roughness: 0.8 });
+  const dCase = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.6, 0.5), caseMat);
+  dCase.position.set(0, baseH + 0.3, -R * 0.5);
+  group.add(dCase);
+  const caseGlass = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.45, 0.04), winMat);
+  caseGlass.position.set(0, baseH + 0.35, -R * 0.5 + 0.27);
+  caseGlass.renderOrder = 1;
+  group.add(caseGlass);
+  // Mini cinnamon rolls on display shelves
+  for (let i = 0; i < 6; i++) {
+    const mini = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 0.04, 8), rollMat);
+    mini.position.set(-0.35 + i * 0.14, baseH + 0.56, -R * 0.5);
+    group.add(mini);
+    const miniFrost = new THREE.Mesh(new THREE.TorusGeometry(0.035, 0.013, 4, 8), frostMat);
+    miniFrost.rotation.x = Math.PI / 2;
+    miniFrost.position.set(-0.35 + i * 0.14, baseH + 0.58, -R * 0.5);
+    group.add(miniFrost);
+  }
+
+  // Coffee bar counter (L-shaped, dark walnut)
+  const barMat = new THREE.MeshStandardMaterial({ color: 0x3b1a0e, roughness: 0.85 });
+  const bar1 = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.5, 0.3), barMat);
+  bar1.position.set(-0.45, baseH + 0.25, -R * 0.38);
+  group.add(bar1);
+  const bar2 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.5, 0.75), barMat);
+  bar2.position.set(-0.95, baseH + 0.25, -R * 0.18);
+  group.add(bar2);
+  // Silver espresso machine on bar
+  const machineMat = new THREE.MeshStandardMaterial({ color: 0xb8bcc8, metalness: 0.6, roughness: 0.3 });
+  const machine = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.22, 0.16), machineMat);
+  machine.position.set(-0.45, baseH + 0.61, -R * 0.38);
+  group.add(machine);
+
+  // Pendant lamps hanging from ceiling
+  const lampMat = new THREE.MeshStandardMaterial({ color: 0xfbbf24, emissive: 0xfbbf24, emissiveIntensity: 0.55 });
+  const cordMat = new THREE.MeshStandardMaterial({ color: 0x374151 });
+  for (const [lx, lz, lh] of [[0.5, 0.4, H * 0.7], [-0.4, 0.3, H * 0.68], [0, -0.35, H * 0.72]]) {
+    const shade = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 6), lampMat);
+    shade.position.set(lx, baseH + lh, lz);
+    group.add(shade);
+    const cord = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 0.38, 4), cordMat);
+    cord.position.set(lx, baseH + lh + 0.19, lz);
+    group.add(cord);
+  }
+
+  // Chalkboard menu on side wall
+  const chalkMat = new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.9 });
+  const chalkboard = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.82, 0.04), chalkMat);
+  chalkboard.position.set(0.85, baseH + H * 0.5, -R * 0.72);
+  group.add(chalkboard);
+  const lineMat = new THREE.MeshStandardMaterial({ color: 0xF5E6D3, roughness: 0.9 });
+  for (let mi = 0; mi < 4; mi++) {
+    const mline = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.04, 0.02), lineMat);
+    mline.position.set(0.85, baseH + H * 0.5 + 0.24 - mi * 0.14, -R * 0.72 + 0.03);
+    group.add(mline);
+  }
+
+  // ── INTERIOR WARM GLOW ──
+  const glow = new THREE.PointLight(0xfbbf24, 1.0, 6);
+  glow.position.set(0, baseH + H * 0.5, 0);
+  group.add(glow);
+
+  // ── PLAQUE ANCHOR ──
+  buildPlaque(group, building, R + 0.1, 2.8);
+};
+
 // Distant hills
 export function createHills() {
   const group = new THREE.Group();
