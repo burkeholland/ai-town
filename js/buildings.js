@@ -29,32 +29,32 @@ const PLOTS = [
   { x: 29,   z: 28.5, facing: -2.29 },         // 4: SE of square, faces NW
 
   // ─── Main Street West ───
-  { x: 15,   z: 23,   facing: 0 },             // 5
-  { x: 10,   z: 24,   facing: 0 },             // 6
-  { x: 15,   z: 29,   facing: Math.PI },       // 7
-  { x: 10,   z: 29,   facing: Math.PI },       // 8
-  { x: 5,    z: 26,   facing: Math.PI / 2 },   // 9
+  { x: 15,   z: 21,   facing: 0 },             // 5
+  { x: 10,   z: 22,   facing: 0 },             // 6
+  { x: 15,   z: 30,   facing: Math.PI },       // 7
+  { x: 10,   z: 31,   facing: Math.PI },       // 8
+  { x: 3,    z: 22,   facing: Math.PI / 4 },   // 9: offset NW of road end
 
   // ─── Main Street East ───
-  { x: 35,   z: 23,   facing: 0 },             // 10
-  { x: 40,   z: 23,   facing: 0 },             // 11
-  { x: 35,   z: 29,   facing: Math.PI },       // 12
-  { x: 40,   z: 28,   facing: Math.PI },       // 13
-  { x: 45,   z: 26,   facing: -Math.PI / 2 },  // 14
+  { x: 35,   z: 21,   facing: 0 },             // 10
+  { x: 40,   z: 22,   facing: 0 },             // 11
+  { x: 35,   z: 30,   facing: Math.PI },       // 12
+  { x: 40,   z: 31,   facing: Math.PI },       // 13
+  { x: 47,   z: 22,   facing: -Math.PI / 4 },  // 14: waterfront, offset NE of road end
 
   // ─── North Path ───
-  { x: 22,   z: 17,   facing: Math.PI / 2 },   // 15
+  { x: 20,   z: 17,   facing: Math.PI / 2 },   // 15
   { x: 28,   z: 16,   facing: -Math.PI / 2 },  // 16
   { x: 21,   z: 11,   facing: Math.PI / 2 },   // 17
-  { x: 27,   z: 10,   facing: -Math.PI / 2 },  // 18
-  { x: 24,   z: 5,    facing: 0 },             // 19
+  { x: 28,   z: 10,   facing: -Math.PI / 2 },  // 18
+  { x: 20,   z: 5,    facing: Math.PI / 4 },   // 19: offset west of path end
 
   // ─── South Path ───
-  { x: 22,   z: 33,   facing: Math.PI / 2 },   // 20
+  { x: 20,   z: 33,   facing: Math.PI / 2 },   // 20
   { x: 28,   z: 34,   facing: -Math.PI / 2 },  // 21
   { x: 21,   z: 39,   facing: Math.PI / 2 },   // 22
-  { x: 27,   z: 40,   facing: -Math.PI / 2 },  // 23
-  { x: 24,   z: 45,   facing: Math.PI },       // 24
+  { x: 28,   z: 40,   facing: -Math.PI / 2 },  // 23
+  { x: 20,   z: 45,   facing: Math.PI / 4 },   // 24: offset west of path end
 
   // ─── Scattered Cottages ───
   { x: 17,   z: 18,   facing: 0.4 },           // 25
