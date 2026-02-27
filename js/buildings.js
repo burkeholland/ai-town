@@ -2902,6 +2902,322 @@ CUSTOM_BUILDERS['town-green-gazebo'] = function (group, building) {
   buildPlaque(group, building, R + 0.25, 2.2);
 };
 
+// ─── Custom Building: Fish Soup ─────────────────────────────────────────────
+
+CUSTOM_BUILDERS['fish-soup'] = function (group, building) {
+  // ── MATERIALS ──────────────────────────────────────────────────────────────
+  const bodyMat    = new THREE.MeshStandardMaterial({ color: 0x4A90C8, roughness: 0.3, metalness: 0.3 });
+  const silverMat  = new THREE.MeshStandardMaterial({ color: 0xC0D8E8, roughness: 0.3, metalness: 0.4 });
+  const brassMat   = new THREE.MeshStandardMaterial({ color: 0xF4A261, metalness: 0.5, roughness: 0.4 });
+  const deckMat    = new THREE.MeshStandardMaterial({ color: 0x8B6F47, roughness: 0.9 });
+  const plankDark  = new THREE.MeshStandardMaterial({ color: 0x6B5232, roughness: 0.95 });
+  const gillMat    = new THREE.MeshStandardMaterial({ color: 0x2C5F7D, emissive: 0x2C5F7D, emissiveIntensity: 0.3 });
+  const eyeMat     = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.1, metalness: 0.3 });
+  const eyeHLMat   = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.5 });
+  const neonMat    = new THREE.MeshStandardMaterial({ color: 0xff6b9d, emissive: 0xff6b9d, emissiveIntensity: 0.8 });
+  const ropeMat    = new THREE.MeshStandardMaterial({ color: 0xD2691E, roughness: 0.9 });
+  const winMat     = new THREE.MeshPhysicalMaterial({
+    color: 0xbfdbfe, emissive: 0x3b82f6, emissiveIntensity: 0.15,
+    transparent: true, opacity: 0.35, transmission: 0.6, roughness: 0.1, thickness: 0.05,
+  });
+  const billMat    = new THREE.MeshPhysicalMaterial({
+    color: 0xbfdbfe, emissive: 0x3b82f6, emissiveIntensity: 0.12,
+    transparent: true, opacity: 0.4, transmission: 0.6, roughness: 0.05, thickness: 0.04,
+  });
+  const tealIntMat = new THREE.MeshStandardMaterial({ color: 0x2C5F7D, emissive: 0x7dd3fc, emissiveIntensity: 0.2 });
+
+  // ── DOCK PLATFORM ──────────────────────────────────────────────────────────
+  const dock = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.1, 3.6), deckMat);
+  dock.position.set(0, 0.05, 0);
+  dock.receiveShadow = true;
+  dock.castShadow = true;
+  group.add(dock);
+
+  // Dock plank lines
+  for (let i = -1.3; i <= 1.3; i += 0.3) {
+    const plank = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.11, 3.6), plankDark);
+    plank.position.set(i, 0.055, 0);
+    group.add(plank);
+  }
+
+  // ── MAIN FISH BODY ─────────────────────────────────────────────────────────
+  // Elongated ellipsoid: 1.3 wide × 1.1 tall × 3.4 long
+  const fishBody = new THREE.Mesh(new THREE.SphereGeometry(0.65, 16, 12), bodyMat);
+  fishBody.scale.set(1.0, 0.85, 2.6);
+  fishBody.position.set(0, 1.2, -0.2);
+  fishBody.castShadow = true;
+  fishBody.receiveShadow = true;
+  group.add(fishBody);
+
+  // Upper spine ridge — seafoam silver
+  const spine = new THREE.Mesh(new THREE.SphereGeometry(0.28, 10, 7), silverMat);
+  spine.scale.set(0.55, 0.5, 2.6);
+  spine.position.set(0, 1.65, -0.2);
+  spine.castShadow = true;
+  group.add(spine);
+
+  // ── BILL / ENTRANCE ATRIUM (glass cone, tip points forward) ─────────────────
+  // ConeGeometry default: apex at +Y. rotation.x = -PI/2 → apex goes to +Z (tip forward)
+  const bill = new THREE.Mesh(new THREE.ConeGeometry(0.16, 1.5, 10), billMat);
+  bill.rotation.x = -Math.PI / 2;
+  bill.position.set(0, 1.1, 2.15); // base at z≈1.4, tip at z≈2.9
+  bill.renderOrder = 1;
+  bill.castShadow = true;
+  group.add(bill);
+
+  // Brass entrance arch at bill base
+  const entryArch = new THREE.Mesh(new THREE.TorusGeometry(0.18, 0.03, 8, 16, Math.PI), brassMat);
+  entryArch.position.set(0, 1.1, 1.4);
+  entryArch.rotation.x = -Math.PI / 2;
+  group.add(entryArch);
+
+  // Brass door frame at entrance
+  const doorFrame = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.5, 0.04), brassMat);
+  doorFrame.position.set(0, 0.77, 1.42);
+  group.add(doorFrame);
+
+  // ── DORSAL FIN ─────────────────────────────────────────────────────────────
+  // ExtrudeGeometry: 2D shape in XY plane, depth along Z.
+  // After rotation.y = -PI/2: old X → fish +Z, old Y → fish +Y, old Z → fish -X.
+  const dorsalShape = new THREE.Shape();
+  dorsalShape.moveTo(-0.75, 0);  // back of fin
+  dorsalShape.lineTo(0.65, 0);   // front of fin
+  dorsalShape.lineTo(-0.05, 0.9); // apex
+  dorsalShape.closePath();
+  const dorsalGeo = new THREE.ExtrudeGeometry(dorsalShape, { depth: 0.07, bevelEnabled: false });
+  const dorsal = new THREE.Mesh(dorsalGeo, silverMat);
+  dorsal.rotation.y = -Math.PI / 2;
+  dorsal.position.set(0.035, 1.75, -0.2); // on top of spine
+  dorsal.castShadow = true;
+  group.add(dorsal);
+
+  // Brass leading-edge trim on dorsal fin
+  const dorsalTrim = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.95, 0.1), brassMat);
+  dorsalTrim.position.set(0, 2.2, 0.3);
+  dorsalTrim.rotation.z = -0.52;
+  group.add(dorsalTrim);
+
+  // ── TAIL FINS ──────────────────────────────────────────────────────────────
+  // Two forked lobes flaring outward at the tail
+  for (const side of [-1, 1]) {
+    const tailShape = new THREE.Shape();
+    tailShape.moveTo(0, 0);
+    tailShape.lineTo(side * 0.85, 0.15);
+    tailShape.lineTo(side * 0.72, 0.72);
+    tailShape.lineTo(0, 0.32);
+    tailShape.closePath();
+    const tailGeo = new THREE.ExtrudeGeometry(tailShape, { depth: 0.06, bevelEnabled: false });
+    const tailFin = new THREE.Mesh(tailGeo, silverMat);
+    // shape XY → rotate so fins flare in world X and rise in Y, thin in Z
+    tailFin.rotation.x = Math.PI / 2; // old X→X, old Y→-Z, old Z→+Y
+    tailFin.position.set(-0.03, 1.33, -1.85);
+    tailFin.castShadow = true;
+    group.add(tailFin);
+  }
+
+  // Cantilevered tail outdoor deck
+  const tailDeck = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.08, 0.6), deckMat);
+  tailDeck.position.set(0, 1.25, -1.65);
+  tailDeck.castShadow = true;
+  group.add(tailDeck);
+
+  // Deck railing — brass
+  for (const rx of [-0.7, 0.7]) {
+    const post = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.35, 0.04), brassMat);
+    post.position.set(rx, 1.46, -1.65);
+    group.add(post);
+  }
+  const topRail = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.04, 0.04), brassMat);
+  topRail.position.set(0, 1.63, -1.65);
+  group.add(topRail);
+  const backRail = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.35, 0.6), brassMat);
+  backRail.position.set(0, 1.46, -1.95);
+  group.add(backRail);
+
+  // ── PECTORAL FINS ──────────────────────────────────────────────────────────
+  for (const side of [-1, 1]) {
+    const pec = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.1, 0.55), brassMat);
+    pec.position.set(side * 0.9, 1.0, 0.2);
+    pec.rotation.z = side * 0.35;
+    pec.castShadow = true;
+    group.add(pec);
+    // Ventilation grille lines
+    for (let g = 0; g < 4; g++) {
+      const grille = new THREE.Mesh(new THREE.BoxGeometry(0.53, 0.02, 0.02),
+        new THREE.MeshStandardMaterial({ color: 0xb07040 }));
+      grille.position.set(side * 0.9, 1.07, 0.06 + g * 0.13);
+      grille.rotation.z = side * 0.35;
+      group.add(grille);
+    }
+  }
+
+  // ── CIRCULAR PORTHOLE WINDOWS ──────────────────────────────────────────────
+  for (const pz of [0.85, 0.25, -0.35, -0.95]) {
+    for (const side of [-1, 1]) {
+      const port = new THREE.Mesh(new THREE.CircleGeometry(0.14, 12), winMat);
+      port.position.set(side * 0.63, 1.2, pz);
+      port.rotation.y = side * Math.PI / 2;
+      port.renderOrder = 1;
+      group.add(port);
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(0.15, 0.025, 8, 16), brassMat);
+      ring.position.set(side * 0.62, 1.2, pz);
+      ring.rotation.y = side * Math.PI / 2;
+      group.add(ring);
+    }
+  }
+
+  // ── GILL SLITS (cyan backlit) ───────────────────────────────────────────────
+  for (let i = 0; i < 5; i++) {
+    for (const side of [-1, 1]) {
+      const gill = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.28, 0.03), gillMat);
+      gill.position.set(side * 0.56, 1.1, 1.1 - i * 0.1);
+      gill.rotation.y = side * 0.2;
+      gill.rotation.z = side * 0.15;
+      group.add(gill);
+    }
+  }
+
+  // ── EYES (googly — large glossy black with white cartoon highlights) ────────
+  for (const side of [-1, 1]) {
+    const eye = new THREE.Mesh(new THREE.SphereGeometry(0.22, 12, 10), eyeMat);
+    eye.position.set(side * 0.56, 1.4, 1.0);
+    eye.castShadow = true;
+    group.add(eye);
+    const hl = new THREE.Mesh(new THREE.CircleGeometry(0.07, 8), eyeHLMat);
+    hl.position.set(side * 0.77, 1.55, 1.05);
+    hl.rotation.y = side * 0.6;
+    group.add(hl);
+  }
+
+  // ── NEON "FISH SOUP" SIGN ──────────────────────────────────────────────────
+  const signBg = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.28, 0.06),
+    new THREE.MeshStandardMaterial({ color: 0x0a0a0a, roughness: 0.9 }));
+  signBg.position.set(0, 1.97, 0.5);
+  group.add(signBg);
+
+  // Hot-pink neon lettering bar
+  const neonBar = new THREE.Mesh(new THREE.BoxGeometry(1.15, 0.14, 0.04), neonMat);
+  neonBar.position.set(0, 1.97, 0.55);
+  group.add(neonBar);
+
+  // "EST. 2026" sub-line in brass
+  const estLine = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.06, 0.03), brassMat);
+  estLine.position.set(0, 1.8, 0.54);
+  group.add(estLine);
+
+  // Neon glow point light
+  const neonGlow = new THREE.PointLight(0xff6b9d, 0.7, 3);
+  neonGlow.position.set(0, 1.97, 0.65);
+  group.add(neonGlow);
+
+  // ── INTERIOR VISIBLE THROUGH PORTHOLES ────────────────────────────────────
+  // Teal interior back wall
+  const intWall = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.9, 0.06), tealIntMat);
+  intWall.position.set(0, 1.2, -0.55);
+  group.add(intWall);
+
+  // Round dining table with white linen + brass pedestal
+  const tableTop = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.04, 10),
+    new THREE.MeshStandardMaterial({ color: 0xFFFFF0 }));
+  tableTop.position.set(0, 1.08, 0.2);
+  group.add(tableTop);
+  const tablePed = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.22, 6), brassMat);
+  tablePed.position.set(0, 0.97, 0.2);
+  group.add(tablePed);
+
+  // Driftwood chandelier arm
+  const chanArm = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.04, 0.04),
+    new THREE.MeshStandardMaterial({ color: 0x8B7355 }));
+  chanArm.position.set(0, 1.7, 0.1);
+  group.add(chanArm);
+
+  // Brass bar visible through forward portholes
+  const bar = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.24, 0.12),
+    new THREE.MeshStandardMaterial({ color: 0x7c3d0c, roughness: 0.7 }));
+  bar.position.set(0.1, 1.0, 0.65);
+  group.add(bar);
+
+  // ── BRASS BOLLARDS ─────────────────────────────────────────────────────────
+  for (const [bx, bz] of [[-1.1, 1.4], [1.1, 1.4], [-1.1, -1.4], [1.1, -1.4]]) {
+    const bollard = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.075, 0.5, 8), brassMat);
+    bollard.position.set(bx, 0.25, bz);
+    bollard.castShadow = true;
+    group.add(bollard);
+    const bCap = new THREE.Mesh(new THREE.SphereGeometry(0.085, 8, 6), brassMat);
+    bCap.position.set(bx, 0.55, bz);
+    group.add(bCap);
+  }
+
+  // ── ROPE COILS (manila rope around front bollards) ─────────────────────────
+  for (const [bx, bz] of [[-1.1, 1.4], [1.1, 1.4]]) {
+    for (let j = 0; j < 3; j++) {
+      const coil = new THREE.Mesh(new THREE.TorusGeometry(0.1 + j * 0.015, 0.025, 4, 10), ropeMat);
+      coil.position.set(bx, 0.06 + j * 0.045, bz);
+      coil.rotation.x = Math.PI / 2;
+      group.add(coil);
+    }
+  }
+
+  // ── FISHING NET on port side ──────────────────────────────────────────────
+  for (let nz = 0; nz < 4; nz++) {
+    const v = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.5, 0.015), ropeMat);
+    v.position.set(-1.22, 0.35, -0.52 + nz * 0.28);
+    group.add(v);
+  }
+  for (let ny = 0; ny < 3; ny++) {
+    const h = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.015, 0.9), ropeMat);
+    h.position.set(-1.22, 0.2 + ny * 0.18, -0.1);
+    group.add(h);
+  }
+
+  // Glass floats on net — turquoise, amber, coral
+  for (const [i, col] of [[0, 0x40E0D0], [1, 0xFFBF00], [2, 0xFF7F50]]) {
+    const fMat = new THREE.MeshStandardMaterial({ color: col, transparent: true, opacity: 0.8, roughness: 0.1 });
+    const floatSphere = new THREE.Mesh(new THREE.SphereGeometry(0.07, 8, 6), fMat);
+    floatSphere.position.set(-1.28, 0.48 + i * 0.2, -0.28 + i * 0.22);
+    group.add(floatSphere);
+  }
+
+  // ── SHIP'S BELL at entrance ────────────────────────────────────────────────
+  const bellStand = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.45, 6), brassMat);
+  bellStand.position.set(0.6, 0.22, 1.3);
+  group.add(bellStand);
+  const bell = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.11, 0.14, 8, 1, true), brassMat);
+  bell.position.set(0.6, 0.55, 1.3);
+  group.add(bell);
+  const bellRim = new THREE.Mesh(new THREE.TorusGeometry(0.11, 0.015, 6, 12), brassMat);
+  bellRim.position.set(0.6, 0.48, 1.3);
+  bellRim.rotation.x = Math.PI / 2;
+  group.add(bellRim);
+
+  // ── BLUE CERAMIC PLANTERS with sea grass ──────────────────────────────────
+  const planterMat = new THREE.MeshStandardMaterial({ color: 0x1E90FF, roughness: 0.7 });
+  const seaGrassMat = new THREE.MeshStandardMaterial({ color: 0x6B8E23 });
+  for (const [px, pz] of [[-1.0, 1.0], [1.0, 1.0], [-1.0, -1.0], [1.0, -1.0]]) {
+    const planter = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.09, 0.22, 8), planterMat);
+    planter.position.set(px, 0.11, pz);
+    group.add(planter);
+    for (let s = 0; s < 4; s++) {
+      const blade = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 0.24 + s * 0.04, 4), seaGrassMat);
+      blade.position.set(px + Math.cos(s * 1.5) * 0.06, 0.33 + s * 0.02, pz + Math.sin(s * 1.5) * 0.06);
+      blade.rotation.z = (s % 2) * 0.2 - 0.1;
+      group.add(blade);
+    }
+  }
+
+  // ── INTERIOR AQUATIC GLOW ─────────────────────────────────────────────────
+  const aquaGlow = new THREE.PointLight(0x7dd3fc, 0.7, 4.5);
+  aquaGlow.position.set(0, 1.2, 0);
+  group.add(aquaGlow);
+
+  const warmGlow = new THREE.PointLight(0xfbbf24, 0.45, 3);
+  warmGlow.position.set(0, 1.0, 0.6);
+  group.add(warmGlow);
+
+  // ── CONTRIBUTOR PLAQUE ────────────────────────────────────────────────────
+  buildPlaque(group, building, 1.55, 2.2);
+};
+
 // Create organic village ground with winding roads
 export function createGround() {
   const group = new THREE.Group();
