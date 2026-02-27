@@ -1,0 +1,50 @@
+[
+  {
+    "plot": 0,
+    "building": "town-hall",
+    "type": "public",
+    "zone": "Town Square",
+    "reasoning": "The Town Hall anchors the center of the village as the civic heart — every great town starts here.",
+    "date": "2026-02-26"
+  },
+  {
+    "plot": 1,
+    "building": "ashleys-antiques",
+    "type": "shop",
+    "zone": "Town Square",
+    "reasoning": "A quirky antique shop adds character to the town square. Positioned NW so visitors see it immediately when arriving.",
+    "date": "2026-02-27"
+  },
+  {
+    "plot": 2,
+    "building": "hilberts-hotel",
+    "type": "other",
+    "zone": "Town Square",
+    "reasoning": "The infinite hotel is a landmark — its mathematical grandeur earns a prominent spot NE of the square, visible from Main Street East.",
+    "date": "2026-02-27"
+  },
+  {
+    "plot": 5,
+    "building": "pierces-pub",
+    "type": "restaurant",
+    "zone": "Main Street West",
+    "reasoning": "A neighborhood pub belongs on Main Street where people naturally gather. First stop on the western commercial strip.",
+    "date": "2026-02-26"
+  },
+  {
+    "plot": 10,
+    "building": "reddingtons",
+    "type": "entertainment",
+    "zone": "Main Street East",
+    "reasoning": "A grand West End theatre anchors the entertainment district on Main Street East. Its marquee draws people eastward.",
+    "date": "2026-02-27"
+  },
+  {
+    "plot": 11,
+    "building": "martins-makerspace",
+    "type": "public",
+    "zone": "Main Street East",
+    "reasoning": "A public makerspace next to the theatre creates a creative hub on the east side — makers and performers side by side.",
+    "date": "2026-02-27"
+  }
+]

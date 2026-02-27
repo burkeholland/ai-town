@@ -39,7 +39,7 @@ Each building is an object:
    - `name`: the building's display name
    - `type`: one of `shop`, `house`, `restaurant`, `public`, `entertainment`, `nature`, `other`
    - `description`: brief description of the building
-   - `plot`: an unoccupied plot number (0-39). Check existing buildings to find free plots. Plots are organic positions along winding village paths — see `PLOTS` array in `js/buildings.js` for world coordinates.
+   - `plot`: use the plot number assigned in the build context comment. If no plot is specified, check existing buildings in `town.json` and pick an unoccupied plot number (0-39). See `PLOTS` array in `js/buildings.js` for world coordinates.
    - `contributor`: `{ "username": "...", "avatar": "https://github.com/{username}.png" }`
    - `issue`: the issue number this building was requested in
    - `added`: today's date in YYYY-MM-DD format
@@ -101,6 +101,7 @@ ai-town/
 │   ├── buildings.js        # Building construction, plot system, scenery
 │   └── main.js             # Load town.json, init renderer
 ├── town.json               # All buildings data
+├── town-planning.json      # Planning committee minutes (plot reasoning)
 ├── town/                   # Per-building share pages
 │   └── {slug}/
 │       ├── index.html      # OG meta tags + redirect
