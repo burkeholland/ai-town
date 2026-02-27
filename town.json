@@ -13,6 +13,19 @@
     "added": "2026-02-26"
   },
   {
+    "id": "ashleys-antiques",
+    "name": "Ashley's Antiques",
+    "type": "shop",
+    "description": "A warm, slightly dusty antique shop filled with carefully preserved artifacts from the early internet. Shelves stacked with old modems, floppy disks, tamagotchis. A hand-lettered sign on the counter reads: Be kind. Rewind.",
+    "plot": 1,
+    "contributor": {
+      "username": "ashleywolf",
+      "avatar": "https://github.com/ashleywolf.png"
+    },
+    "issue": 14,
+    "added": "2026-02-27"
+  },
+  {
     "id": "pierces-pub",
     "name": "Pierce's Pub",
     "type": "restaurant",

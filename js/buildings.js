@@ -1118,6 +1118,145 @@ CUSTOM_BUILDERS['the-cat-bookshop'] = function (group, building) {
   buildPlaque(group, building, wallD / 2 - 0.04, 3.8, -0.5);
 };
 
+// ─── Custom Building: Ashley's Antiques ────────────────────────────────────
+
+CUSTOM_BUILDERS['ashleys-antiques'] = function (group, building) {
+  const W = 2.2;        // width
+  const D = 1.8;        // depth
+  const wallH = 1.8;    // wall height
+  const baseH = 0.12;   // foundation height
+
+  // Materials — deep purple walls, warm dusty interior
+  const foundMat    = new THREE.MeshStandardMaterial({ color: 0x9c8ea0, roughness: 0.95 });
+  const wallMat     = new THREE.MeshStandardMaterial({ color: 0x4a1080, roughness: 0.85 }); // deep purple
+  const roofMat     = new THREE.MeshStandardMaterial({ color: 0x2d0a4e, roughness: 0.9 });  // very dark purple
+  const trimMat     = new THREE.MeshStandardMaterial({ color: 0x7c3aed, roughness: 0.7 });  // mid purple trim
+  const doorMat     = new THREE.MeshStandardMaterial({ color: 0x1e0a3c, roughness: 0.7 });  // near-black door
+  const winMat      = new THREE.MeshStandardMaterial({ color: 0xc4b5fd, emissive: 0x8b5cf6, emissiveIntensity: 0.3 }); // lavender glow
+  const woodMat     = new THREE.MeshStandardMaterial({ color: 0x6b3a1f, roughness: 0.9 });  // shelf wood
+  const counterMat  = new THREE.MeshStandardMaterial({ color: 0x7c3d0c, roughness: 0.8 });  // counter wood
+  const counterTopMat = new THREE.MeshStandardMaterial({ color: 0x5c2d0a, roughness: 0.6 });
+  const signMat     = new THREE.MeshStandardMaterial({ color: 0xfef9c3, roughness: 0.85 }); // cream sign
+  const goldMat     = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.6, roughness: 0.4 });
+
+  // ── FOUNDATION ──
+  const base = new THREE.Mesh(new THREE.BoxGeometry(W + 0.3, baseH, D + 0.3), foundMat);
+  base.position.y = baseH / 2;
+  base.castShadow = true;
+  base.receiveShadow = true;
+  group.add(base);
+
+  // ── WALLS ──
+  const walls = new THREE.Mesh(new THREE.BoxGeometry(W, wallH, D), wallMat);
+  walls.position.y = baseH + wallH / 2;
+  walls.castShadow = true;
+  walls.receiveShadow = true;
+  group.add(walls);
+
+  // ── ROOF (pitched, very dark purple) ──
+  const roofH = 0.9;
+  const roof = new THREE.Mesh(new THREE.ConeGeometry(W * 0.86, roofH, 4), roofMat);
+  roof.rotation.y = Math.PI / 4;
+  roof.position.y = baseH + wallH + roofH / 2;
+  roof.castShadow = true;
+  group.add(roof);
+
+  // Roofline trim strip
+  const roofTrim = new THREE.Mesh(new THREE.BoxGeometry(W + 0.14, 0.06, D + 0.14), trimMat);
+  roofTrim.position.y = baseH + wallH + 0.03;
+  group.add(roofTrim);
+
+  // ── FRONT DOOR ──
+  const door = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.65, 0.05), doorMat);
+  door.position.set(0.35, baseH + 0.33, D / 2 + 0.03);
+  group.add(door);
+
+  // Door frame (gold)
+  const doorFrameTop = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.05, 0.05), goldMat);
+  doorFrameTop.position.set(0.35, baseH + 0.675, D / 2 + 0.03);
+  group.add(doorFrameTop);
+
+  // ── DISPLAY WINDOW (left of door) ──
+  const winFrame = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.58, 0.04), trimMat);
+  winFrame.position.set(-0.42, baseH + wallH * 0.52, D / 2 + 0.025);
+  group.add(winFrame);
+
+  const win = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.48, 0.05), winMat);
+  win.position.set(-0.42, baseH + wallH * 0.52, D / 2 + 0.03);
+  group.add(win);
+
+  // ── SHOP SIGN above windows ──
+  const shopSign = new THREE.Mesh(new THREE.BoxGeometry(W * 0.75, 0.22, 0.06), trimMat);
+  shopSign.position.set(0, baseH + wallH * 0.9, D / 2 + 0.05);
+  group.add(shopSign);
+
+  // Gold bar brackets for shop sign
+  for (const bx of [-W * 0.3, W * 0.3]) {
+    const bracket = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.28, 0.04), goldMat);
+    bracket.position.set(bx, baseH + wallH * 0.87, D / 2 + 0.04);
+    group.add(bracket);
+  }
+
+  // ── INTERIOR SHELVES (left wall) ──
+  const shelfColors = [
+    [0x111827, 0xf3f4f6, 0x1e40af],   // dark, white, blue (floppy disks)
+    [0xdc2626, 0x111827, 0x374151],   // red, black, gray (modems/cassettes)
+    [0x065f46, 0xf3f4f6, 0x1e40af],   // green, white, blue
+  ];
+  for (let i = 0; i < 3; i++) {
+    const shelf = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.04, 0.16), woodMat);
+    shelf.position.set(-W / 2 + 0.38, baseH + 0.32 + i * 0.42, -D / 2 + 0.16);
+    group.add(shelf);
+
+    // Floppy-disk / modem items on each shelf
+    for (let j = 0; j < 3; j++) {
+      const item = new THREE.Mesh(
+        new THREE.BoxGeometry(0.09, 0.09, 0.03),
+        new THREE.MeshStandardMaterial({ color: shelfColors[i][j] })
+      );
+      item.position.set(-W / 2 + 0.15 + j * 0.13, baseH + 0.40 + i * 0.42, -D / 2 + 0.13);
+      group.add(item);
+    }
+  }
+
+  // ── TAMAGOTCHI SHELF (right wall) ──
+  const tamColors = [0xfb7185, 0x34d399, 0xfbbf24, 0x60a5fa];
+  for (let i = 0; i < 2; i++) {
+    const shelf = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.04, 0.16), woodMat);
+    shelf.position.set(W / 2 - 0.34, baseH + 0.42 + i * 0.48, -D / 2 + 0.16);
+    group.add(shelf);
+
+    for (let j = 0; j < 2; j++) {
+      const egg = new THREE.Mesh(new THREE.SphereGeometry(0.07, 8, 6),
+        new THREE.MeshStandardMaterial({ color: tamColors[i * 2 + j] }));
+      egg.scale.y = 0.82;
+      egg.position.set(W / 2 - 0.46 + j * 0.2, baseH + 0.50 + i * 0.48, -D / 2 + 0.14);
+      group.add(egg);
+    }
+  }
+
+  // ── COUNTER ──
+  const counter = new THREE.Mesh(new THREE.BoxGeometry(W * 0.55, 0.55, 0.22), counterMat);
+  counter.position.set(-W / 4, baseH + 0.275, D / 2 - 0.36);
+  group.add(counter);
+
+  const counterTop = new THREE.Mesh(new THREE.BoxGeometry(W * 0.57, 0.04, 0.24), counterTopMat);
+  counterTop.position.set(-W / 4, baseH + 0.57, D / 2 - 0.36);
+  group.add(counterTop);
+
+  // ── HAND-LETTERED SIGN on counter: "Be kind. Rewind" ──
+  const sign = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.14, 0.03), signMat);
+  sign.position.set(-W / 4, baseH + 0.66, D / 2 - 0.29);
+  group.add(sign);
+
+  const signStick = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.09, 0.02),
+    new THREE.MeshStandardMaterial({ color: 0x6b7280 }));
+  signStick.position.set(-W / 4, baseH + 0.595, D / 2 - 0.29);
+  group.add(signStick);
+
+  buildPlaque(group, building, D / 2 + 0.03, 2.6);
+};
+
 // ─── Custom Building: Pierce's Pub ─────────────────────────────────────────
 
 CUSTOM_BUILDERS['pierces-pub'] = function (group, building) {
