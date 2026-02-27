@@ -81,13 +81,25 @@
     "date": "2026-02-27"
   },
   {
-    "plot": 3,
+    "plot": 40,
     "building": "the-nz-beehive",
     "type": "other",
     "zone": "Town Square",
-    "reasoning": "The NZ Beehive is an iconic governmental monument — it belongs close to the civic heart of town near the Town Hall. Plot 3 (SW of the square, facing NE) positions it as a dignified civic counterpart visible from the plaza. Its circular form and height contrast beautifully with the rectangular Town Hall, echoing Wellington's own pairing of the circular Beehive with the classical Parliament House.",
+    "reasoning": "Relocated to far NE outskirts (plot 40). Large plaza needs maximum spacing from other structures.",
     "vision": "The Beehive anchors the SW corner of the Town Square, creating a governmental precinct alongside the Town Hall. Its distinctive tiered silhouette is visible from Main Street and signals civic authority. Future civic buildings on plots 1-2 and 4 could complete a parliament-like district.",
     "date": "2026-02-27"
+  },
+  {
+    "plot": 16,
+    "building": "bobbys-house",
+    "type": "house",
+    "reasoning": "Relocated from Town Square to North Residential (plot 16). A cottage belongs in a neighborhood, not next to Town Hall."
+  },
+  {
+    "plot": 13,
+    "building": "hot-yoga-studio-charlie",
+    "type": "shop",
+    "reasoning": "Relocated from Town Square to Main Street East south (plot 13). Commercial service belongs on the strip."
   },
   {
     "plot": 4,

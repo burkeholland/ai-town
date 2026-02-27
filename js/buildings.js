@@ -72,6 +72,7 @@ const PLOTS = [
   { x: 31,   z: 12,   facing: Math.PI * 3 / 4 }, // 37: moved off North Path
   { x: 31,   z: 38,   facing: Math.PI / 4 },   // 38: moved off South Path
   { x: 6,    z: 38,   facing: 0 },             // 39: moved off Main Street to far SW
+  { x: 50,   z: 8,    facing: Math.PI * 3 / 4 }, // 40: far NE, isolated (large buildings)
 ];
 
 export function plotToWorld(plotIndex) {
@@ -5605,7 +5606,7 @@ CUSTOM_BUILDERS['the-nz-beehive'] = function (group, building) {
   });
 
   // ── FORECOURT PLAZA ──
-  const plazaGeo = new THREE.CylinderGeometry(7.5, 7.5, 0.06, 32);
+  const plazaGeo = new THREE.CylinderGeometry(4.0, 4.0, 0.06, 32);
   const plaza = new THREE.Mesh(plazaGeo, groundMat);
   plaza.position.set(0, 0.03, 0);
   plaza.receiveShadow = true;
