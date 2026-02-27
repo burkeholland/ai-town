@@ -57,9 +57,9 @@ const PLOTS = [
   { x: 20,   z: 45,   facing: Math.PI / 4 },   // 24: offset west of path end
 
   // ─── Scattered Cottages ───
-  { x: 17,   z: 18,   facing: 0.4 },           // 25
+  { x: 17,   z: 15,   facing: 0.4 },           // 25: moved north (was too close to Main St plots)
   { x: 33,   z: 17,   facing: Math.PI - 0.4 }, // 26
-  { x: 17,   z: 32,   facing: -0.3 },          // 27
+  { x: 17,   z: 36,   facing: -0.3 },          // 27: moved south (was too close to Main St plots)
   { x: 33,   z: 33,   facing: Math.PI + 0.3 }, // 28
   { x: 7,    z: 20,   facing: 0 },             // 29
   { x: 43,   z: 20,   facing: Math.PI },       // 30
@@ -69,9 +69,9 @@ const PLOTS = [
   { x: 37,   z: 15,   facing: Math.PI * 3 / 4 }, // 34
   { x: 13,   z: 37,   facing: -Math.PI / 4 },  // 35
   { x: 37,   z: 37,   facing: -Math.PI * 3 / 4 }, // 36
-  { x: 25,   z: 14,   facing: Math.PI },       // 37
-  { x: 25,   z: 36,   facing: 0 },             // 38
-  { x: 19,   z: 25,   facing: Math.PI / 2 },   // 39
+  { x: 31,   z: 12,   facing: Math.PI * 3 / 4 }, // 37: moved off North Path
+  { x: 31,   z: 38,   facing: Math.PI / 4 },   // 38: moved off South Path
+  { x: 6,    z: 38,   facing: 0 },             // 39: moved off Main Street to far SW
 ];
 
 export function plotToWorld(plotIndex) {
