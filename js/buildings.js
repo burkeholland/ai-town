@@ -4419,6 +4419,265 @@ CUSTOM_BUILDERS['the-cinnamon-roll'] = function (group, building) {
   buildPlaque(group, building, R + 0.1, 2.8);
 };
 
+// ─── Custom Building: Bobby's House (Pineapple Under the Sea) ──────────────
+
+CUSTOM_BUILDERS['bobbys-house'] = function (group, building) {
+  // Color palette
+  const PINEAPPLE_YELLOW  = 0xFFB627;
+  const CROSSHATCH_ORANGE = 0xFF8C00;
+  const LEAF_GREEN        = 0x7CB342;
+  const WIN_TEAL          = 0x0288D1;
+  const DOOR_AMBER        = 0xD97706;
+  const ROCK_GRAY         = 0x78909C;
+  const SNAIL_PINK        = 0xFF6B9D;
+  const SNAIL_BODY_COLOR  = 0xFFE082;
+  const CORAL_COLOR       = 0xFF7043;
+
+  const bodyMat       = new THREE.MeshStandardMaterial({ color: PINEAPPLE_YELLOW, roughness: 0.6 });
+  const xhatchMat     = new THREE.MeshStandardMaterial({ color: CROSSHATCH_ORANGE, roughness: 0.5 });
+  const leafMat       = new THREE.MeshStandardMaterial({ color: LEAF_GREEN, roughness: 0.8 });
+  const doorMat       = new THREE.MeshStandardMaterial({ color: DOOR_AMBER, roughness: 0.6 });
+  const rockMat       = new THREE.MeshStandardMaterial({ color: ROCK_GRAY, roughness: 0.95 });
+  const snailShellMat = new THREE.MeshStandardMaterial({ color: SNAIL_PINK, roughness: 0.6 });
+  const snailBodyMat  = new THREE.MeshStandardMaterial({ color: SNAIL_BODY_COLOR, roughness: 0.7 });
+  const torchMat      = new THREE.MeshStandardMaterial({ color: 0x7B4F2A, roughness: 0.9 });
+  const flameMat      = new THREE.MeshStandardMaterial({ color: 0xFF6F00, emissive: 0xFF6F00, emissiveIntensity: 0.6 });
+  const coralMat      = new THREE.MeshStandardMaterial({ color: CORAL_COLOR, roughness: 0.7 });
+  const frameMat      = new THREE.MeshStandardMaterial({ color: WIN_TEAL, roughness: 0.5 });
+  const goldMat       = new THREE.MeshStandardMaterial({ color: 0xD4A843, metalness: 0.6, roughness: 0.3 });
+  const winMat        = new THREE.MeshPhysicalMaterial({
+    color: 0xbfdbfe,
+    emissive: 0x3b82f6,
+    emissiveIntensity: 0.15,
+    transparent: true,
+    opacity: 0.35,
+    transmission: 0.6,
+    roughness: 0.1,
+    thickness: 0.05,
+  });
+
+  // ── PINEAPPLE BODY (3 stacked cylinders for a bulbous look) ──
+  const body0 = new THREE.Mesh(new THREE.CylinderGeometry(0.90, 0.82, 0.72, 14), bodyMat);
+  body0.position.y = 0.36;
+  body0.castShadow = true;
+  body0.receiveShadow = true;
+  group.add(body0);
+
+  const body1 = new THREE.Mesh(new THREE.CylinderGeometry(0.80, 0.90, 0.88, 14), bodyMat);
+  body1.position.y = 0.72 + 0.44;
+  body1.castShadow = true;
+  group.add(body1);
+
+  const body2 = new THREE.Mesh(new THREE.CylinderGeometry(0.48, 0.80, 0.70, 14), bodyMat);
+  body2.position.y = 0.72 + 0.88 + 0.35;
+  body2.castShadow = true;
+  group.add(body2);
+
+  const bodyTopY = 0.72 + 0.88 + 0.70; // ≈ 2.30
+
+  // ── DIAMOND CROSSHATCH TEXTURE ──
+  // Thin raised orange boxes in crisscross diagonals across the pineapple surface
+  const crossLevels = [
+    { y: 0.22, r: 0.84, n: 8 },
+    { y: 0.62, r: 0.91, n: 9 },
+    { y: 1.05, r: 0.88, n: 9 },
+    { y: 1.50, r: 0.82, n: 8 },
+    { y: 1.90, r: 0.66, n: 7 },
+  ];
+  for (const lv of crossLevels) {
+    for (let i = 0; i < lv.n; i++) {
+      const angle = (i / lv.n) * Math.PI * 2;
+      const x = Math.sin(angle) * lv.r;
+      const z = Math.cos(angle) * lv.r;
+      const b1 = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.38, 0.04), xhatchMat);
+      b1.position.set(x, lv.y, z);
+      b1.rotation.y = -angle;
+      b1.rotation.z = 0.42;
+      group.add(b1);
+      const b2 = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.38, 0.04), xhatchMat);
+      b2.position.set(x, lv.y, z);
+      b2.rotation.y = -angle;
+      b2.rotation.z = -0.42;
+      group.add(b2);
+    }
+  }
+
+  // ── SPIKY LEAF CROWN ──
+  const tilt = Math.PI / 5.5;
+  for (let i = 0; i < 10; i++) {
+    const angle = (i / 10) * Math.PI * 2;
+    const leaf = new THREE.Mesh(new THREE.ConeGeometry(0.14, 1.7, 5), leafMat);
+    leaf.position.set(Math.sin(angle) * 0.3, bodyTopY + 0.85, Math.cos(angle) * 0.3);
+    leaf.rotation.x = Math.cos(angle) * tilt;
+    leaf.rotation.z = -Math.sin(angle) * tilt;
+    leaf.castShadow = true;
+    group.add(leaf);
+  }
+  // Inner shorter leaves for layered look
+  for (let i = 0; i < 6; i++) {
+    const angle = (i / 6) * Math.PI * 2 + Math.PI / 6;
+    const leaf = new THREE.Mesh(new THREE.ConeGeometry(0.10, 1.2, 5), leafMat);
+    leaf.position.set(Math.sin(angle) * 0.15, bodyTopY + 0.60, Math.cos(angle) * 0.15);
+    leaf.rotation.x = Math.cos(angle) * tilt * 0.6;
+    leaf.rotation.z = -Math.sin(angle) * tilt * 0.6;
+    leaf.castShadow = true;
+    group.add(leaf);
+  }
+  // Central upright leaf
+  const centerLeaf = new THREE.Mesh(new THREE.ConeGeometry(0.11, 1.9, 5), leafMat);
+  centerLeaf.position.y = bodyTopY + 0.95;
+  group.add(centerLeaf);
+
+  // ── PORTHOLE WINDOWS ──
+  const w1Angle = Math.atan2(-0.32, 0.78);
+  const win1 = new THREE.Mesh(new THREE.CircleGeometry(0.27, 16), winMat);
+  win1.position.set(-0.32, 1.15, 0.78);
+  win1.rotation.y = w1Angle;
+  group.add(win1);
+  const ring1 = new THREE.Mesh(new THREE.TorusGeometry(0.28, 0.045, 8, 20), frameMat);
+  ring1.position.set(-0.32, 1.15, 0.78);
+  ring1.rotation.y = w1Angle;
+  group.add(ring1);
+
+  const w2Angle = Math.atan2(0.28, 0.58);
+  const win2 = new THREE.Mesh(new THREE.CircleGeometry(0.23, 16), winMat);
+  win2.position.set(0.28, 2.05, 0.58);
+  win2.rotation.y = w2Angle;
+  group.add(win2);
+  const ring2 = new THREE.Mesh(new THREE.TorusGeometry(0.24, 0.04, 8, 20), frameMat);
+  ring2.position.set(0.28, 2.05, 0.58);
+  ring2.rotation.y = w2Angle;
+  group.add(ring2);
+
+  // ── ARCHED DOORWAY ──
+  const door = new THREE.Mesh(new THREE.BoxGeometry(0.50, 0.90, 0.06), doorMat);
+  door.position.set(0, 0.45, 0.89);
+  group.add(door);
+
+  const arch = new THREE.Mesh(new THREE.TorusGeometry(0.26, 0.055, 7, 12, Math.PI), doorMat);
+  arch.position.set(0, 0.90, 0.89);
+  group.add(arch);
+
+  // Small porthole in door
+  const doorWin = new THREE.Mesh(new THREE.CircleGeometry(0.11, 12), winMat);
+  doorWin.position.set(0, 0.72, 0.92);
+  group.add(doorWin);
+  const doorWinRing = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.025, 6, 14), frameMat);
+  doorWinRing.position.set(0, 0.72, 0.92);
+  group.add(doorWinRing);
+
+  const handle = new THREE.Mesh(new THREE.SphereGeometry(0.03, 6, 6), goldMat);
+  handle.position.set(0.18, 0.45, 0.93);
+  group.add(handle);
+
+  // ── RIVER ROCK STEPS ──
+  for (let i = 0; i < 3; i++) {
+    const step = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.28 - i * 0.04, 0.29 - i * 0.04, 0.09, 10),
+      rockMat
+    );
+    step.position.set(0, i * 0.09 + 0.045, 0.88 + (3 - i) * 0.22);
+    step.castShadow = true;
+    step.receiveShadow = true;
+    group.add(step);
+  }
+
+  // ── TIKI TORCHES ──
+  for (const tx of [-0.72, 0.72]) {
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 1.15, 6), torchMat);
+    pole.position.set(tx, 0.575, 0.65);
+    pole.castShadow = true;
+    group.add(pole);
+    const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.05, 0.12, 8), torchMat);
+    cup.position.set(tx, 1.22, 0.65);
+    group.add(cup);
+    const flame = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.18, 6), flameMat);
+    flame.position.set(tx, 1.40, 0.65);
+    group.add(flame);
+    const torchLight = new THREE.PointLight(0xFF8C00, 0.4, 2.5);
+    torchLight.position.set(tx, 1.4, 0.7);
+    group.add(torchLight);
+  }
+
+  // ── CORAL FORMATIONS ──
+  const coralSpots = [
+    { x: -1.1, z: 0.4 }, { x: 1.1, z: 0.3 }, { x: -0.9, z: -0.7 },
+    { x: 0.85, z: -0.8 }, { x: 0.1, z: -1.1 }, { x: -0.4, z: 1.0 },
+  ];
+  for (const cp of coralSpots) {
+    const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.06, 0.38, 5), coralMat);
+    stem.position.set(cp.x, 0.19, cp.z);
+    group.add(stem);
+    for (const [bx, bz, rot] of [[0.1, 0, 0.55], [-0.1, 0, -0.55], [0, 0.08, 0.45]]) {
+      const br = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.035, 0.22, 4), coralMat);
+      br.position.set(cp.x + bx, 0.44, cp.z + bz);
+      br.rotation.z = rot;
+      group.add(br);
+    }
+  }
+
+  // ── PET SNAIL ──
+  const sx = 1.2, sz = 0.85;
+
+  // Slug-shaped body
+  const snailBody = new THREE.Mesh(new THREE.SphereGeometry(0.16, 8, 6), snailBodyMat);
+  snailBody.scale.set(1.9, 0.55, 1.0);
+  snailBody.position.set(sx, 0.10, sz);
+  group.add(snailBody);
+
+  // Head
+  const snailHead = new THREE.Mesh(new THREE.SphereGeometry(0.11, 8, 6), snailBodyMat);
+  snailHead.position.set(sx + 0.27, 0.18, sz);
+  group.add(snailHead);
+
+  // Shell (sphere with spiral rings for texture)
+  const shell = new THREE.Mesh(new THREE.SphereGeometry(0.19, 10, 8), snailShellMat);
+  shell.scale.y = 0.85;
+  shell.position.set(sx - 0.05, 0.25, sz);
+  group.add(shell);
+
+  const spiralPaleMat = new THREE.MeshStandardMaterial({ color: 0xFFB3C8, roughness: 0.6 });
+  for (let s = 0; s < 3; s++) {
+    const ring = new THREE.Mesh(
+      new THREE.TorusGeometry(0.19 - s * 0.045, 0.022, 6, 14),
+      s % 2 === 0 ? snailShellMat : spiralPaleMat
+    );
+    ring.position.set(sx - 0.05, 0.25 + s * 0.055, sz);
+    ring.rotation.x = s * 0.28;
+    group.add(ring);
+  }
+
+  // Antennae stalks with googly eye-ball tips
+  const antennaeData = [
+    { dz: -0.07, tz: 0.28 },
+    { dz:  0.07, tz: -0.28 },
+  ];
+  const eyeMat   = new THREE.MeshStandardMaterial({ color: 0x1a1a1a });
+  const shineMat = new THREE.MeshStandardMaterial({ color: 0xffffff });
+  for (const ant of antennaeData) {
+    const stalk = new THREE.Mesh(new THREE.CylinderGeometry(0.013, 0.013, 0.20, 4), snailBodyMat);
+    stalk.position.set(sx + 0.32, 0.30, sz + ant.dz);
+    stalk.rotation.z = ant.tz;
+    group.add(stalk);
+    const eyeTipX = sx + 0.32 + Math.sin(ant.tz) * 0.10;
+    const eyeTipY = 0.41;
+    const eye = new THREE.Mesh(new THREE.SphereGeometry(0.028, 6, 6), eyeMat);
+    eye.position.set(eyeTipX, eyeTipY, sz + ant.dz);
+    group.add(eye);
+    const shine = new THREE.Mesh(new THREE.SphereGeometry(0.012, 4, 4), shineMat);
+    shine.position.set(eyeTipX + 0.01, eyeTipY + 0.01, sz + ant.dz);
+    group.add(shine);
+  }
+
+  // ── INTERIOR WARM GLOW ──
+  const interiorGlow = new THREE.PointLight(0xFFC107, 0.65, 4);
+  interiorGlow.position.set(0, 1.2, 0);
+  group.add(interiorGlow);
+
+  // ── PLAQUE ANCHOR ──
+  buildPlaque(group, building, 0.92, 3.4);
+};
+
 // Distant hills
 export function createHills() {
   const group = new THREE.Group();
