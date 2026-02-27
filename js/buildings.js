@@ -3218,6 +3218,315 @@ CUSTOM_BUILDERS['fish-soup'] = function (group, building) {
   buildPlaque(group, building, 1.55, 2.2);
 };
 
+// ─── Custom Building: Serenity (Comfy Christmas Cottage) ───────────────────
+
+CUSTOM_BUILDERS['serenity'] = function (group, building) {
+  const W = 2.6;
+  const D = 2.0;
+  const wallH = 1.8;
+  const baseH = 0.12;
+  const roofH = 1.2;
+
+  // ── MATERIALS ──────────────────────────────────────────────────────────────
+  const wallMat      = new THREE.MeshStandardMaterial({ color: 0xFFF5E6, roughness: 0.9 });
+  const roofMat      = new THREE.MeshStandardMaterial({ color: 0xDDEEFF, roughness: 0.95 });
+  const timberMat    = new THREE.MeshStandardMaterial({ color: 0x3E2723, roughness: 0.85 });
+  const doorMat      = new THREE.MeshStandardMaterial({ color: 0x6D4C41, roughness: 0.7 });
+  const snowMat      = new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 1.0 });
+  const stoneMat     = new THREE.MeshStandardMaterial({ color: 0x95A5A6, roughness: 0.95 });
+  const redMat       = new THREE.MeshStandardMaterial({ color: 0xDC143C });
+  const greenMat     = new THREE.MeshStandardMaterial({ color: 0x2D5016 });
+  const goldMat      = new THREE.MeshStandardMaterial({ color: 0xFFD700, metalness: 0.4, roughness: 0.4 });
+  const amberMat     = new THREE.MeshStandardMaterial({ color: 0xFFC857, emissive: 0xFFC857, emissiveIntensity: 0.6 });
+  const postMat      = new THREE.MeshStandardMaterial({ color: 0x8B4513, roughness: 0.9 });
+  const whiteTrimMat = new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.8 });
+  const coalMat      = new THREE.MeshStandardMaterial({ color: 0x1A1A1A });
+  const hatMat       = new THREE.MeshStandardMaterial({ color: 0x111111 });
+  const treeGreenMat = new THREE.MeshStandardMaterial({ color: 0x1B4D1B });
+  const warmWinMat   = new THREE.MeshPhysicalMaterial({
+    color: 0xFFC857, emissive: 0xFFC857, emissiveIntensity: 0.4,
+    transparent: true, opacity: 0.45, transmission: 0.4, roughness: 0.1, thickness: 0.05,
+  });
+
+  // ── FOUNDATION ──────────────────────────────────────────────────────────────
+  const base = new THREE.Mesh(new THREE.BoxGeometry(W + 0.3, baseH, D + 0.3), stoneMat);
+  base.position.y = baseH / 2;
+  base.castShadow = true;
+  base.receiveShadow = true;
+  group.add(base);
+
+  // ── WALLS ──────────────────────────────────────────────────────────────────
+  const walls = new THREE.Mesh(new THREE.BoxGeometry(W, wallH, D), wallMat);
+  walls.position.y = baseH + wallH / 2;
+  walls.castShadow = true;
+  walls.receiveShadow = true;
+  group.add(walls);
+
+  // Timber framing — vertical corner beams on front face
+  for (const bx of [-W / 2, W / 2]) {
+    const beam = new THREE.Mesh(new THREE.BoxGeometry(0.07, wallH, 0.07), timberMat);
+    beam.position.set(bx, baseH + wallH / 2, D / 2);
+    group.add(beam);
+  }
+  // Horizontal beam beneath roofline (front face)
+  const hBeam = new THREE.Mesh(new THREE.BoxGeometry(W + 0.07, 0.06, 0.06), timberMat);
+  hBeam.position.set(0, baseH + wallH * 0.92, D / 2);
+  group.add(hBeam);
+
+  // ── PITCHED ROOF (snow-dusted) ──────────────────────────────────────────────
+  const roof = new THREE.Mesh(new THREE.ConeGeometry((W / 2) * 1.15, roofH, 4), roofMat);
+  roof.rotation.y = Math.PI / 4;
+  roof.position.y = baseH + wallH + roofH / 2;
+  roof.castShadow = true;
+  group.add(roof);
+
+  // Snow cap on roof ridge
+  const ridgeCap = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, W * 0.9, 6), snowMat);
+  ridgeCap.rotation.z = Math.PI / 2;
+  ridgeCap.position.y = baseH + wallH + roofH * 0.92;
+  group.add(ridgeCap);
+
+  // Snow on front eave
+  const eaveFront = new THREE.Mesh(new THREE.BoxGeometry(W * 1.15, 0.1, 0.22), snowMat);
+  eaveFront.position.set(0, baseH + wallH + 0.06, D / 2 * 1.15);
+  group.add(eaveFront);
+
+  // ── CHIMNEY ─────────────────────────────────────────────────────────────────
+  const chimney = new THREE.Mesh(new THREE.BoxGeometry(0.28, 1.0, 0.28), stoneMat);
+  chimney.position.set(-W / 2 + 0.45, baseH + wallH + 0.58, 0);
+  group.add(chimney);
+  const chimSnow = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.08, 0.36), snowMat);
+  chimSnow.position.set(-W / 2 + 0.45, baseH + wallH + 1.1, 0);
+  group.add(chimSnow);
+  // Smoke wisps
+  for (let i = 0; i < 3; i++) {
+    const smk = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.03 + i * 0.015, 0.04, 0.18, 5),
+      new THREE.MeshStandardMaterial({ color: 0xDDDDDD, transparent: true, opacity: 0.5 - i * 0.12 })
+    );
+    smk.position.set(-W / 2 + 0.45 + i * 0.02, baseH + wallH + 1.25 + i * 0.22, 0);
+    group.add(smk);
+  }
+
+  // ── FRONT DOOR ─────────────────────────────────────────────────────────────
+  const door = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.78, 0.06), doorMat);
+  door.position.set(0, baseH + 0.39, D / 2 + 0.03);
+  group.add(door);
+  // Arch cap above door
+  const archCap = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.18, 0.06), doorMat);
+  archCap.position.set(0, baseH + 0.87, D / 2 + 0.03);
+  group.add(archCap);
+  // Door knob
+  const knob = new THREE.Mesh(new THREE.SphereGeometry(0.03, 6, 5), goldMat);
+  knob.position.set(0.17, baseH + 0.45, D / 2 + 0.06);
+  group.add(knob);
+
+  // ── WREATH on door ──────────────────────────────────────────────────────────
+  const wreath = new THREE.Mesh(new THREE.TorusGeometry(0.14, 0.032, 6, 14), greenMat);
+  wreath.position.set(0, baseH + 0.6, D / 2 + 0.07);
+  group.add(wreath);
+  // Crimson bow
+  const bow1 = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.04, 0.02), redMat);
+  bow1.position.set(-0.04, baseH + 0.755, D / 2 + 0.09);
+  bow1.rotation.z = 0.4;
+  group.add(bow1);
+  const bow2 = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.04, 0.02), redMat);
+  bow2.position.set(0.04, baseH + 0.755, D / 2 + 0.09);
+  bow2.rotation.z = -0.4;
+  group.add(bow2);
+
+  // ── WINDOWS (front, flanking door) ─────────────────────────────────────────
+  for (const wx of [-0.88, 0.88]) {
+    // White frame
+    const frame = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.58, 0.05), whiteTrimMat);
+    frame.position.set(wx, baseH + wallH * 0.5, D / 2 + 0.024);
+    group.add(frame);
+    // Warm amber glass
+    const glass = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.5, 0.05), warmWinMat);
+    glass.position.set(wx, baseH + wallH * 0.5, D / 2 + 0.036);
+    group.add(glass);
+    // Pane dividers
+    const hdiv = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.025, 0.04), whiteTrimMat);
+    hdiv.position.set(wx, baseH + wallH * 0.5, D / 2 + 0.05);
+    group.add(hdiv);
+    const vdiv = new THREE.Mesh(new THREE.BoxGeometry(0.025, 0.52, 0.04), whiteTrimMat);
+    vdiv.position.set(wx, baseH + wallH * 0.5, D / 2 + 0.05);
+    group.add(vdiv);
+    // Window sill
+    const sill = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.04, 0.08), whiteTrimMat);
+    sill.position.set(wx, baseH + wallH * 0.26, D / 2 + 0.035);
+    group.add(sill);
+    // Candle on sill
+    const candle = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.14, 6),
+      new THREE.MeshStandardMaterial({ color: 0xFFFEF0 }));
+    candle.position.set(wx, baseH + wallH * 0.26 + 0.09, D / 2 - 0.08);
+    group.add(candle);
+    const flame = new THREE.Mesh(new THREE.SphereGeometry(0.027, 5, 4), amberMat);
+    flame.scale.y = 1.4;
+    flame.position.set(wx, baseH + wallH * 0.26 + 0.17, D / 2 - 0.08);
+    group.add(flame);
+    // Candle light
+    const cLight = new THREE.PointLight(0xFFC857, 0.35, 1.8);
+    cLight.position.set(wx, baseH + wallH * 0.45, D / 2 - 0.2);
+    group.add(cLight);
+  }
+
+  // ── CHRISTMAS TREE (interior centerpiece) ───────────────────────────────────
+  const treeX = 0.25;
+  const treeZ = D / 2 - 0.42;
+  // Trunk
+  const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.15, 6), postMat);
+  trunk.position.set(treeX, baseH + 0.075, treeZ);
+  group.add(trunk);
+  // Layered tiers
+  const tierData = [
+    { r: 0.52, h: 0.55, y: 0.12 },
+    { r: 0.38, h: 0.50, y: 0.50 },
+    { r: 0.24, h: 0.45, y: 0.82 },
+  ];
+  for (const t of tierData) {
+    const tier = new THREE.Mesh(new THREE.ConeGeometry(t.r, t.h, 8), treeGreenMat);
+    tier.position.set(treeX, baseH + t.y, treeZ);
+    group.add(tier);
+  }
+  // Gold star topper
+  const starMat = new THREE.MeshStandardMaterial({ color: 0xFFD700, emissive: 0xFFD700, emissiveIntensity: 0.6 });
+  const star = new THREE.Mesh(new THREE.OctahedronGeometry(0.075), starMat);
+  star.rotation.y = Math.PI / 4;
+  star.position.set(treeX, baseH + 1.12, treeZ);
+  group.add(star);
+  // Ornaments
+  const ornData = [
+    { dx: -0.18, dy: 0.20, dz: 0.12, col: 0xDC143C },
+    { dx:  0.15, dy: 0.38, dz: -0.1, col: 0xFFD700 },
+    { dx: -0.08, dy: 0.58, dz: 0.08, col: 0xDC143C },
+    { dx:  0.10, dy: 0.75, dz: 0.06, col: 0xFFD700 },
+    { dx: -0.10, dy: 0.92, dz: -0.05, col: 0xDC143C },
+  ];
+  for (const o of ornData) {
+    const orn = new THREE.Mesh(new THREE.SphereGeometry(0.055, 7, 5),
+      new THREE.MeshStandardMaterial({ color: o.col, metalness: 0.5, roughness: 0.3 }));
+    orn.position.set(treeX + o.dx, baseH + o.dy, treeZ + o.dz);
+    group.add(orn);
+  }
+  // Tiny white lights
+  for (let i = 0; i < 6; i++) {
+    const a = i * 1.1;
+    const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.022, 4, 3),
+      new THREE.MeshStandardMaterial({ color: 0xFFFACD, emissive: 0xFFFACD, emissiveIntensity: 1.0 }));
+    bulb.position.set(treeX + Math.sin(a) * 0.25, baseH + 0.15 + i * 0.16, treeZ + Math.cos(a) * 0.1);
+    group.add(bulb);
+  }
+  // Wrapped presents
+  const presentCols = [0xDC143C, 0xFFD700, 0x2D5016];
+  for (let i = 0; i < 3; i++) {
+    const present = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.11, 0.13),
+      new THREE.MeshStandardMaterial({ color: presentCols[i] }));
+    present.position.set(treeX - 0.13 + i * 0.13, baseH + 0.055, treeZ + 0.06);
+    group.add(present);
+    const ribbon = new THREE.Mesh(new THREE.BoxGeometry(0.135, 0.025, 0.02), goldMat);
+    ribbon.position.set(treeX - 0.13 + i * 0.13, baseH + 0.1, treeZ + 0.06);
+    group.add(ribbon);
+  }
+  // Tree glow
+  const treeLight = new THREE.PointLight(0xFFFFCC, 0.5, 1.4);
+  treeLight.position.set(treeX, baseH + 0.6, treeZ);
+  group.add(treeLight);
+
+  // ── ICICLES along front eave ────────────────────────────────────────────────
+  for (const ix of [-W * 0.45, -W * 0.22, 0, W * 0.22, W * 0.45]) {
+    const h = 0.12 + Math.abs(ix) * 0.02;
+    const icicle = new THREE.Mesh(new THREE.ConeGeometry(0.022, h, 5),
+      new THREE.MeshStandardMaterial({ color: 0xDDEEFF, transparent: true, opacity: 0.85 }));
+    icicle.position.set(ix, baseH + wallH + 0.02, D / 2 + 0.1);
+    group.add(icicle);
+  }
+
+  // ── SNOW DRIFTS at base ─────────────────────────────────────────────────────
+  const driftL = new THREE.Mesh(new THREE.SphereGeometry(0.45, 8, 5), snowMat);
+  driftL.scale.set(1.3, 0.45, 0.65);
+  driftL.position.set(-W / 2 - 0.1, 0, 0);
+  group.add(driftL);
+  const driftR = new THREE.Mesh(new THREE.SphereGeometry(0.45, 8, 5), snowMat);
+  driftR.scale.set(1.3, 0.45, 0.65);
+  driftR.position.set(W / 2 + 0.1, 0, 0);
+  group.add(driftR);
+
+  // ── FLAGSTONE PATHWAY ──────────────────────────────────────────────────────
+  for (let i = 0; i < 4; i++) {
+    const stone = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.05, 0.26), stoneMat);
+    stone.position.set((i % 2) * 0.06 - 0.03, 0.025, D / 2 + 0.28 + i * 0.32);
+    group.add(stone);
+  }
+
+  // ── MAILBOX ─────────────────────────────────────────────────────────────────
+  const mbX = W / 2 + 0.12;
+  const mbZ = D / 2 + 0.1;
+  const mbPost = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.85, 6), postMat);
+  mbPost.position.set(mbX, 0.425, mbZ);
+  group.add(mbPost);
+  const mbBody = new THREE.Mesh(new THREE.CylinderGeometry(0.095, 0.095, 0.30, 12), redMat);
+  mbBody.rotation.z = Math.PI / 2;
+  mbBody.position.set(mbX, 0.92, mbZ);
+  group.add(mbBody);
+  const mbSnow = new THREE.Mesh(new THREE.BoxGeometry(0.33, 0.06, 0.21), snowMat);
+  mbSnow.position.set(mbX, 0.98, mbZ);
+  group.add(mbSnow);
+
+  // ── SNOWMAN ─────────────────────────────────────────────────────────────────
+  const smX = -W / 2 - 0.1;
+  const smZ = D / 2 + 0.55;
+  const smBody = new THREE.Mesh(new THREE.SphereGeometry(0.26, 12, 9), snowMat);
+  smBody.position.set(smX, 0.26, smZ);
+  group.add(smBody);
+  const smTorso = new THREE.Mesh(new THREE.SphereGeometry(0.20, 12, 9), snowMat);
+  smTorso.position.set(smX, 0.72, smZ);
+  group.add(smTorso);
+  const smHead = new THREE.Mesh(new THREE.SphereGeometry(0.16, 12, 9), snowMat);
+  smHead.position.set(smX, 1.1, smZ);
+  group.add(smHead);
+  // Coal buttons
+  for (let i = 0; i < 3; i++) {
+    const btn = new THREE.Mesh(new THREE.SphereGeometry(0.022, 5, 4), coalMat);
+    btn.position.set(smX, 0.6 + i * 0.1, smZ + 0.20);
+    group.add(btn);
+  }
+  // Carrot nose
+  const nose = new THREE.Mesh(new THREE.ConeGeometry(0.025, 0.1, 5),
+    new THREE.MeshStandardMaterial({ color: 0xFF6600 }));
+  nose.rotation.x = Math.PI / 2;
+  nose.position.set(smX, 1.10, smZ + 0.16);
+  group.add(nose);
+  // Eyes
+  for (const ex of [-0.06, 0.06]) {
+    const eye = new THREE.Mesh(new THREE.SphereGeometry(0.022, 5, 4), coalMat);
+    eye.position.set(smX + ex, 1.16, smZ + 0.14);
+    group.add(eye);
+  }
+  // Top hat
+  const brim = new THREE.Mesh(new THREE.CylinderGeometry(0.20, 0.20, 0.035, 12), hatMat);
+  brim.position.set(smX, 1.29, smZ);
+  group.add(brim);
+  const hat = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.20, 12), hatMat);
+  hat.position.set(smX, 1.39, smZ);
+  group.add(hat);
+  // Stick arms
+  for (const side of [-1, 1]) {
+    const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.30, 5), postMat);
+    arm.rotation.z = side * (Math.PI / 4);
+    arm.position.set(smX + side * 0.25, 0.72, smZ);
+    group.add(arm);
+  }
+
+  // ── WARM INTERIOR GLOW ─────────────────────────────────────────────────────
+  const warmGlow = new THREE.PointLight(0xFFE5B4, 0.5, 2.5);
+  warmGlow.position.set(0, baseH + 0.8, D / 2 - 0.3);
+  group.add(warmGlow);
+
+  // ── CONTRIBUTOR PLAQUE ─────────────────────────────────────────────────────
+  buildPlaque(group, building, D / 2 + 0.06, 2.5);
+};
+
 // Create organic village ground with winding roads
 export function createGround() {
   const group = new THREE.Group();

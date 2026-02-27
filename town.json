@@ -91,6 +91,19 @@
     "added": "2026-02-27"
   },
   {
+    "id": "serenity",
+    "name": "Serenity",
+    "type": "shop",
+    "description": "A snow-dusted English cottage shop radiating Christmas warmth. A magnificent decorated tree stands as a beacon of holiday magic in the window, flanked by candle-lit sills. A cheerful snowman guards the door beside a red mailbox, while icicles fringe the eaves and snow drifts bank against the stone foundation.",
+    "plot": 25,
+    "contributor": {
+      "username": "mapleroyal",
+      "avatar": "https://github.com/mapleroyal.png"
+    },
+    "issue": 29,
+    "added": "2026-02-27"
+  },
+  {
     "id": "fish-soup",
     "name": "Fish Soup",
     "type": "restaurant",
