@@ -102,5 +102,18 @@
     },
     "issue": 25,
     "added": "2026-02-27"
+  },
+  {
+    "id": "the-bug-museum",
+    "name": "The Bug Museum",
+    "type": "public",
+    "description": "A museum dedicated to legendary glitches and happy accidents in computing history. Inside: a '404 Fossil' display, a 'Segfault Sculpture,' and a rotating exhibit called 'It Works On My Machine'. Features a magenta-and-black missing-texture wall, an intentionally glitched roof spike, and pixelated cubes floating around the entrance.",
+    "plot": 12,
+    "contributor": {
+      "username": "cenksoykan",
+      "avatar": "https://github.com/cenksoykan.png"
+    },
+    "issue": 27,
+    "added": "2026-02-27"
   }
 ]
