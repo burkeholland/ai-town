@@ -5054,6 +5054,328 @@ CUSTOM_BUILDERS['hot-yoga-studio-charlie'] = function (group, building) {
   buildPlaque(group, building, D / 2 + 0.12, 2.4);
 };
 
+// ─── Custom Building: Motz Coffee Co. & Roastery ───────────────────────────
+
+CUSTOM_BUILDERS['motz-coffee-co'] = function (group, building) {
+  const W = 3.6;        // width
+  const D = 2.2;        // depth
+  const wallH = 2.2;    // wall height
+  const baseH = 0.1;    // foundation height
+
+  // Materials
+  const facadeMat   = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.9 });  // matte black
+  const brassMat    = new THREE.MeshStandardMaterial({ color: 0xb8860b, metalness: 0.5, roughness: 0.4 });
+  const walnutMat   = new THREE.MeshStandardMaterial({ color: 0x5c4033, roughness: 0.8 });
+  const darkWoodMat = new THREE.MeshStandardMaterial({ color: 0x3d2817, roughness: 0.85 });
+  const chromeMat   = new THREE.MeshStandardMaterial({ color: 0xc0c0c0, metalness: 0.7, roughness: 0.3 });
+  const copperMat   = new THREE.MeshStandardMaterial({ color: 0xb87333, metalness: 0.5, roughness: 0.5 });
+  const burlMat     = new THREE.MeshStandardMaterial({ color: 0xd2b48c, roughness: 0.9 });
+  const roasterMat  = new THREE.MeshStandardMaterial({ color: 0xcc2200, roughness: 0.7 });
+  const floorMat    = new THREE.MeshStandardMaterial({ color: 0x4a4a4a, roughness: 0.9 });
+  const interiorMat = new THREE.MeshStandardMaterial({ color: 0x2a1a0e, emissive: 0xf59e0b, emissiveIntensity: 0.12, roughness: 0.9 });
+  const winMat      = new THREE.MeshPhysicalMaterial({
+    color: 0xbfdbfe, emissive: 0x3b82f6, emissiveIntensity: 0.15,
+    transparent: true, opacity: 0.35, transmission: 0.6, roughness: 0.1, thickness: 0.05,
+  });
+  const chalkMat    = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.95 });
+  const neonMat     = new THREE.MeshStandardMaterial({ color: 0x00d9ff, emissive: 0x00d9ff, emissiveIntensity: 0.9 });
+  const plantMat    = new THREE.MeshStandardMaterial({ color: 0x2d5016, roughness: 0.9 });
+  const potMat      = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.8 });
+
+  // ── FOUNDATION ──
+  const base = new THREE.Mesh(new THREE.BoxGeometry(W + 0.2, baseH, D + 0.2), new THREE.MeshStandardMaterial({ color: 0x333333 }));
+  base.position.y = baseH / 2;
+  base.receiveShadow = true;
+  group.add(base);
+
+  // ── MAIN WALLS (matte black) ──
+  const walls = new THREE.Mesh(new THREE.BoxGeometry(W, wallH, D), facadeMat);
+  walls.position.y = baseH + wallH / 2;
+  walls.castShadow = true;
+  walls.receiveShadow = true;
+  group.add(walls);
+
+  // ── FLAT ROOF with slight overhang ──
+  const roofSlab = new THREE.Mesh(new THREE.BoxGeometry(W + 0.3, 0.12, D + 0.3), new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.95 }));
+  roofSlab.position.y = baseH + wallH + 0.06;
+  roofSlab.castShadow = true;
+  group.add(roofSlab);
+
+  // ── BRASS KICKPLATE along facade base ──
+  const kickplate = new THREE.Mesh(new THREE.BoxGeometry(W + 0.02, 0.18, 0.05), brassMat);
+  kickplate.position.set(0, baseH + 0.09, D / 2 + 0.03);
+  group.add(kickplate);
+
+  // ── INTERIOR warm back wall (glows amber, visible through windows) ──
+  const intWall = new THREE.Mesh(new THREE.BoxGeometry(W - 0.3, wallH - 0.3, 0.04), interiorMat);
+  intWall.position.set(0, baseH + wallH / 2, -D / 2 + 0.12);
+  group.add(intWall);
+
+  // ── INTERIOR FLOOR ──
+  const floor = new THREE.Mesh(new THREE.BoxGeometry(W - 0.2, 0.04, D - 0.2), floorMat);
+  floor.position.set(0, baseH + 0.02, 0);
+  group.add(floor);
+
+  // ── THREE LARGE FRONT WINDOWS with brass frames ──
+  const winH = 1.6;
+  const winW = 0.85;
+  const winY = baseH + 0.28 + winH / 2;
+  const winXPositions = [-1.1, 0, 1.1];
+
+  for (const wx of winXPositions) {
+    // Brass outer frame
+    const frame = new THREE.Mesh(new THREE.BoxGeometry(winW + 0.1, winH + 0.1, 0.06), brassMat);
+    frame.position.set(wx, winY, D / 2 + 0.02);
+    group.add(frame);
+    // Glass
+    const glass = new THREE.Mesh(new THREE.BoxGeometry(winW, winH, 0.05), winMat);
+    glass.position.set(wx, winY, D / 2 + 0.03);
+    group.add(glass);
+    // Brass window divider (horizontal)
+    const divH = new THREE.Mesh(new THREE.BoxGeometry(winW + 0.06, 0.04, 0.07), brassMat);
+    divH.position.set(wx, winY + 0.2, D / 2 + 0.035);
+    group.add(divH);
+  }
+
+  // ── ENTRY DOOR (between left and center windows) ──
+  const doorX = -0.55;
+  const doorW = 0.48;
+  const doorH = 1.2;
+  const doorMat2 = new THREE.MeshPhysicalMaterial({
+    color: 0x111111, emissive: 0x1a1a1a, emissiveIntensity: 0.05,
+    transparent: true, opacity: 0.65, transmission: 0.3, roughness: 0.1,
+  });
+  const door = new THREE.Mesh(new THREE.BoxGeometry(doorW, doorH, 0.05), doorMat2);
+  door.position.set(doorX, baseH + doorH / 2 + 0.02, D / 2 + 0.03);
+  group.add(door);
+  // Brass door frame
+  const dFrameTop = new THREE.Mesh(new THREE.BoxGeometry(doorW + 0.08, 0.05, 0.06), brassMat);
+  dFrameTop.position.set(doorX, baseH + doorH + 0.05, D / 2 + 0.03);
+  group.add(dFrameTop);
+  for (const sx of [-1, 1]) {
+    const dFrameSide = new THREE.Mesh(new THREE.BoxGeometry(0.05, doorH + 0.05, 0.06), brassMat);
+    dFrameSide.position.set(doorX + sx * (doorW / 2 + 0.025), baseH + doorH / 2 + 0.02, D / 2 + 0.03);
+    group.add(dFrameSide);
+  }
+  // Brass push bar
+  const pushBar = new THREE.Mesh(new THREE.BoxGeometry(doorW * 0.7, 0.03, 0.04), brassMat);
+  pushBar.position.set(doorX, baseH + doorH * 0.48, D / 2 + 0.06);
+  group.add(pushBar);
+
+  // ── SIGN BAND above windows — matte black with brass letters hint ──
+  const signBand = new THREE.Mesh(new THREE.BoxGeometry(W, 0.35, 0.06), facadeMat);
+  signBand.position.set(0, baseH + wallH - 0.18, D / 2 + 0.04);
+  group.add(signBand);
+  // Brass sign text represented as thin rectangular bars
+  const letterOffsets = [-1.3, -0.9, -0.5, -0.1, 0.3, 0.7, 1.1, 1.3];
+  for (const lx of letterOffsets) {
+    const letter = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.16, 0.04), brassMat);
+    letter.position.set(lx, baseH + wallH - 0.18, D / 2 + 0.08);
+    group.add(letter);
+  }
+
+  // ── NEON SIDE SIGN (left wall, vertical, cyan glow) ──
+  const neonGeo = new THREE.BoxGeometry(0.08, 1.4, 0.07);
+  const neonSign = new THREE.Mesh(neonGeo, neonMat);
+  neonSign.position.set(-W / 2 - 0.04, baseH + wallH * 0.55, D / 2 - 0.5);
+  group.add(neonSign);
+  // Neon brackets
+  for (const ny of [0.3, -0.3]) {
+    const bracket = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.03, 0.03), brassMat);
+    bracket.position.set(-W / 2 + 0.04, baseH + wallH * 0.55 + ny, D / 2 - 0.5);
+    group.add(bracket);
+  }
+  // Neon glow light
+  const neonGlow = new THREE.PointLight(0x00d9ff, 0.6, 3.0);
+  neonGlow.position.set(-W / 2 - 0.1, baseH + wallH * 0.55, D / 2 - 0.5);
+  group.add(neonGlow);
+
+  // ── COPPER CHIMNEY (back-right corner, for roaster exhaust) ──
+  const chimney = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.12, 0.9, 8), copperMat);
+  chimney.position.set(W / 2 - 0.45, baseH + wallH + 0.51, -D / 2 + 0.45);
+  chimney.castShadow = true;
+  group.add(chimney);
+  // Chimney cap
+  const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.11, 0.06, 8), copperMat);
+  cap.position.set(W / 2 - 0.45, baseH + wallH + 0.99, -D / 2 + 0.45);
+  group.add(cap);
+
+  // ── INTERIOR: L-SHAPED WALNUT COUNTER (back + left walls) ──
+  const backCounter = new THREE.Mesh(new THREE.BoxGeometry(W - 0.5, 0.06, 0.5), walnutMat);
+  backCounter.position.set(0, baseH + 0.55, -D / 2 + 0.38);
+  group.add(backCounter);
+  const backCounterFront = new THREE.Mesh(new THREE.BoxGeometry(W - 0.5, 0.55, 0.06), darkWoodMat);
+  backCounterFront.position.set(0, baseH + 0.27, -D / 2 + 0.64);
+  group.add(backCounterFront);
+
+  // Left counter arm
+  const leftCounter = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.55, 0.8), darkWoodMat);
+  leftCounter.position.set(-W / 2 + 0.52, baseH + 0.27, -D / 2 + 0.38);
+  group.add(leftCounter);
+  const leftCounterTop = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.06, 0.8), walnutMat);
+  leftCounterTop.position.set(-W / 2 + 0.52, baseH + 0.55, -D / 2 + 0.38);
+  group.add(leftCounterTop);
+
+  // ── INTERIOR: ESPRESSO MACHINE (center back, chrome) ──
+  const espresso = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.32, 0.28), chromeMat);
+  espresso.position.set(0, baseH + 0.58 + 0.16, -D / 2 + 0.3);
+  group.add(espresso);
+  // Group heads (3 horizontal cylinders)
+  for (const gx of [-0.2, 0, 0.2]) {
+    const head = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.15, 8), chromeMat);
+    head.rotation.z = Math.PI / 2;
+    head.position.set(gx, baseH + 0.58 + 0.08, -D / 2 + 0.45);
+    group.add(head);
+  }
+  // Steam wands
+  for (const sx of [-0.28, 0.28]) {
+    const wand = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.22, 5), chromeMat);
+    wand.rotation.x = -0.4;
+    wand.position.set(sx, baseH + 0.58 + 0.05, -D / 2 + 0.45);
+    group.add(wand);
+  }
+
+  // ── INTERIOR: GRINDERS (flanking espresso machine) ──
+  for (const gx of [-0.55, 0.55]) {
+    // Base
+    const gBase = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.28, 0.14), new THREE.MeshStandardMaterial({ color: 0x222222 }));
+    gBase.position.set(gx, baseH + 0.55 + 0.14, -D / 2 + 0.28);
+    group.add(gBase);
+    // Hopper
+    const hopper = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.06, 0.2, 8), chromeMat);
+    hopper.position.set(gx, baseH + 0.55 + 0.38, -D / 2 + 0.28);
+    group.add(hopper);
+  }
+
+  // ── INTERIOR: STANDING BAR (right side, stools) ──
+  const standBar = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.7, 1.0), darkWoodMat);
+  standBar.position.set(W / 2 - 0.24, baseH + 0.35, -0.1);
+  group.add(standBar);
+  const standBarTop = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.05, 1.0), walnutMat);
+  standBarTop.position.set(W / 2 - 0.24, baseH + 0.72, -0.1);
+  group.add(standBarTop);
+  // 3 stools
+  for (let si = 0; si < 3; si++) {
+    const stoolZ = -0.55 + si * 0.5;
+    const stoolLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.5, 6), brassMat);
+    stoolLeg.position.set(W / 2 - 0.5, baseH + 0.25, stoolZ);
+    group.add(stoolLeg);
+    const stoolSeat = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.04, 10), new THREE.MeshStandardMaterial({ color: 0x111111 }));
+    stoolSeat.position.set(W / 2 - 0.5, baseH + 0.52, stoolZ);
+    group.add(stoolSeat);
+  }
+
+  // ── INTERIOR: ROASTERY CORNER (back-right — small roaster + sacks) ──
+  // Roaster drum (red cylinder)
+  const roasterDrum = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.48, 12), roasterMat);
+  roasterDrum.rotation.z = Math.PI / 2;
+  roasterDrum.position.set(W / 2 - 0.45, baseH + 0.44, -D / 2 + 0.38);
+  group.add(roasterDrum);
+  // Roaster frame
+  const roasterFrame = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.28, 0.28), new THREE.MeshStandardMaterial({ color: 0x1a1a1a }));
+  roasterFrame.position.set(W / 2 - 0.45, baseH + 0.14, -D / 2 + 0.38);
+  group.add(roasterFrame);
+  // Burlap coffee sacks (3 cylinders, stacked/leaning)
+  const sackOffsets = [{ x: 0.12, y: 0.14 }, { x: 0.22, y: 0.14 }, { x: 0.17, y: 0.38 }];
+  for (const so of sackOffsets) {
+    const sack = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.09, 0.28, 8), burlMat);
+    sack.position.set(W / 2 - so.x, baseH + so.y, -D / 2 + 0.65);
+    group.add(sack);
+  }
+
+  // ── INTERIOR: CHALKBOARD MENU (left wall) ──
+  const menuBoard = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.55, 0.9), chalkMat);
+  menuBoard.position.set(-W / 2 + 0.04, baseH + 0.9, -0.3);
+  group.add(menuBoard);
+  // White "text lines" on menu board
+  const textMat = new THREE.MeshStandardMaterial({ color: 0xf0f0f0, roughness: 0.9 });
+  for (let tl = 0; tl < 4; tl++) {
+    const line = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.03, 0.3 - tl * 0.03), textMat);
+    line.position.set(-W / 2 + 0.06, baseH + 1.08 - tl * 0.14, -0.05 + tl * 0.02);
+    group.add(line);
+  }
+
+  // ── INTERIOR: VINYL RECORD SHELF (left wall, lower) ──
+  const vinylShelf = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.04, 0.55), walnutMat);
+  vinylShelf.position.set(-W / 2 + 0.04, baseH + 0.55, 0.35);
+  group.add(vinylShelf);
+  // 5 vinyl records as colored thin squares
+  const vinylColors = [0xef4444, 0x111111, 0x3b82f6, 0x111111, 0x22c55e];
+  for (let vi = 0; vi < 5; vi++) {
+    const record = new THREE.Mesh(
+      new THREE.BoxGeometry(0.03, 0.22, 0.02),
+      new THREE.MeshStandardMaterial({ color: vinylColors[vi] })
+    );
+    record.position.set(-W / 2 + 0.05, baseH + 0.67, 0.13 + vi * 0.09);
+    group.add(record);
+  }
+
+  // ── INTERIOR: PENDANT LAMPS ──
+  const pendantMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, emissive: 0xf59e0b, emissiveIntensity: 0.6 });
+  const pendantCordMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
+  const pendantPositions = [[-1.0, -0.5], [-0.3, 0.3], [0.4, -0.4], [1.0, 0.2], [0, -0.8]];
+  for (const [px, pz] of pendantPositions) {
+    const cordLen = 0.3 + Math.abs(px * 0.1);
+    const cord = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, cordLen, 4), pendantCordMat);
+    cord.position.set(px, baseH + wallH - cordLen / 2, pz);
+    group.add(cord);
+    const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.065, 8, 6), pendantMat);
+    bulb.position.set(px, baseH + wallH - cordLen - 0.065, pz);
+    group.add(bulb);
+  }
+
+  // ── OUTDOOR SEATING: 2 CAFÉ TABLES + PLANTERS ──
+  for (const tx of [-0.9, 0.9]) {
+    // Table pedestal
+    const pedestal = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.04, 0.45, 6), brassMat);
+    pedestal.position.set(tx, baseH + 0.225, D / 2 + 0.5);
+    group.add(pedestal);
+    // Table top
+    const tableTop = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.04, 12), facadeMat);
+    tableTop.position.set(tx, baseH + 0.47, D / 2 + 0.5);
+    group.add(tableTop);
+    // Brass table top edge ring
+    const tableRing = new THREE.Mesh(new THREE.TorusGeometry(0.22, 0.015, 6, 20), brassMat);
+    tableRing.rotation.x = Math.PI / 2;
+    tableRing.position.set(tx, baseH + 0.49, D / 2 + 0.5);
+    group.add(tableRing);
+    // Simple chair (2 per table)
+    for (const cOff of [-0.3, 0.3]) {
+      const seatMesh = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.03, 0.18), facadeMat);
+      seatMesh.position.set(tx + cOff, baseH + 0.32, D / 2 + 0.5);
+      group.add(seatMesh);
+      const backMesh = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.2, 0.025), facadeMat);
+      backMesh.position.set(tx + cOff, baseH + 0.42, D / 2 + 0.41);
+      group.add(backMesh);
+    }
+  }
+
+  // ── OUTDOOR PLANTERS flanking entrance ──
+  for (const px of [-W / 2 + 0.25, W / 2 - 0.25]) {
+    const planter = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.28, 0.28), facadeMat);
+    planter.position.set(px, baseH + 0.14, D / 2 + 0.18);
+    group.add(planter);
+    // Soil top
+    const soil = new THREE.Mesh(new THREE.BoxGeometry(0.33, 0.04, 0.26), new THREE.MeshStandardMaterial({ color: 0x3a2510 }));
+    soil.position.set(px, baseH + 0.3, D / 2 + 0.18);
+    group.add(soil);
+    // Greenery
+    for (let pi = 0; pi < 3; pi++) {
+      const plant = new THREE.Mesh(new THREE.SphereGeometry(0.08, 6, 5), plantMat);
+      plant.position.set(px - 0.08 + pi * 0.08, baseH + 0.38, D / 2 + 0.18);
+      group.add(plant);
+    }
+  }
+
+  // ── WARM INTERIOR GLOW ──
+  const warmGlow = new THREE.PointLight(0xf59e0b, 0.8, 5);
+  warmGlow.position.set(0, baseH + 0.8, 0);
+  group.add(warmGlow);
+
+  // ── CONTRIBUTOR PLAQUE ──
+  buildPlaque(group, building, D / 2 + 0.05, 2.8);
+};
+
 // Distant hills
 export function createHills() {
   const group = new THREE.Group();
