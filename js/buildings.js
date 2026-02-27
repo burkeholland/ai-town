@@ -3451,6 +3451,360 @@ export function createCloud(x, y, z, scale = 1) {
   return group;
 }
 
+// ─── Custom Building: The Bug Museum ───────────────────────────────────────
+
+CUSTOM_BUILDERS['the-bug-museum'] = function (group, building) {
+  const W = 3.5;         // width
+  const D = 2.4;         // depth
+  const floor1H = 1.6;   // ground floor height
+  const floor2H = 1.4;   // second floor height
+  const totalH = floor1H + floor2H;
+  const baseH = 0.15;    // foundation height
+
+  // Materials
+  const concreteMat  = new THREE.MeshStandardMaterial({ color: 0x9ca3af, roughness: 0.9 });
+  const darkMat      = new THREE.MeshStandardMaterial({ color: 0x374151, roughness: 0.9 });
+  const roofMat      = new THREE.MeshStandardMaterial({ color: 0x6b7280, roughness: 0.85 });
+  const cyanMat      = new THREE.MeshStandardMaterial({ color: 0x00ffff, roughness: 0.5 });
+  const blackMat     = new THREE.MeshStandardMaterial({ color: 0x000000, roughness: 0.8 });
+  const magentaMat   = new THREE.MeshStandardMaterial({ color: 0xff00ff, roughness: 0.7 });
+  const winMat       = new THREE.MeshPhysicalMaterial({
+    color: 0xbfdbfe, emissive: 0x3b82f6, emissiveIntensity: 0.15,
+    transparent: true, opacity: 0.35, transmission: 0.6, roughness: 0.1, thickness: 0.05,
+  });
+  const goldMat      = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.5, roughness: 0.4 });
+  const floorMat     = new THREE.MeshStandardMaterial({ color: 0xf9fafb, roughness: 0.7 });
+  const benchMat     = new THREE.MeshStandardMaterial({ color: 0x374151, roughness: 0.85 });
+  const chromeMat    = new THREE.MeshStandardMaterial({ color: 0xe5e7eb, metalness: 0.7, roughness: 0.3 });
+  const glowCyanMat  = new THREE.MeshStandardMaterial({ color: 0x00ffff, emissive: 0x00ffff, emissiveIntensity: 0.6 });
+  const whiteMat     = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.1 });
+  const beigeMat     = new THREE.MeshStandardMaterial({ color: 0xfef3c7, roughness: 0.8 });
+
+  // ── FOUNDATION ──
+  const base = new THREE.Mesh(new THREE.BoxGeometry(W + 0.3, baseH, D + 0.3), concreteMat);
+  base.position.y = baseH / 2;
+  base.castShadow = true;
+  base.receiveShadow = true;
+  group.add(base);
+
+  // ── MAIN WALLS (concrete box, two stories) ──
+  const walls = new THREE.Mesh(new THREE.BoxGeometry(W, totalH, D), concreteMat);
+  walls.position.y = baseH + totalH / 2;
+  walls.castShadow = true;
+  walls.receiveShadow = true;
+  group.add(walls);
+
+  // Floor divider strip
+  const divider = new THREE.Mesh(new THREE.BoxGeometry(W + 0.06, 0.07, D + 0.06), darkMat);
+  divider.position.y = baseH + floor1H;
+  group.add(divider);
+
+  // ── FLAT ROOF ──
+  const roofSlab = new THREE.Mesh(new THREE.BoxGeometry(W + 0.2, 0.12, D + 0.2), roofMat);
+  roofSlab.position.y = baseH + totalH + 0.06;
+  roofSlab.castShadow = true;
+  group.add(roofSlab);
+
+  // Parapet walls
+  for (const [pw, pd, px, pz] of [
+    [W + 0.2, 0.07, 0,          D / 2 + 0.08],
+    [W + 0.2, 0.07, 0,         -D / 2 - 0.08],
+    [0.07, D + 0.2, -W / 2 - 0.08, 0],
+    [0.07, D + 0.2,  W / 2 + 0.08, 0],
+  ]) {
+    const p = new THREE.Mesh(new THREE.BoxGeometry(pw, 0.3, pd), darkMat);
+    p.position.set(px, baseH + totalH + 0.12 + 0.15, pz);
+    group.add(p);
+  }
+
+  // ── VERTEX GLITCH SPIKE (back-right corner, roof stretched upward) ──
+  const spikeGeo = new THREE.BoxGeometry(0.35, 2.5, 0.35);
+  const spike = new THREE.Mesh(spikeGeo, concreteMat);
+  spike.position.set(W / 2 - 0.18, baseH + totalH + 0.12 + 1.25, -D / 2 + 0.18);
+  spike.rotation.z = 0.18;
+  spike.rotation.x = -0.12;
+  spike.castShadow = true;
+  group.add(spike);
+  // Tip detail — glitchy broken edge
+  const spikeTip = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.4, 0.2), darkMat);
+  spikeTip.position.set(W / 2 - 0.1, baseH + totalH + 2.9, -D / 2 + 0.22);
+  spikeTip.rotation.z = 0.4;
+  group.add(spikeTip);
+
+  // ── CHECKERBOARD LEFT WALL (magenta + black, missing-texture style) ──
+  const sqSize = 0.25;
+  const cols = Math.ceil(D / sqSize);
+  const rows = Math.ceil(totalH / sqSize);
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const isMagenta = (r + c) % 2 === 0;
+      const mat = isMagenta ? magentaMat : blackMat;
+      const sq = new THREE.Mesh(new THREE.BoxGeometry(0.02, sqSize - 0.01, sqSize - 0.01), mat);
+      const pz = -D / 2 + sqSize * (c + 0.5);
+      const py = baseH + sqSize * (r + 0.5);
+      sq.position.set(-W / 2 - 0.01, py, pz);
+      group.add(sq);
+    }
+  }
+
+  // ── WIDE STEPS (front entrance) ──
+  for (let i = 0; i < 4; i++) {
+    const stepW = W + 0.5 - i * 0.12;
+    const step = new THREE.Mesh(new THREE.BoxGeometry(stepW, 0.12, 0.38), concreteMat);
+    step.position.set(0, i * 0.12 + 0.06, D / 2 + 0.38 * (4 - i));
+    step.castShadow = true;
+    step.receiveShadow = true;
+    group.add(step);
+  }
+
+  // ── FLOOR-TO-CEILING DISPLAY WINDOW (front, right of center) ──
+  const displayWin = new THREE.Mesh(new THREE.BoxGeometry(1.4, floor1H * 0.85, 0.06), winMat);
+  displayWin.position.set(0.8, baseH + floor1H * 0.48, D / 2 + 0.04);
+  displayWin.renderOrder = 1;
+  group.add(displayWin);
+
+  // Window frame
+  const wfMat = new THREE.MeshStandardMaterial({ color: 0x1f2937, roughness: 0.8 });
+  for (const [fw, fh, fx, fy] of [
+    [1.42, 0.05, 0.8, baseH + floor1H * 0.88 + 0.01],
+    [1.42, 0.05, 0.8, baseH + 0.04],
+    [0.05, floor1H * 0.85, 0.8 - 0.72, baseH + floor1H * 0.48],
+    [0.05, floor1H * 0.85, 0.8 + 0.72, baseH + floor1H * 0.48],
+  ]) {
+    const fr = new THREE.Mesh(new THREE.BoxGeometry(fw, fh, 0.07), wfMat);
+    fr.position.set(fx, fy, D / 2 + 0.04);
+    group.add(fr);
+  }
+
+  // Second floor windows (front)
+  for (const wx of [-0.9, 0, 0.9]) {
+    const w = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.5, 0.06), winMat);
+    w.position.set(wx, baseH + floor1H + floor2H * 0.55, D / 2 + 0.04);
+    w.renderOrder = 1;
+    group.add(w);
+    // Sill
+    const sill = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.05, 0.1), concreteMat);
+    sill.position.set(wx, baseH + floor1H + floor2H * 0.28, D / 2 + 0.06);
+    group.add(sill);
+  }
+
+  // Side windows (right wall, both floors)
+  for (let floor = 0; floor < 2; floor++) {
+    const flH = floor === 0 ? floor1H : floor2H;
+    const flBase = floor === 0 ? 0 : floor1H;
+    const w = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.45, 0.4), winMat);
+    w.position.set(W / 2 + 0.04, baseH + flBase + flH * 0.55, 0);
+    w.renderOrder = 1;
+    group.add(w);
+  }
+
+  // ── DOUBLE ENTRANCE DOORS (cyan) ──
+  for (const dx of [-0.55, 0.05]) {
+    const door = new THREE.Mesh(new THREE.BoxGeometry(0.5, 1.1, 0.06), cyanMat);
+    door.position.set(dx - 0.65 + 0.55 + 0.55, baseH + 0.56, D / 2 + 0.04);
+    group.add(door);
+    // Black handle
+    const handle = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.15, 0.04), blackMat);
+    handle.position.set(dx - 0.65 + 0.55 + 0.55 + (dx < 0 ? 0.18 : -0.18), baseH + 0.55, D / 2 + 0.08);
+    group.add(handle);
+  }
+  // Door recess frame
+  const doorFrame = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.18, 0.08), darkMat);
+  doorFrame.position.set(-0.1, baseH + 0.6, D / 2 + 0.01);
+  group.add(doorFrame);
+
+  // ── BUG MUSEUM SIGN (above entrance) ──
+  const signBoard = new THREE.Mesh(new THREE.BoxGeometry(W * 0.85, 0.32, 0.08), blackMat);
+  signBoard.position.set(0, baseH + floor1H * 0.88, D / 2 + 0.08);
+  group.add(signBoard);
+
+  // "BUG MUSEUM" in cyan pixel letters (simplified: two rectangular blocks with gaps)
+  const pixMat2 = new THREE.MeshStandardMaterial({ color: 0x00ffff, emissive: 0x00ffff, emissiveIntensity: 0.7 });
+  const ps = 0.022;
+  const pstep = 0.028;
+  // Letter pixel bitmaps (5x5)
+  const B5 = [[1,1,0],[1,1,1],[1,1,0],[1,1,1],[1,1,0]];
+  const U5 = [[1,0,1],[1,0,1],[1,0,1],[1,0,1],[1,1,1]];
+  const G5 = [[0,1,1],[1,0,0],[1,0,1],[1,0,1],[0,1,1]];
+  const M5 = [[1,0,1],[1,1,1],[1,1,1],[1,0,1],[1,0,1]];
+  const E5 = [[1,1,1],[1,0,0],[1,1,0],[1,0,0],[1,1,1]];
+  const S5 = [[0,1,1],[1,0,0],[0,1,0],[0,0,1],[1,1,0]];
+  const U2 = U5;
+  const letters2 = [B5, U5, G5, M5, U2, S5, E5, U2, M5];
+  const totalW2 = letters2.length * (3 * pstep + 0.012);
+  const startX2 = -totalW2 / 2 + 1.5 * pstep;
+  for (let li = 0; li < letters2.length; li++) {
+    const lx = startX2 + li * (3 * pstep + 0.012);
+    letters2[li].forEach((row, ri) => {
+      row.forEach((on, ci) => {
+        if (!on) return;
+        const px = new THREE.Mesh(new THREE.BoxGeometry(ps, ps, 0.01), pixMat2);
+        px.position.set(lx + ci * pstep, baseH + floor1H * 0.88 + 0.08 - ri * pstep, D / 2 + 0.13);
+        group.add(px);
+      });
+    });
+  }
+
+  // ── CONCRETE BENCHES (flanking entrance) ──
+  for (const bx of [-W / 2 + 0.5, W / 2 - 0.5]) {
+    const bench = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.18, 0.35), darkMat);
+    bench.position.set(bx, 0.09, D / 2 + 0.5);
+    bench.castShadow = true;
+    bench.receiveShadow = true;
+    group.add(bench);
+  }
+
+  // ── GEOMETRIC PLANTERS (black cubes with green bushes) ──
+  for (const px of [-W / 2 + 1.0, W / 2 - 1.0]) {
+    const planter = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.32, 0.32), blackMat);
+    planter.position.set(px, 0.16, D / 2 + 0.85);
+    planter.castShadow = true;
+    group.add(planter);
+    const bush = new THREE.Mesh(new THREE.SphereGeometry(0.2, 7, 6),
+      new THREE.MeshStandardMaterial({ color: 0x84cc16, roughness: 0.9 }));
+    bush.position.set(px, 0.52, D / 2 + 0.85);
+    bush.castShadow = true;
+    group.add(bush);
+  }
+
+  // ── PIXELATED FLOATING CUBES (around entrance, glitchy) ──
+  const cubeDefs = [
+    { x: -1.4, y: 0.6, z: D / 2 + 0.8,  s: 0.22, m: magentaMat },
+    { x:  1.3, y: 0.8, z: D / 2 + 0.9,  s: 0.18, m: cyanMat },
+    { x: -1.6, y: 1.4, z: D / 2 + 0.5,  s: 0.28, m: cyanMat },
+    { x:  1.5, y: 1.2, z: D / 2 + 0.4,  s: 0.20, m: magentaMat },
+    { x: -1.2, y: 1.9, z: D / 2 + 0.7,  s: 0.16, m: magentaMat },
+    { x:  1.1, y: 1.7, z: D / 2 + 0.6,  s: 0.24, m: cyanMat },
+    { x: -0.7, y: 2.2, z: D / 2 + 1.0,  s: 0.14, m: cyanMat },
+    { x:  0.6, y: 2.0, z: D / 2 + 1.1,  s: 0.20, m: magentaMat },
+  ];
+  for (const cd of cubeDefs) {
+    const cube = new THREE.Mesh(new THREE.BoxGeometry(cd.s, cd.s, cd.s), cd.m);
+    cube.position.set(cd.x, cd.y, cd.z);
+    cube.rotation.set(0.5 + cd.x, 0.8 + cd.y * 0.3, 0.3 + cd.z * 0.1);
+    cube.castShadow = true;
+    group.add(cube);
+  }
+
+  // ── INTERIOR FLOOR (visible through windows) ──
+  const intFloor = new THREE.Mesh(new THREE.BoxGeometry(W - 0.2, 0.04, D - 0.2), floorMat);
+  intFloor.position.set(0, baseH + 0.04, 0);
+  group.add(intFloor);
+
+  // ── INTERIOR: BACK WALL PANEL "It Works On My Machine" ──
+  const iwomPanel = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.9, 0.06), whiteMat);
+  iwomPanel.position.set(-0.5, baseH + 1.0, -D / 2 + 0.08);
+  group.add(iwomPanel);
+  // Panel title pixel letters (tiny)
+  const tinyMat = new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.8 });
+  for (let i = 0; i < 5; i++) {
+    const pixRow = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.035, 0.02), tinyMat);
+    pixRow.position.set(-0.8 + i * 0.09, baseH + 1.1, -D / 2 + 0.12);
+    group.add(pixRow);
+  }
+
+  // ── INTERIOR: GLASS DISPLAY CASE (404 Fossil, center) ──
+  const caseMat = new THREE.MeshPhysicalMaterial({
+    color: 0x00ffff, emissive: 0x00ffff, emissiveIntensity: 0.05,
+    transparent: true, opacity: 0.15, transmission: 0.8, roughness: 0.05, thickness: 0.04,
+  });
+  // Case walls
+  const caseGroup = new THREE.Group();
+  // Front/back glass
+  for (const cz of [-0.4, 0.4]) {
+    const cg = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.55, 0.03), caseMat);
+    cg.position.set(0.6, baseH + 0.4, cz);
+    cg.renderOrder = 2;
+    group.add(cg);
+  }
+  // Case frame (cyan)
+  const caseFrame = new THREE.Mesh(new THREE.BoxGeometry(0.74, 0.58, 0.82), glowCyanMat);
+  caseFrame.position.set(0.6, baseH + 0.42, 0);
+  // Use wireframe-like approach with thin frame pieces
+  for (const [fw, fh, fd, fx, fy, fz] of [
+    [0.74, 0.03, 0.03, 0.6, baseH + 0.68, 0.38],
+    [0.74, 0.03, 0.03, 0.6, baseH + 0.68, -0.38],
+    [0.74, 0.03, 0.03, 0.6, baseH + 0.12, 0.38],
+    [0.74, 0.03, 0.03, 0.6, baseH + 0.12, -0.38],
+    [0.03, 0.58, 0.03, 0.97, baseH + 0.40, 0.38],
+    [0.03, 0.58, 0.03, 0.23, baseH + 0.40, 0.38],
+    [0.03, 0.58, 0.03, 0.97, baseH + 0.40, -0.38],
+    [0.03, 0.58, 0.03, 0.23, baseH + 0.40, -0.38],
+  ]) {
+    const fr = new THREE.Mesh(new THREE.BoxGeometry(fw, fh, fd), glowCyanMat);
+    fr.position.set(fx, fy, fz);
+    group.add(fr);
+  }
+  // 404 Fossil — pixelated error icon (magenta boxes inside case)
+  for (const [ox, oy, oz] of [
+    [-0.1, 0, 0],  [0, 0.08, 0],  [0.1, 0, 0],
+    [-0.05, -0.08, 0],  [0.05, -0.08, 0],
+  ]) {
+    const fossil = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.06, 0.06), magentaMat);
+    fossil.position.set(0.6 + ox, baseH + 0.42 + oy, oz);
+    group.add(fossil);
+  }
+
+  // ── INTERIOR: PEDESTAL + SEGFAULT SCULPTURE (left) ──
+  const pedestal = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.65, 0.25), concreteMat);
+  pedestal.position.set(-0.9, baseH + 0.35, -0.3);
+  group.add(pedestal);
+  // Segfault Sculpture: twisted boxes
+  for (const [sx, sy, sz, rz] of [
+    [0, 0, 0, 0],
+    [0.04, 0.12, 0, 0.4],
+    [-0.04, 0.22, 0.02, -0.3],
+    [0.06, 0.32, -0.02, 0.6],
+  ]) {
+    const seg = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.12, 0.06), chromeMat);
+    seg.position.set(-0.9 + sx, baseH + 0.7 + sy, -0.3 + sz);
+    seg.rotation.z = rz;
+    seg.castShadow = true;
+    group.add(seg);
+  }
+
+  // ── INTERIOR: CRT MONITOR (right side) ──
+  const crtBody = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.35, 0.3), beigeMat);
+  crtBody.position.set(0.9, baseH + 0.58, 0.3);
+  group.add(crtBody);
+  // CRT screen glowing cyan
+  const crtScreen = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.24, 0.04), glowCyanMat);
+  crtScreen.position.set(0.9, baseH + 0.6, 0.3 + 0.17);
+  group.add(crtScreen);
+  // CRT table
+  const crtTable = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.04, 0.45), darkMat);
+  crtTable.position.set(0.9, baseH + 0.4, 0.3);
+  group.add(crtTable);
+
+  // ── INTERIOR: CEILING SPOTLIGHTS ──
+  const spotY = baseH + floor1H - 0.06;
+  for (const [sx, sz] of [[-0.7, -0.3], [0.5, 0], [0.9, 0.5]]) {
+    const spotBody = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.06, 0.08, 0.18, 8), blackMat);
+    spotBody.position.set(sx, spotY, sz);
+    group.add(spotBody);
+    // Warm glow downward
+    const spotLight = new THREE.PointLight(0xfef3c7, 0.4, 2.5);
+    spotLight.position.set(sx, spotY - 0.1, sz);
+    group.add(spotLight);
+  }
+
+  // ── BRASS PLAQUES beside exhibits ──
+  for (const [px, pz] of [[0.6, 0.55], [-0.65, -0.1], [0.65, 0.55]]) {
+    const plaque = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.12, 0.02), goldMat);
+    plaque.position.set(px, baseH + 0.2, pz);
+    group.add(plaque);
+  }
+
+  // ── INTERIOR LIGHT ──
+  const glow = new THREE.PointLight(0xffffff, 0.8, 6);
+  glow.position.set(0, baseH + floor1H * 0.7, 0);
+  group.add(glow);
+
+  // ── PLAQUE ANCHOR ──
+  buildPlaque(group, building, D / 2 + 0.05, 4.0);
+};
+
 // Distant hills
 export function createHills() {
   const group = new THREE.Group();
