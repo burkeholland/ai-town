@@ -1118,6 +1118,209 @@ CUSTOM_BUILDERS['the-cat-bookshop'] = function (group, building) {
   buildPlaque(group, building, wallD / 2 - 0.04, 3.8, -0.5);
 };
 
+// ─── Custom Building: Pierce's Pub ─────────────────────────────────────────
+
+CUSTOM_BUILDERS['pierces-pub'] = function (group, building) {
+  const W = 2.4;        // width
+  const D = 1.8;        // depth
+  const wallH = 1.7;    // wall height
+  const baseH = 0.12;   // foundation height
+
+  // Materials — warm, worn, homey
+  const stoneMat   = new THREE.MeshStandardMaterial({ color: 0xb0a090, roughness: 0.95 });
+  const wallMat    = new THREE.MeshStandardMaterial({ color: 0x7c5c3a, roughness: 0.85 }); // dark timber
+  const plasterMat = new THREE.MeshStandardMaterial({ color: 0xe8d8b8, roughness: 0.9 });  // cream plaster panels
+  const beamMat    = new THREE.MeshStandardMaterial({ color: 0x4a2e0e, roughness: 0.9 });  // dark oak beams
+  const roofMat    = new THREE.MeshStandardMaterial({ color: 0x3d2b1a, roughness: 0.95 }); // near-black thatch/slate
+  const doorMat    = new THREE.MeshStandardMaterial({ color: 0x2e1a0e, roughness: 0.7 });
+  const winMat     = new THREE.MeshStandardMaterial({ color: 0xfde68a, emissive: 0xfbbf24, emissiveIntensity: 0.35 }); // warm amber glow
+  const metalMat   = new THREE.MeshStandardMaterial({ color: 0x4b3621, metalness: 0.5, roughness: 0.5 });
+  const barrelMat  = new THREE.MeshStandardMaterial({ color: 0x6b3a1f, roughness: 0.9 });
+  const hoopMat    = new THREE.MeshStandardMaterial({ color: 0x374151, metalness: 0.4, roughness: 0.6 });
+
+  // ── FOUNDATION ──
+  const baseGeo = new THREE.BoxGeometry(W + 0.3, baseH, D + 0.3);
+  const base = new THREE.Mesh(baseGeo, stoneMat);
+  base.position.y = baseH / 2;
+  base.castShadow = true;
+  base.receiveShadow = true;
+  group.add(base);
+
+  // ── MAIN WALLS (plaster between dark timber frames — Tudor style) ──
+  const wallGeo = new THREE.BoxGeometry(W, wallH, D);
+  const walls = new THREE.Mesh(wallGeo, plasterMat);
+  walls.position.y = baseH + wallH / 2;
+  walls.castShadow = true;
+  walls.receiveShadow = true;
+  group.add(walls);
+
+  // Timber frame cross-beams on front face
+  const hBeamGeo = new THREE.BoxGeometry(W + 0.04, 0.07, 0.06);
+  const beamHeights = [baseH + wallH * 0.3, baseH + wallH * 0.65, baseH + wallH];
+  for (const hy of beamHeights) {
+    const hBeam = new THREE.Mesh(hBeamGeo, beamMat);
+    hBeam.position.set(0, hy, D / 2 + 0.03);
+    group.add(hBeam);
+  }
+
+  // Vertical corner timbers (front face)
+  const vBeamGeo = new THREE.BoxGeometry(0.07, wallH + 0.07, 0.06);
+  for (const bx of [-W / 2, W / 2]) {
+    const vBeam = new THREE.Mesh(vBeamGeo, beamMat);
+    vBeam.position.set(bx, baseH + wallH / 2, D / 2 + 0.03);
+    group.add(vBeam);
+  }
+
+  // Diagonal brace timbers on front face
+  const diagGeo = new THREE.BoxGeometry(0.06, wallH * 0.6, 0.05);
+  const diagL = new THREE.Mesh(diagGeo, beamMat);
+  diagL.position.set(-W / 4, baseH + wallH * 0.5, D / 2 + 0.03);
+  diagL.rotation.z = 0.45;
+  group.add(diagL);
+  const diagR = new THREE.Mesh(diagGeo, beamMat);
+  diagR.position.set(W / 4, baseH + wallH * 0.5, D / 2 + 0.03);
+  diagR.rotation.z = -0.45;
+  group.add(diagR);
+
+  // Dark timber side walls
+  const sideWallGeo = new THREE.BoxGeometry(0.07, wallH, D);
+  for (const sx of [-W / 2, W / 2]) {
+    const sw = new THREE.Mesh(sideWallGeo, wallMat);
+    sw.position.set(sx, baseH + wallH / 2, 0);
+    sw.castShadow = true;
+    group.add(sw);
+  }
+
+  // ── PITCHED ROOF (low, heavy, cozy) ──
+  const roofH = 1.0;
+  const roofGeo = new THREE.ConeGeometry(W * 0.88, roofH, 4);
+  const roof = new THREE.Mesh(roofGeo, roofMat);
+  roof.rotation.y = Math.PI / 4;
+  roof.position.y = baseH + wallH + roofH / 2;
+  roof.castShadow = true;
+  group.add(roof);
+
+  // Roof overhang eaves (front + back)
+  const eaveGeo = new THREE.BoxGeometry(W + 0.35, 0.06, 0.25);
+  for (const ez of [D / 2 + 0.12, -D / 2 - 0.12]) {
+    const eave = new THREE.Mesh(eaveGeo, roofMat);
+    eave.position.set(0, baseH + wallH + 0.04, ez);
+    eave.castShadow = true;
+    group.add(eave);
+  }
+
+  // ── CHIMNEY (back left) ──
+  const chimneyGeo = new THREE.BoxGeometry(0.22, 0.9, 0.22);
+  const chimney = new THREE.Mesh(chimneyGeo, stoneMat);
+  chimney.position.set(-W / 2 + 0.35, baseH + wallH + roofH * 0.3, -D / 2 + 0.35);
+  chimney.castShadow = true;
+  group.add(chimney);
+
+  // Chimney cap
+  const capGeo = new THREE.BoxGeometry(0.28, 0.06, 0.28);
+  const cap = new THREE.Mesh(capGeo, beamMat);
+  cap.position.set(-W / 2 + 0.35, baseH + wallH + roofH * 0.3 + 0.48, -D / 2 + 0.35);
+  group.add(cap);
+
+  // ── DOOR ──
+  const doorGeo = new THREE.BoxGeometry(0.4, 0.75, 0.06);
+  const door = new THREE.Mesh(doorGeo, doorMat);
+  door.position.set(-0.35, baseH + 0.38, D / 2 + 0.04);
+  group.add(door);
+
+  // Door frame
+  const dfTopGeo = new THREE.BoxGeometry(0.44, 0.06, 0.06);
+  const dfTop = new THREE.Mesh(dfTopGeo, beamMat);
+  dfTop.position.set(-0.35, baseH + 0.77, D / 2 + 0.04);
+  group.add(dfTop);
+
+  // Door handle
+  const handleGeo = new THREE.SphereGeometry(0.03, 6, 6);
+  const handle = new THREE.Mesh(handleGeo, metalMat);
+  handle.position.set(-0.2, baseH + 0.38, D / 2 + 0.08);
+  group.add(handle);
+
+  // ── FRONT WINDOWS (warm amber glow — life inside) ──
+  const winGeo = new THREE.BoxGeometry(0.38, 0.32, 0.05);
+  for (const wx of [0.28, 0.78]) {
+    const win = new THREE.Mesh(winGeo, winMat);
+    win.position.set(wx - W / 2 + 0.18, baseH + wallH * 0.55, D / 2 + 0.04);
+    group.add(win);
+    // Window frame
+    const wfH = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.04, 0.05), beamMat);
+    wfH.position.set(wx - W / 2 + 0.18, baseH + wallH * 0.55 + 0.18, D / 2 + 0.04);
+    group.add(wfH);
+    const wfH2 = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.04, 0.05), beamMat);
+    wfH2.position.set(wx - W / 2 + 0.18, baseH + wallH * 0.55 - 0.18, D / 2 + 0.04);
+    group.add(wfH2);
+  }
+
+  // ── HANGING PUB SIGN ──
+  // Bracket arm
+  const bracketGeo = new THREE.BoxGeometry(0.04, 0.04, 0.35);
+  const bracket = new THREE.Mesh(bracketGeo, metalMat);
+  bracket.position.set(W / 2 - 0.15, baseH + wallH * 0.88, D / 2 + 0.2);
+  group.add(bracket);
+  // Sign board
+  const signGeo = new THREE.BoxGeometry(0.55, 0.22, 0.04);
+  const signMat = new THREE.MeshStandardMaterial({ color: 0x2e1a0e, roughness: 0.8 });
+  const sign = new THREE.Mesh(signGeo, signMat);
+  sign.position.set(W / 2 - 0.15, baseH + wallH * 0.78, D / 2 + 0.35);
+  sign.castShadow = true;
+  group.add(sign);
+  // Sign chains (thin cylinders)
+  for (const cx of [-0.2, 0.2]) {
+    const chainGeo = new THREE.CylinderGeometry(0.01, 0.01, 0.12, 4);
+    const chain = new THREE.Mesh(chainGeo, metalMat);
+    chain.position.set(W / 2 - 0.15 + cx, baseH + wallH * 0.84, D / 2 + 0.35);
+    group.add(chain);
+  }
+
+  // ── BARRELS by the entrance ──
+  for (const [bx, bz, br] of [[W / 2 + 0.18, D / 2 - 0.15, 0], [W / 2 + 0.18, D / 2 + 0.18, 0.3]]) {
+    const bGeo = new THREE.CylinderGeometry(0.13, 0.13, 0.35, 10);
+    const barrel = new THREE.Mesh(bGeo, barrelMat);
+    barrel.position.set(bx, 0.175, bz);
+    barrel.rotation.y = br;
+    barrel.castShadow = true;
+    group.add(barrel);
+    // Hoops
+    for (const hy of [0.06, 0.175, 0.29]) {
+      const hoopGeo = new THREE.TorusGeometry(0.135, 0.012, 4, 12);
+      const hoop = new THREE.Mesh(hoopGeo, hoopMat);
+      hoop.position.set(bx, hy, bz);
+      hoop.rotation.x = Math.PI / 2;
+      group.add(hoop);
+    }
+  }
+
+  // ── STEP / STOOP ──
+  const stepGeo = new THREE.BoxGeometry(W * 0.5, 0.08, 0.35);
+  const step = new THREE.Mesh(stepGeo, stoneMat);
+  step.position.set(-0.35, 0.04, D / 2 + 0.18);
+  step.castShadow = true;
+  step.receiveShadow = true;
+  group.add(step);
+
+  // ── WARM INTERIOR GLOW ──
+  const glow = new THREE.PointLight(0xfbbf24, 0.8, 5);
+  glow.position.set(0, baseH + wallH * 0.5, 0);
+  group.add(glow);
+
+  // Lantern above door
+  const lanternBodyGeo = new THREE.BoxGeometry(0.1, 0.14, 0.1);
+  const lanternMat = new THREE.MeshStandardMaterial({ color: 0x1f2937 });
+  const lantern = new THREE.Mesh(lanternBodyGeo, lanternMat);
+  lantern.position.set(-0.35, baseH + wallH * 0.88, D / 2 + 0.12);
+  group.add(lantern);
+  const lanternLight = new THREE.PointLight(0xfbbf24, 0.5, 2.5);
+  lanternLight.position.set(-0.35, baseH + wallH * 0.85, D / 2 + 0.2);
+  group.add(lanternLight);
+
+  // ── PLAQUE ──
+  buildPlaque(group, building, D / 2 + 0.04, 3.2);
+};
+
 // Create organic village ground with winding roads
 export function createGround() {
   const group = new THREE.Group();
