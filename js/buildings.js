@@ -2193,6 +2193,265 @@ CUSTOM_BUILDERS['reddingtons'] = function (group, building) {
   buildPlaque(group, building, D / 2 + 0.07, 4.2);
 };
 
+// ─── Custom Building: Hilbert's Hotel ──────────────────────────────────────
+
+CUSTOM_BUILDERS['hilberts-hotel'] = function (group, building) {
+  const W = 2.4;
+  const D = 1.8;
+  const numFloors = 9;
+  const floorH = 0.85;
+  const baseH = 0.22;
+  const totalWallH = numFloors * floorH;
+
+  // ── MATERIALS ──
+  const concreteMat = new THREE.MeshStandardMaterial({ color: 0x4a5568, roughness: 0.85 });
+  const darkMat     = new THREE.MeshStandardMaterial({ color: 0x2d3748, roughness: 0.9 });
+  const trimMat     = new THREE.MeshStandardMaterial({ color: 0x718096, roughness: 0.7 });
+  const winMat      = new THREE.MeshStandardMaterial({ color: 0x93c5fd, emissive: 0x3b82f6, emissiveIntensity: 0.28 });
+  const goldMat     = new THREE.MeshStandardMaterial({ color: 0xd4a843, metalness: 0.55, roughness: 0.35 });
+  const neonMat     = new THREE.MeshStandardMaterial({ color: 0x7c3aed, emissive: 0x7c3aed, emissiveIntensity: 0.9 });
+  const doorMat     = new THREE.MeshStandardMaterial({ color: 0x1a1a2e, roughness: 0.5 });
+  const signMat     = new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.7 });
+
+  // ── FOUNDATION ──
+  const base = new THREE.Mesh(new THREE.BoxGeometry(W + 0.3, baseH, D + 0.3), darkMat);
+  base.position.y = baseH / 2;
+  base.castShadow = true; base.receiveShadow = true;
+  group.add(base);
+
+  // Entrance steps
+  for (let i = 0; i < 3; i++) {
+    const sw = W * 0.65 - i * 0.12;
+    const step = new THREE.Mesh(new THREE.BoxGeometry(sw, 0.07, 0.27), darkMat);
+    step.position.set(0, baseH + i * 0.07 + 0.035, D / 2 + 0.42 - i * 0.22);
+    step.castShadow = true;
+    group.add(step);
+  }
+
+  // ── MAIN TOWER ──
+  const mainBody = new THREE.Mesh(new THREE.BoxGeometry(W, totalWallH, D), concreteMat);
+  mainBody.position.y = baseH + totalWallH / 2;
+  mainBody.castShadow = true; mainBody.receiveShadow = true;
+  group.add(mainBody);
+
+  // Floor band trims
+  for (let f = 1; f <= numFloors; f++) {
+    const band = new THREE.Mesh(new THREE.BoxGeometry(W + 0.07, 0.045, D + 0.07), trimMat);
+    band.position.y = baseH + f * floorH;
+    group.add(band);
+  }
+
+  // Vertical corner pilasters
+  for (const cx of [-W / 2, W / 2]) {
+    const pil = new THREE.Mesh(new THREE.BoxGeometry(0.1, totalWallH, 0.1), darkMat);
+    pil.position.set(cx, baseH + totalWallH / 2, 0);
+    group.add(pil);
+  }
+
+  // ── WINDOWS — front face ──
+  const winGeo = new THREE.BoxGeometry(0.22, 0.3, 0.05);
+  for (let f = 0; f < numFloors; f++) {
+    const fy = baseH + f * floorH + floorH * 0.52;
+    for (const wx of [-0.72, 0, 0.72]) {
+      const win = new THREE.Mesh(winGeo, winMat);
+      win.position.set(wx, fy, D / 2 + 0.03);
+      group.add(win);
+    }
+  }
+
+  // ── WINDOWS — side faces ──
+  const sideWinGeo = new THREE.BoxGeometry(0.05, 0.3, 0.22);
+  for (let f = 0; f < numFloors; f++) {
+    const fy = baseH + f * floorH + floorH * 0.52;
+    for (const wz of [-0.38, 0.38]) {
+      for (const sx of [-W / 2 - 0.03, W / 2 + 0.03]) {
+        const win = new THREE.Mesh(sideWinGeo, winMat);
+        win.position.set(sx, fy, wz);
+        group.add(win);
+      }
+    }
+  }
+
+  // ── MATHEMATICAL SYMBOL HELPERS ──
+  const fz = D / 2 + 0.035;   // z-offset for front face decorations
+
+  // Infinity (∞) — two torus rings side by side
+  function addInfinity(x, y, scale) {
+    const r = 0.068 * scale;
+    const t = 0.018 * scale;
+    const geo = new THREE.TorusGeometry(r, t, 8, 18);
+    for (const dx of [-r, r]) {
+      const mesh = new THREE.Mesh(geo, goldMat);
+      mesh.position.set(x + dx, y, fz);
+      mesh.rotation.x = Math.PI / 2;
+      group.add(mesh);
+    }
+  }
+
+  // Plus (+)
+  function addPlus(x, y, scale) {
+    const s = 0.13 * scale;
+    const t = 0.022 * scale;
+    const h = new THREE.Mesh(new THREE.BoxGeometry(s, t, t), goldMat);
+    h.position.set(x, y, fz);
+    group.add(h);
+    const v = new THREE.Mesh(new THREE.BoxGeometry(t, s, t), goldMat);
+    v.position.set(x, y, fz);
+    group.add(v);
+  }
+
+  // Equals (=)
+  function addEquals(x, y, scale) {
+    const s = 0.13 * scale;
+    const t = 0.018 * scale;
+    const g = 0.038 * scale;
+    for (const dy of [-g, g]) {
+      const bar = new THREE.Mesh(new THREE.BoxGeometry(s, t, t), goldMat);
+      bar.position.set(x, y + dy, fz);
+      group.add(bar);
+    }
+  }
+
+  // Sigma (Σ) — three horizontal bars with short diagonal bar approximation
+  function addSigma(x, y, scale) {
+    const bw = 0.14 * scale;
+    const bh = 0.018 * scale;
+    for (const dy of [0.06 * scale, 0, -0.06 * scale]) {
+      const bar = new THREE.Mesh(new THREE.BoxGeometry(bw, bh, bh), goldMat);
+      bar.position.set(x, y + dy, fz);
+      group.add(bar);
+    }
+    // Vertical connector on left side
+    const vbar = new THREE.Mesh(new THREE.BoxGeometry(bh, 0.13 * scale, bh), goldMat);
+    vbar.position.set(x - bw / 2 + bh / 2, y, fz);
+    group.add(vbar);
+  }
+
+  // ── DECORATE FLOOR TRIM BANDS ──
+  // Symbols alternate: ∞, +, =, Σ
+  const symPositions = [-0.88, 0.88];
+  for (let f = 0; f < numFloors; f++) {
+    const fy = baseH + (f + 0.5) * floorH + floorH * 0.35;
+    const pat = f % 4;
+    for (const sx of symPositions) {
+      if (pat === 0) addInfinity(sx, fy, 1.0);
+      else if (pat === 1) addPlus(sx, fy, 1.0);
+      else if (pat === 2) addEquals(sx, fy, 1.0);
+      else                addSigma(sx, fy, 1.0);
+    }
+  }
+
+  // ── ENTRANCE CANOPY ──
+  const canopy = new THREE.Mesh(new THREE.BoxGeometry(W * 0.68, 0.07, 0.52), darkMat);
+  canopy.position.set(0, baseH + floorH * 0.82, D / 2 + 0.28);
+  canopy.castShadow = true;
+  group.add(canopy);
+
+  // Canopy trim edge
+  const canopyEdge = new THREE.Mesh(new THREE.BoxGeometry(W * 0.68, 0.06, 0.04), goldMat);
+  canopyEdge.position.set(0, baseH + floorH * 0.82 + 0.035, D / 2 + 0.54);
+  group.add(canopyEdge);
+
+  for (const cx of [-0.55, 0.55]) {
+    const sup = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.5, 0.05), trimMat);
+    sup.position.set(cx, baseH + floorH * 0.57, D / 2 + 0.5);
+    group.add(sup);
+  }
+
+  // ── DOOR ──
+  const door = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.63, 0.05), doorMat);
+  door.position.set(0, baseH + 0.315, D / 2 + 0.03);
+  group.add(door);
+
+  // Door frame (gold)
+  const topFrame = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.05, 0.05), goldMat);
+  topFrame.position.set(0, baseH + 0.655, D / 2 + 0.03);
+  group.add(topFrame);
+  for (const fx of [-0.29, 0.29]) {
+    const sf = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.68, 0.05), goldMat);
+    sf.position.set(fx, baseH + 0.34, D / 2 + 0.03);
+    group.add(sf);
+  }
+
+  // Small infinity above door arch
+  addInfinity(0, baseH + 0.82, 0.85);
+
+  // ── ROOFTOP PARAPET ──
+  const roofY = baseH + totalWallH;
+  const parapet = new THREE.Mesh(new THREE.BoxGeometry(W + 0.14, 0.44, D + 0.14), darkMat);
+  parapet.position.y = roofY + 0.22;
+  parapet.castShadow = true;
+  group.add(parapet);
+
+  const parapetTrim = new THREE.Mesh(new THREE.BoxGeometry(W + 0.2, 0.06, D + 0.2), trimMat);
+  parapetTrim.position.y = roofY + 0.47;
+  group.add(parapetTrim);
+
+  // ── ROOFTOP SIGN BOARD ──
+  const signBoard = new THREE.Mesh(new THREE.BoxGeometry(W * 0.88, 0.58, 0.08), signMat);
+  signBoard.position.set(0, roofY + 0.87, D / 2 + 0.07);
+  group.add(signBoard);
+
+  // Gold border on sign board
+  for (const dy of [0.31, -0.31]) {
+    const border = new THREE.Mesh(new THREE.BoxGeometry(W * 0.88 + 0.06, 0.04, 0.04), goldMat);
+    border.position.set(0, roofY + 0.87 + dy, D / 2 + 0.09);
+    group.add(border);
+  }
+
+  // Large neon ∞ on sign (two large tori)
+  const bigR = 0.115;
+  const bigT = 0.026;
+  const bigGeo = new THREE.TorusGeometry(bigR, bigT, 8, 22);
+  for (const dx of [-bigR, bigR]) {
+    const ring = new THREE.Mesh(bigGeo, neonMat);
+    ring.position.set(dx, roofY + 0.87, D / 2 + 0.12);
+    ring.rotation.x = Math.PI / 2;
+    group.add(ring);
+  }
+
+  // "ℵ₀" approximation flanking the ∞ on the sign
+  function addAlephSign(x, y) {
+    const z = D / 2 + 0.12;
+    const diag = new THREE.Mesh(new THREE.BoxGeometry(0.025, 0.2, 0.025), neonMat);
+    diag.rotation.z = -0.25;
+    diag.position.set(x, y, z);
+    group.add(diag);
+    for (const dy of [0.04, -0.04]) {
+      const bar = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.022, 0.025), neonMat);
+      bar.rotation.z = 0.25;
+      bar.position.set(x, y + dy, z);
+      group.add(bar);
+    }
+    // Subscript 0 circle
+    const zeroGeo = new THREE.TorusGeometry(0.025, 0.01, 6, 12);
+    const zero = new THREE.Mesh(zeroGeo, neonMat);
+    zero.rotation.x = Math.PI / 2;
+    zero.position.set(x + 0.07, y - 0.08, z);
+    group.add(zero);
+  }
+
+  addAlephSign(-0.53, roofY + 0.87);
+  addAlephSign( 0.53, roofY + 0.87);
+
+  // ── PENTHOUSE / ELEVATOR HOUSING ──
+  const penthouse = new THREE.Mesh(new THREE.BoxGeometry(W * 0.38, 0.5, D * 0.38), darkMat);
+  penthouse.position.y = roofY + 0.67;
+  penthouse.castShadow = true;
+  group.add(penthouse);
+
+  // ── INTERIOR GLOW ──
+  const glow = new THREE.PointLight(0x7c3aed, 0.55, 9);
+  glow.position.set(0, baseH + totalWallH * 0.45, 0);
+  group.add(glow);
+  const roofGlow = new THREE.PointLight(0xd4a843, 0.45, 4);
+  roofGlow.position.set(0, roofY + 1.1, D / 2 + 0.1);
+  group.add(roofGlow);
+
+  // ── PLAQUE ──
+  buildPlaque(group, building, D / 2 + 0.04, 2.8);
+};
+
 // Create organic village ground with winding roads
 export function createGround() {
   const group = new THREE.Group();
