@@ -71,6 +71,25 @@ Issues labeled `building-modification` ask to change an **existing** building. T
 | nature | #84cc16 (sage) | transparent |
 | other | #9ca3af (gray) | #fef3c7 (cream) |
 
+## Windows
+
+All windows MUST use `MeshPhysicalMaterial` with transparency so interiors are visible:
+
+```js
+const winMat = new THREE.MeshPhysicalMaterial({
+  color: 0xbfdbfe,
+  emissive: 0x3b82f6,
+  emissiveIntensity: 0.15,
+  transparent: true,
+  opacity: 0.35,
+  transmission: 0.6,
+  roughness: 0.1,
+  thickness: 0.05,
+});
+```
+
+Never use opaque `MeshStandardMaterial` for windows. Windows should look like glass — translucent with a slight blue tint and glow. If a building has interior details (furniture, items, displays), they should be visible through the windows.
+
 ## File Structure
 
 ```

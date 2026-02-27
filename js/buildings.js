@@ -150,10 +150,15 @@ function buildStructure(group, building, type) {
 
   // Windows
   const winGeo = new THREE.BoxGeometry(0.3, 0.3, 0.05);
-  const winMat = new THREE.MeshStandardMaterial({
+  const winMat = new THREE.MeshPhysicalMaterial({
     color: 0xbfdbfe,
     emissive: 0x3b82f6,
     emissiveIntensity: 0.15,
+    transparent: true,
+    opacity: 0.35,
+    transmission: 0.6,
+    roughness: 0.1,
+    thickness: 0.05,
   });
 
   // Front windows
@@ -330,7 +335,7 @@ CUSTOM_BUILDERS['town-hall'] = function (group, building) {
   const columnMat = new THREE.MeshStandardMaterial({ color: 0xf5f0e8, roughness: 0.5 });
   const roofMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.7 });
   const doorMat = new THREE.MeshStandardMaterial({ color: 0x3b1a0e, roughness: 0.6 });
-  const winMat = new THREE.MeshStandardMaterial({ color: 0xbfdbfe, emissive: 0x3b82f6, emissiveIntensity: 0.12 });
+  const winMat = new THREE.MeshPhysicalMaterial({ color: 0xbfdbfe, emissive: 0x3b82f6, emissiveIntensity: 0.12, transparent: true, opacity: 0.35, transmission: 0.6, roughness: 0.1, thickness: 0.05 });
   const goldMat = new THREE.MeshStandardMaterial({ color: 0xd4a843, metalness: 0.6, roughness: 0.3 });
 
   // ── STONE STEPS (3 wide steps leading up) ──
@@ -1272,7 +1277,7 @@ CUSTOM_BUILDERS['pierces-pub'] = function (group, building) {
   const beamMat    = new THREE.MeshStandardMaterial({ color: 0x4a2e0e, roughness: 0.9 });  // dark oak beams
   const roofMat    = new THREE.MeshStandardMaterial({ color: 0x3d2b1a, roughness: 0.95 }); // near-black thatch/slate
   const doorMat    = new THREE.MeshStandardMaterial({ color: 0x2e1a0e, roughness: 0.7 });
-  const winMat     = new THREE.MeshStandardMaterial({ color: 0xfde68a, emissive: 0xfbbf24, emissiveIntensity: 0.35 }); // warm amber glow
+  const winMat     = new THREE.MeshPhysicalMaterial({ color: 0xfde68a, emissive: 0xfbbf24, emissiveIntensity: 0.35, transparent: true, opacity: 0.4, transmission: 0.5, roughness: 0.1, thickness: 0.05 }); // warm amber glow
   const metalMat   = new THREE.MeshStandardMaterial({ color: 0x4b3621, metalness: 0.5, roughness: 0.5 });
   const barrelMat  = new THREE.MeshStandardMaterial({ color: 0x6b3a1f, roughness: 0.9 });
   const hoopMat    = new THREE.MeshStandardMaterial({ color: 0x374151, metalness: 0.4, roughness: 0.6 });
@@ -1852,7 +1857,7 @@ CUSTOM_BUILDERS['reddingtons'] = function (group, building) {
   const columnMat   = new THREE.MeshStandardMaterial({ color: 0xede4d8, roughness: 0.6 });
   const roofMat     = new THREE.MeshStandardMaterial({ color: 0x2a2a3a, roughness: 0.8 });
   const doorMat     = new THREE.MeshStandardMaterial({ color: 0x1a0e06, roughness: 0.6 });
-  const winMat      = new THREE.MeshStandardMaterial({ color: 0xbfdbfe, emissive: 0x3b82f6, emissiveIntensity: 0.15 });
+  const winMat      = new THREE.MeshPhysicalMaterial({ color: 0xbfdbfe, emissive: 0x3b82f6, emissiveIntensity: 0.15, transparent: true, opacity: 0.35, transmission: 0.6, roughness: 0.1, thickness: 0.05 });
   const goldMat     = new THREE.MeshStandardMaterial({ color: 0xd4a843, metalness: 0.6, roughness: 0.3 });
   const marqueeBodyMat = new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.7 });
   const bannerMat   = new THREE.MeshStandardMaterial({ color: 0xc0102e, roughness: 0.85, side: THREE.DoubleSide });
