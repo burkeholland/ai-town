@@ -182,11 +182,24 @@
     "added": "2026-02-27"
   },
   {
+    "id": "the-nz-beehive",
+    "name": "The NZ Beehive",
+    "type": "other",
+    "description": "A modernist governmental monument — the Executive Wing of New Zealand's Parliament in Wellington. Ten stacked rings of warm cream concrete narrow skyward like a ceremonial beehive of executive power, wrapped in continuous bands of bronze-tinted glass and 48 vertical concrete ribs. The iconic silhouette of democratic authority, designed by Sir Basil Spence and completed in 1981.",
+    "plot": 3,
+    "contributor": {
+      "username": "jiljam",
+      "avatar": "https://github.com/jiljam.png"
+    },
+    "issue": 40,
+    "added": "2026-02-27"
+  },
+  {
     "id": "japanese-cherry-blossom-park",
     "name": "Japanese Cherry Blossom Park",
     "type": "nature",
     "description": "A tranquil Japanese cherry blossom park framed by a snow-capped Mount Fuji silhouette. Five sakura trees bloom in soft pink clouds above a winding stepping-stone path, stone lanterns glow warmly on either side, and wooden benches invite quiet contemplation. A vermillion torii gate marks the entrance while pale pink petals drift across the sage-green ground.",
-    "plot": 3,
+    "plot": 4,
     "contributor": {
       "username": "chriswblake",
       "avatar": "https://github.com/chriswblake.png"

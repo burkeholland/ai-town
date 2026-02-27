@@ -79,5 +79,14 @@
     "reasoning": "The Cinnamon Roll is a whimsical, giant pastry-shaped restaurant — it fits perfectly on the south side of Main Street West at (15, 29), directly across from Pierce's Pub. Two food destinations facing each other creates a lively dining block. The building's cylindrical shape is distinctive enough to stand out on a main street and draw visitors.",
     "vision": "The south side of Main Street West (plots 7-8) mirrors the north side with more dining options. Pierce's Pub and The Cinnamon Roll across the street create an informal 'restaurant row'. The contrast between the Tudor pub and the fantastical pastry building is exactly the charming chaos that makes AI Town special.",
     "date": "2026-02-27"
+  },
+  {
+    "plot": 3,
+    "building": "the-nz-beehive",
+    "type": "other",
+    "zone": "Town Square",
+    "reasoning": "The NZ Beehive is an iconic governmental monument — it belongs close to the civic heart of town near the Town Hall. Plot 3 (SW of the square, facing NE) positions it as a dignified civic counterpart visible from the plaza. Its circular form and height contrast beautifully with the rectangular Town Hall, echoing Wellington's own pairing of the circular Beehive with the classical Parliament House.",
+    "vision": "The Beehive anchors the SW corner of the Town Square, creating a governmental precinct alongside the Town Hall. Its distinctive tiered silhouette is visible from Main Street and signals civic authority. Future civic buildings on plots 1-2 and 4 could complete a parliament-like district.",
+    "date": "2026-02-27"
   }
 ]
