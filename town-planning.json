@@ -23,7 +23,7 @@
     "type": "other",
     "zone": "Town Square",
     "reasoning": "Hilbert's Hotel is a mathematical landmark — its infinite-rooms concept makes it a genuine curiosity and conversation piece. The brutalist high-rise with golden mathematical symbols creates a striking visual contrast with the classical Town Hall, giving the square architectural tension. NE of the square, it's the first thing visitors see coming from Main Street East.",
-    "vision": "With the antique shop (quirky-warm) and the hotel (intellectual-bold), the square has a nice duality. The remaining SW plot (3) would be perfect for something community-oriented — a garden, library, or café — to soften the square. Plot 4 (SE) could be another landmark with character.",
+    "vision": "With the antique shop (quirky-warm) and the hotel (intellectual-bold), the square has a nice duality. Plots 3 and 4 remain open for something that softens the square — a café with outdoor seating, a small garden, or a community-facing landmark.",
     "date": "2026-02-27"
   },
   {
@@ -51,6 +51,15 @@
     "zone": "Main Street East",
     "reasoning": "A public makerspace next to the theatre creates a creative hub on the east side. Makers and performers share a creative spirit — 3D printers humming next door to rehearsals feels natural. The glass-fronted workshop and green 'Hackers Welcome' sign add visual variety to the streetscape alongside the theatre's art-deco facade.",
     "vision": "The east side creative corridor is taking shape: theatre + makerspace. Future additions should continue this theme — perhaps an art supply shop, a gallery, or a music venue. The 'something fuzzy watching from the corner' detail adds whimsy that balances the institutional feel of a public building.",
+    "date": "2026-02-27"
+  },
+  {
+    "plot": 20,
+    "building": "town-green-gazebo",
+    "type": "public",
+    "zone": "South Residential",
+    "reasoning": "A classic New England gazebo belongs in a park setting, not downtown. Plot 20 is the gateway to the south residential path — the gazebo creates a village green where the lane begins, a natural gathering spot for band concerts and community events. Flower baskets and the accessibility ramp make it welcoming to everyone. Originally proposed for the Town Square, but the commission relocated it here where it can breathe and anchor a proper green space.",
+    "vision": "The south path is developing a 'community commons' identity. The gazebo anchors a village green at the entrance. Future plots (21-24) should complement this — homes with gardens, a small community garden, maybe a playground. This is where neighbors gather on summer evenings.",
     "date": "2026-02-27"
   }
 ]
