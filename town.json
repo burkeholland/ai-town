@@ -24,5 +24,18 @@
     },
     "issue": 8,
     "added": "2026-02-26"
+  },
+  {
+    "id": "reddingtons",
+    "name": "Reddington's",
+    "type": "entertainment",
+    "description": "An authentic West End theatre seating 300 in its grand auditorium. Art-deco styling graces the bars, box office and front-of-house areas. A large banner on the facade proudly advertises the current show: 'Octocats Code'.",
+    "plot": 10,
+    "contributor": {
+      "username": "chrisreddington",
+      "avatar": "https://github.com/chrisreddington.png"
+    },
+    "issue": 11,
+    "added": "2026-02-27"
   }
 ]
