@@ -26,6 +26,19 @@
     "added": "2026-02-26"
   },
   {
+    "id": "hilberts-hotel",
+    "name": "Hilbert's Hotel",
+    "type": "other",
+    "description": "The famous set-theory Hotel with infinitely many rooms — all perpetually occupied. When a new guest arrives, every guest shifts one room up (1→2, 2→3 …), freeing room 1. A brutalist high-rise draped in golden mathematical symbols: ∞, ℵ₀, Σ, and more.",
+    "plot": 1,
+    "contributor": {
+      "username": "colindembovsky",
+      "avatar": "https://github.com/colindembovsky.png"
+    },
+    "issue": 15,
+    "added": "2026-02-27"
+  },
+  {
     "id": "reddingtons",
     "name": "Reddington's",
     "type": "entertainment",
