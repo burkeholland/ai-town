@@ -5376,6 +5376,213 @@ CUSTOM_BUILDERS['motz-coffee-co'] = function (group, building) {
   buildPlaque(group, building, D / 2 + 0.05, 2.8);
 };
 
+// ─── Custom Building: The NZ Beehive ───────────────────────────────────────
+
+CUSTOM_BUILDERS['the-nz-beehive'] = function (group, building) {
+  // Materials
+  const concreteMat  = new THREE.MeshStandardMaterial({ color: 0xe8dcc8, roughness: 0.75 });
+  const slabMat      = new THREE.MeshStandardMaterial({ color: 0xd4c4a8, roughness: 0.8 });
+  const groundMat    = new THREE.MeshStandardMaterial({ color: 0xc4b5a5, roughness: 0.9 });
+  const poleMat      = new THREE.MeshStandardMaterial({ color: 0x888070, metalness: 0.3, roughness: 0.5 });
+  const flagRedMat   = new THREE.MeshStandardMaterial({ color: 0xcc0000, side: THREE.DoubleSide });
+  const flagBlueMat  = new THREE.MeshStandardMaterial({ color: 0x003399, side: THREE.DoubleSide });
+  const winMat       = new THREE.MeshPhysicalMaterial({
+    color: 0x8b7355,
+    emissive: 0x5c4d3d,
+    emissiveIntensity: 0.1,
+    transparent: true,
+    opacity: 0.4,
+    transmission: 0.5,
+    metalness: 0.3,
+    roughness: 0.15,
+    thickness: 0.05,
+  });
+
+  // ── FORECOURT PLAZA ──
+  const plazaGeo = new THREE.CylinderGeometry(7.5, 7.5, 0.06, 32);
+  const plaza = new THREE.Mesh(plazaGeo, groundMat);
+  plaza.position.set(0, 0.03, 0);
+  plaza.receiveShadow = true;
+  group.add(plaza);
+
+  // ── FLAGPOLE ──
+  const flagpole = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 5.5, 8), poleMat);
+  flagpole.position.set(0, 2.75, 4.5);
+  flagpole.castShadow = true;
+  group.add(flagpole);
+
+  // NZ flag — two simple rectangles (blue top, red bottom)
+  const flagBlue = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.28), flagBlueMat);
+  flagBlue.position.set(0.45, 5.36, 4.5);
+  group.add(flagBlue);
+  const flagRed = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.18), flagRedMat);
+  flagRed.position.set(0.45, 5.09, 4.5);
+  group.add(flagRed);
+
+  // ── MAIN TOWER — 10 stacked rings ──
+  // Base diameter 5.0, top diameter 3.0, height 9.0
+  // Each ring slightly smaller; slight flare at ground level
+  const numFloors = 10;
+  const towerH = 9.0;
+  const floorH = towerH / numFloors;         // 0.9 per floor
+  const slabThick = 0.12;
+  const glassH = floorH - slabThick;
+  const baseR = 5.0;
+  const topR = 3.0;
+  const numSegs = 48;  // smooth cylinder
+
+  for (let i = 0; i < numFloors; i++) {
+    const t = i / (numFloors - 1);
+    // Smooth taper from base to top
+    const r = baseR - (baseR - topR) * t;
+    // Slight flare at bottom two floors
+    const flare = i < 2 ? (2 - i) * 0.15 : 0;
+    const outerR = r + flare;
+    const yBase = i * floorH + 0.06;
+
+    // Floor slab (visible horizontal band)
+    const slabGeo = new THREE.CylinderGeometry(outerR + 0.08, outerR + 0.08, slabThick, numSegs);
+    const slab = new THREE.Mesh(slabGeo, slabMat);
+    slab.position.y = yBase + slabThick / 2;
+    slab.castShadow = true;
+    slab.receiveShadow = i === 0;
+    group.add(slab);
+
+    // Glass band (ground floor less glazed: narrower band)
+    const bandH = i === 0 ? glassH * 0.35 : glassH;
+    const bandY = yBase + slabThick + bandH / 2;
+    const glassGeo = new THREE.CylinderGeometry(outerR + 0.02, outerR + 0.02, bandH, numSegs, 1, true);
+    const glass = new THREE.Mesh(glassGeo, winMat);
+    glass.position.y = bandY;
+    glass.renderOrder = 1;
+    group.add(glass);
+
+    // Concrete backing wall (slightly inset inside glass)
+    if (i === 0) {
+      // Ground floor: solid concrete lower portion
+      const baseWallGeo = new THREE.CylinderGeometry(outerR - 0.05, outerR - 0.05, glassH * 0.65, numSegs, 1, true);
+      const baseWall = new THREE.Mesh(baseWallGeo, concreteMat);
+      baseWall.position.y = yBase + slabThick + glassH * 0.325;
+      group.add(baseWall);
+    }
+  }
+
+  // Top roof slab — flat circular cap
+  const topRoofR = topR + 0.08;
+  const roofY = numFloors * floorH + 0.06;
+  const roofGeo = new THREE.CylinderGeometry(topRoofR + 0.25, topRoofR + 0.25, 0.18, numSegs);
+  const roof = new THREE.Mesh(roofGeo, slabMat);
+  roof.position.y = roofY + 0.09;
+  roof.castShadow = true;
+  group.add(roof);
+
+  // Parapet ring
+  const parapetGeo = new THREE.TorusGeometry(topRoofR + 0.22, 0.09, 6, numSegs);
+  const parapet = new THREE.Mesh(parapetGeo, concreteMat);
+  parapet.rotation.x = Math.PI / 2;
+  parapet.position.y = roofY + 0.22;
+  group.add(parapet);
+
+  // Small mechanical structures on roof (setback from edge)
+  const mechMat = new THREE.MeshStandardMaterial({ color: 0xd4c4a8, roughness: 0.9 });
+  for (let m = 0; m < 3; m++) {
+    const angle = (m / 3) * Math.PI * 2;
+    const mr = topR * 0.35;
+    const mech = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.35, 0.5), mechMat);
+    mech.position.set(Math.cos(angle) * mr, roofY + 0.27, Math.sin(angle) * mr);
+    group.add(mech);
+  }
+
+  // ── VERTICAL CONCRETE RIBS (48 fins, full height) ──
+  const ribMat = new THREE.MeshStandardMaterial({ color: 0xe8dcc8, roughness: 0.7 });
+  const ribCount = 48;
+  const ribH = towerH + 0.06;
+
+  for (let ri = 0; ri < ribCount; ri++) {
+    const angle = (ri / ribCount) * Math.PI * 2;
+    // Approximate rib radius at mid-height
+    const midT = 0.5;
+    const midR = baseR - (baseR - topR) * midT + 0.12;
+    const ribGeo = new THREE.BoxGeometry(0.12, ribH, 0.15);
+    const rib = new THREE.Mesh(ribGeo, ribMat);
+    rib.position.set(
+      Math.cos(angle) * midR,
+      ribH / 2 + 0.06,
+      Math.sin(angle) * midR
+    );
+    rib.rotation.y = -angle;
+    rib.castShadow = true;
+    group.add(rib);
+  }
+
+  // ── GROUND FLOOR COLUMNS (entry level, 4 cardinal directions) ──
+  const colMat = new THREE.MeshStandardMaterial({ color: 0xe0d4bc, roughness: 0.7 });
+  const entryR = baseR + 0.15;
+  for (let ci = 0; ci < 8; ci++) {
+    const angle = (ci / 8) * Math.PI * 2;
+    const col = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.22, floorH * 1.4, 10), colMat);
+    col.position.set(Math.cos(angle) * (entryR - 0.3), floorH * 0.7 + 0.06, Math.sin(angle) * (entryR - 0.3));
+    col.castShadow = true;
+    group.add(col);
+  }
+
+  // ── INTERIOR — CABINET ROOM (visible on floor 8, ~top) ──
+  const cabinetFloorY = 8 * floorH + 0.06 + slabThick;
+  const woodMat  = new THREE.MeshStandardMaterial({ color: 0x5c3d2e, roughness: 0.8 });
+  const tableMat = new THREE.MeshStandardMaterial({ color: 0x4a3020, roughness: 0.6 });
+
+  // Wood-paneled circular floor (inner core)
+  const floorGeo = new THREE.CylinderGeometry(2.0, 2.0, 0.05, 24);
+  const cabinetFloor = new THREE.Mesh(floorGeo, woodMat);
+  cabinetFloor.position.y = cabinetFloorY;
+  group.add(cabinetFloor);
+
+  // Round table
+  const tableGeo = new THREE.CylinderGeometry(0.9, 0.9, 0.07, 16);
+  const table = new THREE.Mesh(tableGeo, tableMat);
+  table.position.y = cabinetFloorY + 0.33;
+  group.add(table);
+
+  // Table leg (single central pedestal)
+  const legGeo = new THREE.CylinderGeometry(0.12, 0.18, 0.28, 8);
+  const leg = new THREE.Mesh(legGeo, tableMat);
+  leg.position.y = cabinetFloorY + 0.14;
+  group.add(leg);
+
+  // Chairs around table (12 executive chairs)
+  const chairMat = new THREE.MeshStandardMaterial({ color: 0x1a1a2e, roughness: 0.8 });
+  for (let ch = 0; ch < 12; ch++) {
+    const ang = (ch / 12) * Math.PI * 2;
+    const cr = 1.15;
+    const seat = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.05, 0.2), chairMat);
+    seat.position.set(Math.cos(ang) * cr, cabinetFloorY + 0.26, Math.sin(ang) * cr);
+    seat.rotation.y = ang;
+    group.add(seat);
+    const back = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.25, 0.04), chairMat);
+    back.position.set(Math.cos(ang) * (cr + 0.1), cabinetFloorY + 0.38, Math.sin(ang) * (cr + 0.1));
+    back.rotation.y = ang;
+    group.add(back);
+  }
+
+  // ── INTERIOR ELEVATOR CORE ──
+  const coreMat = new THREE.MeshStandardMaterial({ color: 0xd4c4a8, roughness: 0.85 });
+  const coreGeo = new THREE.CylinderGeometry(0.9, 0.9, towerH, 12);
+  const core = new THREE.Mesh(coreGeo, coreMat);
+  core.position.y = towerH / 2 + 0.06;
+  group.add(core);
+
+  // ── WARM INTERIOR GLOW (executive amber) ──
+  const glow = new THREE.PointLight(0xf59e0b, 0.5, 8);
+  glow.position.set(0, towerH * 0.6, 0);
+  group.add(glow);
+  const groundGlow = new THREE.PointLight(0xfbbf24, 0.3, 5);
+  groundGlow.position.set(0, 1.0, 0);
+  group.add(groundGlow);
+
+  // ── CONTRIBUTOR PLAQUE ──
+  buildPlaque(group, building, baseR + 0.5, 3.5);
+};
+
 // Distant hills
 export function createHills() {
   const group = new THREE.Group();
