@@ -141,5 +141,18 @@
     },
     "issue": 31,
     "added": "2026-02-27"
+  },
+  {
+    "id": "bobbys-house",
+    "name": "Bobby's House",
+    "type": "house",
+    "description": "A whimsical pineapple-shaped cottage with a spiky green crown and diamond crosshatch walls, complete with porthole windows and a friendly pet snail lounging by the front path.",
+    "plot": 1,
+    "contributor": {
+      "username": "DanielRosenwasser",
+      "avatar": "https://github.com/DanielRosenwasser.png"
+    },
+    "issue": 34,
+    "added": "2026-02-27"
   }
 ]
