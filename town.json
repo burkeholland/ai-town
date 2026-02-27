@@ -130,11 +130,24 @@
     "added": "2026-02-27"
   },
   {
+    "id": "bobbys-house",
+    "name": "Bobby's House",
+    "type": "house",
+    "description": "A whimsical pineapple-shaped cottage with a spiky green crown and diamond crosshatch walls, complete with porthole windows and a friendly pet snail lounging by the front path.",
+    "plot": 1,
+    "contributor": {
+      "username": "DanielRosenwasser",
+      "avatar": "https://github.com/DanielRosenwasser.png"
+    },
+    "issue": 34,
+    "added": "2026-02-27"
+  },
+  {
     "id": "hot-yoga-studio-charlie",
     "name": "Hot Yoga, Studio Charlie",
     "type": "shop",
     "description": "A warm, inviting hot yoga studio with floor-to-ceiling glass walls revealing a loft interior of exposed brick, warm wood floors, and lush tropical plants. Purple wisteria cascades from roof planters, hot pink bougainvillea climbs the left wall, and strings of fairy lights sparkle through the vines. A gold-leaf 'STUDIO CHARLIE' sign glows above the entrance. Crystals and sun catchers hang in every window, casting tiny rainbows across the space. A rock garden fountain with quartz crystals sits near the entrance.",
-    "plot": 1,
+    "plot": 2,
     "contributor": {
       "username": "annasoracco",
       "avatar": "https://github.com/annasoracco.png"
