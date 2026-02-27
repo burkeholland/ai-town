@@ -148,6 +148,19 @@ async function verify() {
     process.exit(1);
   }
 
+  // Check for duplicate plots
+  const plotMap = {};
+  let hasDupes = false;
+  for (const b of buildings) {
+    const p = b.plot ?? 0;
+    if (plotMap[p]) {
+      console.error(`❌ Plot ${p} conflict: "${plotMap[p]}" and "${b.id}" are on the same plot`);
+      hasDupes = true;
+    }
+    plotMap[p] = b.id;
+  }
+  if (hasDupes) process.exit(1);
+
   if (!slug) {
     console.log('✅ Verification complete (no slug — skipping OG image).');
     process.exit(0);
