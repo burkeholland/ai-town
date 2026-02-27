@@ -4678,6 +4678,382 @@ CUSTOM_BUILDERS['bobbys-house'] = function (group, building) {
   buildPlaque(group, building, 0.92, 3.4);
 };
 
+// ─── Custom Building: Hot Yoga, Studio Charlie ─────────────────────────────
+
+CUSTOM_BUILDERS['hot-yoga-studio-charlie'] = function (group, building) {
+  const W     = 3.6;   // width (front face)
+  const D     = 2.8;   // depth (front to back)
+  const wallH = 2.8;   // wall height
+  const parH  = 0.18;  // parapet height
+  const baseH = 0.1;   // foundation
+
+  // ── MATERIALS ──────────────────────────────────────────────────────────────
+  const stuccoMat  = new THREE.MeshStandardMaterial({ color: 0xfef3c7, roughness: 0.85, emissive: 0xffffff, emissiveIntensity: 0.03 });
+  const bronzeMat  = new THREE.MeshStandardMaterial({ color: 0x7c6545, metalness: 0.5, roughness: 0.5 });
+  const roofMat    = new THREE.MeshStandardMaterial({ color: 0xe8e2d8, roughness: 0.9 });
+  const woodMat    = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.7 });
+  const brickMat   = new THREE.MeshStandardMaterial({ color: 0xb91c1c, roughness: 0.95 });
+  const stoneMat   = new THREE.MeshStandardMaterial({ color: 0x78716c, roughness: 0.95 });
+  const rivRockMat = new THREE.MeshStandardMaterial({ color: 0x57534e, roughness: 0.9 });
+  const trunkMat   = new THREE.MeshStandardMaterial({ color: 0x854d0e, roughness: 0.9 });
+  const greenMat   = new THREE.MeshStandardMaterial({ color: 0x15803d, roughness: 0.9 });
+  const ltGreenMat = new THREE.MeshStandardMaterial({ color: 0x4ade80, roughness: 0.9 });
+  const purpleMat  = new THREE.MeshStandardMaterial({ color: 0x9333ea, roughness: 0.8 });
+  const pinkMat    = new THREE.MeshStandardMaterial({ color: 0xec4899, roughness: 0.8 });
+  const matMat     = new THREE.MeshStandardMaterial({ color: 0x7c3aed, roughness: 0.85 });
+  const goldMat    = new THREE.MeshStandardMaterial({ color: 0xfbbf24, metalness: 0.4, roughness: 0.3, emissive: 0xfbbf24, emissiveIntensity: 0.2 });
+  const fairyMat   = new THREE.MeshStandardMaterial({ color: 0xfef3c7, emissive: 0xfbbf24, emissiveIntensity: 0.55 });
+  const candleMat  = new THREE.MeshStandardMaterial({ color: 0xfbbf24, emissive: 0xfbbf24, emissiveIntensity: 0.6 });
+  const winMat     = new THREE.MeshPhysicalMaterial({ color: 0xbfdbfe, emissive: 0x3b82f6, emissiveIntensity: 0.15, transparent: true, opacity: 0.35, transmission: 0.6, roughness: 0.1, thickness: 0.05 });
+  const skyMat     = new THREE.MeshPhysicalMaterial({ color: 0xbfdbfe, emissive: 0x93c5fd, emissiveIntensity: 0.2, transparent: true, opacity: 0.4, transmission: 0.5, roughness: 0.1, thickness: 0.05 });
+  const lampMat    = new THREE.MeshStandardMaterial({ color: 0xf59e0b, emissive: 0xfbbf24, emissiveIntensity: 0.3, transparent: true, opacity: 0.7 });
+
+  // ── FOUNDATION ──────────────────────────────────────────────────────────────
+  const base = new THREE.Mesh(new THREE.BoxGeometry(W + 0.2, baseH, D + 0.2), stoneMat);
+  base.position.y = baseH / 2;
+  base.receiveShadow = true;
+  group.add(base);
+
+  // ── CORNER POSTS (creamy stucco with mica sparkle) ──────────────────────────
+  for (const [cx, cz] of [[-W / 2, -D / 2], [W / 2, -D / 2], [-W / 2, D / 2], [W / 2, D / 2]]) {
+    const post = new THREE.Mesh(new THREE.BoxGeometry(0.2, wallH, 0.2), stuccoMat);
+    post.position.set(cx, baseH + wallH / 2, cz);
+    post.castShadow = true;
+    group.add(post);
+  }
+
+  // ── FLOOR-TO-CEILING WINDOWS ────────────────────────────────────────────────
+  const doorW = 0.85;
+  const sideWinW = (W - doorW) / 2 - 0.15;
+
+  // Front face — two side windows flanking the door
+  for (const side of [-1, 1]) {
+    const wx = side * (doorW / 2 + sideWinW / 2 + 0.05);
+    const win = new THREE.Mesh(new THREE.BoxGeometry(sideWinW, wallH - 0.08, 0.07), winMat);
+    win.position.set(wx, baseH + wallH / 2, D / 2 + 0.04);
+    group.add(win);
+    // Bronze frame dividers
+    for (const fx of [wx - sideWinW / 2, wx + sideWinW / 2]) {
+      const fv = new THREE.Mesh(new THREE.BoxGeometry(0.05, wallH, 0.07), bronzeMat);
+      fv.position.set(fx, baseH + wallH / 2, D / 2 + 0.04);
+      group.add(fv);
+    }
+    const fh = new THREE.Mesh(new THREE.BoxGeometry(sideWinW + 0.05, 0.05, 0.07), bronzeMat);
+    fh.position.set(wx, baseH + wallH - 0.04, D / 2 + 0.04);
+    group.add(fh);
+  }
+
+  // Back face — full-width window
+  const backWin = new THREE.Mesh(new THREE.BoxGeometry(W - 0.2, wallH - 0.08, 0.07), winMat);
+  backWin.position.set(0, baseH + wallH / 2, -D / 2 - 0.04);
+  group.add(backWin);
+  for (const fx of [-W / 3, 0, W / 3]) {
+    const fv = new THREE.Mesh(new THREE.BoxGeometry(0.05, wallH, 0.07), bronzeMat);
+    fv.position.set(fx, baseH + wallH / 2, -D / 2 - 0.04);
+    group.add(fv);
+  }
+
+  // Side windows (left and right)
+  for (const side of [-1, 1]) {
+    const sx = side * (W / 2 + 0.04);
+    const sWin = new THREE.Mesh(new THREE.BoxGeometry(0.07, wallH - 0.08, D - 0.2), winMat);
+    sWin.position.set(sx, baseH + wallH / 2, 0);
+    group.add(sWin);
+    // Vertical divider in the middle
+    const sMid = new THREE.Mesh(new THREE.BoxGeometry(0.06, wallH, 0.05), bronzeMat);
+    sMid.position.set(sx, baseH + wallH / 2, 0);
+    group.add(sMid);
+  }
+
+  // ── DOUBLE GLASS DOORS ──────────────────────────────────────────────────────
+  const doorGlassMat = new THREE.MeshPhysicalMaterial({ color: 0xbfdbfe, emissive: 0x60a5fa, emissiveIntensity: 0.2, transparent: true, opacity: 0.5, transmission: 0.4, roughness: 0.1 });
+  const doorH2 = wallH * 0.82;
+  for (const dx of [-doorW / 4, doorW / 4]) {
+    const door = new THREE.Mesh(new THREE.BoxGeometry(doorW / 2 - 0.04, doorH2, 0.07), doorGlassMat);
+    door.position.set(dx, baseH + doorH2 / 2, D / 2 + 0.04);
+    group.add(door);
+    // Handle
+    const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.16, 6), bronzeMat);
+    handle.rotation.z = Math.PI / 2;
+    handle.position.set(dx > 0 ? dx - 0.14 : dx + 0.14, baseH + doorH2 * 0.45, D / 2 + 0.09);
+    group.add(handle);
+  }
+  // Door transom frame
+  const transom = new THREE.Mesh(new THREE.BoxGeometry(doorW + 0.1, 0.05, 0.08), bronzeMat);
+  transom.position.set(0, baseH + doorH2, D / 2 + 0.04);
+  group.add(transom);
+
+  // ── FLAT ROOF WITH PARAPET ──────────────────────────────────────────────────
+  const roof = new THREE.Mesh(new THREE.BoxGeometry(W + 0.28, 0.16, D + 0.28), roofMat);
+  roof.position.y = baseH + wallH + 0.08;
+  roof.castShadow = true;
+  group.add(roof);
+  // Parapet walls
+  const parapetData = [
+    { w: W + 0.28, d: 0.16, x: 0, z:  D / 2 + 0.14 },
+    { w: W + 0.28, d: 0.16, x: 0, z: -D / 2 - 0.14 },
+    { w: 0.16, d: D + 0.28, x:  W / 2 + 0.14, z: 0 },
+    { w: 0.16, d: D + 0.28, x: -W / 2 - 0.14, z: 0 },
+  ];
+  for (const p of parapetData) {
+    const par = new THREE.Mesh(new THREE.BoxGeometry(p.w, parH, p.d), roofMat);
+    par.position.set(p.x, baseH + wallH + 0.16 + parH / 2, p.z);
+    group.add(par);
+  }
+
+  // ── SKYLIGHTS (3 circular on roof) ──────────────────────────────────────────
+  for (let i = -1; i <= 1; i++) {
+    const sky = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.34, 0.07, 14), skyMat);
+    sky.position.set(i * W / 3.4, baseH + wallH + 0.19, 0);
+    group.add(sky);
+    const rim = new THREE.Mesh(new THREE.TorusGeometry(0.34, 0.04, 6, 14), bronzeMat);
+    rim.rotation.x = Math.PI / 2;
+    rim.position.set(i * W / 3.4, baseH + wallH + 0.2, 0);
+    group.add(rim);
+  }
+
+  // ── GOLD SIGN "STUDIO CHARLIE" ───────────────────────────────────────────────
+  const sign = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.28, 0.07), goldMat);
+  sign.position.set(0, baseH + wallH - 0.26, D / 2 + 0.1);
+  group.add(sign);
+
+  // ── ENTRY STEPS ─────────────────────────────────────────────────────────────
+  for (let i = 0; i < 2; i++) {
+    const step = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.1, 0.22), stoneMat);
+    step.position.set(0, 0.05 + i * 0.1, D / 2 + 0.3 + i * 0.18);
+    group.add(step);
+  }
+
+  // ── WISTERIA CASCADING FROM ROOF ────────────────────────────────────────────
+  // Roof-edge planter (front)
+  const wPlanter = new THREE.Mesh(new THREE.BoxGeometry(W - 0.28, 0.14, 0.18), stuccoMat);
+  wPlanter.position.set(0, baseH + wallH + 0.23, D / 2 + 0.05);
+  group.add(wPlanter);
+
+  // Hanging clusters — deterministic positions
+  const wisteriaDrops = [
+    { x: -1.4, drop: 0.9 }, { x: -1.0, drop: 1.2 }, { x: -0.6, drop: 1.5 },
+    { x: -0.3, drop: 1.7 }, { x:  0.0, drop: 1.9 }, { x:  0.3, drop: 1.7 },
+    { x:  0.6, drop: 1.5 }, { x:  1.0, drop: 1.2 }, { x:  1.4, drop: 0.9 },
+  ];
+  for (const w of wisteriaDrops) {
+    const buds = Math.round(4 + w.drop * 4);
+    for (let j = 0; j < buds; j++) {
+      const bud = new THREE.Mesh(new THREE.SphereGeometry(0.065 + (j % 2) * 0.025, 5, 4), purpleMat);
+      bud.position.set(
+        w.x + (j % 3 - 1) * 0.07,
+        baseH + wallH + 0.18 - (j / buds) * w.drop,
+        D / 2 + 0.04 + (j % 2) * 0.05
+      );
+      group.add(bud);
+    }
+  }
+  // Side wisteria on right wall top
+  for (let j = 0; j < 10; j++) {
+    const bud = new THREE.Mesh(new THREE.SphereGeometry(0.06, 5, 4), purpleMat);
+    bud.position.set(W / 2 + 0.05, baseH + wallH - j * 0.2, D / 2 - j * 0.12);
+    group.add(bud);
+  }
+
+  // ── BOUGAINVILLEA on left wall ───────────────────────────────────────────────
+  const bougData = [
+    { t: 0.05, off: 0 }, { t: 0.15, off: -0.1 }, { t: 0.25, off: 0.12 },
+    { t: 0.35, off: -0.05 }, { t: 0.45, off: 0.08 }, { t: 0.55, off: -0.1 },
+    { t: 0.65, off: 0.06 }, { t: 0.75, off: -0.08 }, { t: 0.85, off: 0.1 },
+    { t: 0.95, off: -0.05 }, { t: 0.3, off: 0.15 }, { t: 0.7, off: -0.12 },
+    { t: 0.5, off: 0.18 }, { t: 0.1, off: -0.15 }, { t: 0.9, off: 0.06 },
+  ];
+  for (const b of bougData) {
+    const bloom = new THREE.Mesh(new THREE.SphereGeometry(0.07 + (Math.floor(b.off * 10) % 2) * 0.03, 5, 4), pinkMat);
+    bloom.position.set(-W / 2 - 0.05, baseH + b.t * wallH * 1.05, -D / 2 + b.t * D + b.off);
+    group.add(bloom);
+    if (Math.floor(b.t * 10) % 3 === 0) {
+      const vine = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.22, 0.03), greenMat);
+      vine.position.set(-W / 2 - 0.05, baseH + b.t * wallH * 0.9, -D / 2 + b.t * D);
+      group.add(vine);
+    }
+  }
+
+  // ── FAIRY LIGHTS ────────────────────────────────────────────────────────────
+  // Along front roofline
+  for (let i = 0; i < 16; i++) {
+    const t = i / 15;
+    const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.024, 4, 3), fairyMat);
+    bulb.position.set(-W / 2 + 0.1 + t * (W - 0.2), baseH + wallH + 0.12 - Math.sin(t * Math.PI) * 0.1, D / 2 + 0.12);
+    group.add(bulb);
+  }
+  // Woven through wisteria
+  for (let i = 0; i < 10; i++) {
+    const t = i / 9;
+    const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.024, 4, 3), fairyMat);
+    bulb.position.set(-W / 2 + 0.3 + t * (W - 0.6), baseH + wallH - 0.15 - Math.sin(t * Math.PI * 2) * 0.25, D / 2 + 0.14);
+    group.add(bulb);
+  }
+
+  // ── ROCK GARDEN FOUNTAIN (right of entrance) ────────────────────────────────
+  const fX = W / 2 - 0.15;
+  const fZ = D / 2 + 0.7;
+  // Stone basin
+  const basin = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.34, 0.1, 14), stoneMat);
+  basin.position.set(fX, 0.05, fZ);
+  group.add(basin);
+  // River rocks
+  for (const [rx, rz, rs] of [[0, 0, 0.16], [-0.13, 0.1, 0.13], [0.11, -0.1, 0.14]]) {
+    const rock = new THREE.Mesh(new THREE.SphereGeometry(rs, 7, 5), rivRockMat);
+    rock.scale.y = 0.65;
+    rock.position.set(fX + rx, 0.1 + rs * 0.4, fZ + rz);
+    group.add(rock);
+  }
+  // Succulents around basin
+  for (let i = 0; i < 6; i++) {
+    const ang = (i / 6) * Math.PI * 2;
+    const succ = new THREE.Mesh(new THREE.ConeGeometry(0.055, 0.11, 5), ltGreenMat);
+    succ.position.set(fX + Math.cos(ang) * 0.46, 0.055, fZ + Math.sin(ang) * 0.46);
+    group.add(succ);
+  }
+  // Quartz crystals
+  const xtalMat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, transparent: true, opacity: 0.3, transmission: 0.75, roughness: 0.0, metalness: 0.2, emissive: 0xffffff, emissiveIntensity: 0.08 });
+  for (let i = 0; i < 3; i++) {
+    const ang = (i / 3) * Math.PI * 2 + 0.4;
+    const xtal = new THREE.Mesh(new THREE.OctahedronGeometry(0.065), xtalMat);
+    xtal.position.set(fX + Math.cos(ang) * 0.34, 0.065, fZ + Math.sin(ang) * 0.34);
+    group.add(xtal);
+  }
+
+  // ── ENTRANCE PLANTERS ────────────────────────────────────────────────────────
+  for (const px of [-(doorW / 2 + 0.22), doorW / 2 + 0.22]) {
+    const planter = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.52, 0.26), stuccoMat);
+    planter.position.set(px, 0.26, D / 2 + 0.16);
+    group.add(planter);
+    // Wisteria sprigs
+    for (let i = 0; i < 5; i++) {
+      const bud = new THREE.Mesh(new THREE.SphereGeometry(0.055, 5, 4), purpleMat);
+      bud.position.set(px + (i % 2 - 0.5) * 0.09, 0.55 + i * 0.1, D / 2 + 0.1);
+      group.add(bud);
+    }
+  }
+
+  // ── WINDOW BOXES WITH ORCHIDS ────────────────────────────────────────────────
+  for (const wx of [-W / 2 + 0.52, W / 2 - 0.52]) {
+    const box = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.14, 0.16), stuccoMat);
+    box.position.set(wx, baseH + 0.07, D / 2 + 0.1);
+    group.add(box);
+    for (let i = 0; i < 4; i++) {
+      const orchid = new THREE.Mesh(new THREE.SphereGeometry(0.038, 5, 4), new THREE.MeshStandardMaterial({ color: 0xfae8ff }));
+      orchid.position.set(wx - 0.18 + i * 0.12, baseH + 0.2, D / 2 + 0.1);
+      group.add(orchid);
+    }
+  }
+
+  // ── INTERIOR — WOOD FLOOR ────────────────────────────────────────────────────
+  const floor = new THREE.Mesh(new THREE.BoxGeometry(W - 0.22, 0.07, D - 0.22), woodMat);
+  floor.position.y = baseH + 0.035;
+  floor.receiveShadow = true;
+  group.add(floor);
+
+  // ── INTERIOR — EXPOSED BRICK BACK WALL ──────────────────────────────────────
+  const brickWall = new THREE.Mesh(new THREE.BoxGeometry(W - 0.22, wallH - 0.1, 0.1), brickMat);
+  brickWall.position.set(0, baseH + (wallH - 0.1) / 2, -D / 2 + 0.08);
+  group.add(brickWall);
+  // Brick row detail
+  for (let row = 0; row < 6; row++) {
+    const mortar = new THREE.Mesh(new THREE.BoxGeometry(W - 0.22, 0.04, 0.11), new THREE.MeshStandardMaterial({ color: 0x7c2d12, roughness: 1.0 }));
+    mortar.position.set(0, baseH + 0.25 + row * 0.4, -D / 2 + 0.09);
+    group.add(mortar);
+  }
+
+  // ── INTERIOR — YOGA MATS (4×4) ──────────────────────────────────────────────
+  for (let row = 0; row < 4; row++) {
+    for (let col = 0; col < 4; col++) {
+      const mat = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.02, 0.22), matMat);
+      mat.position.set(-0.72 + col * 0.48, baseH + 0.07, -0.6 + row * 0.42);
+      group.add(mat);
+    }
+  }
+
+  // ── INTERIOR — TROPICAL PLANTS ──────────────────────────────────────────────
+  const plantPos = [
+    [-W / 2 + 0.22, -D / 2 + 0.28], [W / 2 - 0.22, -D / 2 + 0.28],
+    [-W / 2 + 0.22,  D / 2 - 0.45], [W / 2 - 0.22,  D / 2 - 0.45],
+    [0, -D / 2 + 0.28],
+  ];
+  for (const [px, pz] of plantPos) {
+    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.038, 0.048, 0.65, 6), trunkMat);
+    trunk.position.set(px, baseH + 0.325, pz);
+    group.add(trunk);
+    const foliage = new THREE.Mesh(new THREE.SphereGeometry(0.2, 6, 5), greenMat);
+    foliage.scale.y = 0.65;
+    foliage.position.set(px, baseH + 0.78, pz);
+    group.add(foliage);
+    const tip = new THREE.Mesh(new THREE.ConeGeometry(0.13, 0.3, 5), ltGreenMat);
+    tip.position.set(px, baseH + 0.95, pz);
+    group.add(tip);
+  }
+
+  // ── INTERIOR — PENDANT LAMPS ────────────────────────────────────────────────
+  const lampPos = [[-0.75, -0.55], [0.75, -0.55], [-0.75, 0.55], [0.75, 0.55], [0, 0]];
+  for (const [lx, lz] of lampPos) {
+    const shade = new THREE.Mesh(new THREE.ConeGeometry(0.11, 0.2, 8), lampMat);
+    shade.rotation.x = Math.PI;
+    shade.position.set(lx, baseH + wallH - 0.42, lz);
+    group.add(shade);
+    const cord = new THREE.Mesh(new THREE.CylinderGeometry(0.007, 0.007, 0.42, 4), bronzeMat);
+    cord.position.set(lx, baseH + wallH - 0.21, lz);
+    group.add(cord);
+    const glow = new THREE.PointLight(0xfbbf24, 0.25, 1.4);
+    glow.position.set(lx, baseH + wallH - 0.5, lz);
+    group.add(glow);
+  }
+
+  // ── INTERIOR — CANDLES IN BRICK NICHES ──────────────────────────────────────
+  for (let i = 0; i < 4; i++) {
+    const cx = -W / 2 + 0.38 + i * 0.72;
+    const candle = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.065, 5), new THREE.MeshStandardMaterial({ color: 0xfef3c7 }));
+    candle.position.set(cx, baseH + wallH * 0.5, -D / 2 + 0.14);
+    group.add(candle);
+    const flame = new THREE.Mesh(new THREE.SphereGeometry(0.018, 4, 3), candleMat);
+    flame.scale.y = 1.4;
+    flame.position.set(cx, baseH + wallH * 0.5 + 0.05, -D / 2 + 0.14);
+    group.add(flame);
+  }
+
+  // ── CRYSTALS / SUN CATCHERS IN WINDOWS ──────────────────────────────────────
+  const crystalPalette = [0xff00ff, 0x00ffff, 0xffff00, 0xff80ff, 0x80ffff, 0xfff080];
+  const crystalPositions = [
+    [-W / 2 + 0.25, wallH * 0.68, 0], [W / 2 - 0.25, wallH * 0.68, 0],
+    [0, wallH * 0.68, -D / 2 + 0.1], [0, wallH * 0.68, D / 2 - 0.1],
+    [-W / 2 + 0.7, wallH * 0.55, D / 2 - 0.1], [W / 2 - 0.7, wallH * 0.55, D / 2 - 0.1],
+  ];
+  for (let i = 0; i < crystalPositions.length; i++) {
+    const [cx, cy, cz] = crystalPositions[i];
+    const xtal = new THREE.Mesh(
+      i % 2 === 0 ? new THREE.OctahedronGeometry(0.075) : new THREE.TetrahedronGeometry(0.085),
+      new THREE.MeshPhysicalMaterial({ color: crystalPalette[i], transparent: true, opacity: 0.28, transmission: 0.7, roughness: 0.0, emissive: crystalPalette[i], emissiveIntensity: 0.14 })
+    );
+    xtal.position.set(cx, baseH + cy, cz);
+    xtal.rotation.y = i * 0.8;
+    group.add(xtal);
+  }
+
+  // ── MIST AT DOORWAY ──────────────────────────────────────────────────────────
+  for (let i = 0; i < 4; i++) {
+    const mist = new THREE.Mesh(
+      new THREE.SphereGeometry(0.11 + i * 0.04, 6, 5),
+      new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: 0.07 - i * 0.01 })
+    );
+    mist.position.set((i % 2 === 0 ? 0.14 : -0.14), baseH + 0.18 + i * 0.13, D / 2 + 0.3);
+    group.add(mist);
+  }
+
+  // ── WARM AMBIENT GLOW ────────────────────────────────────────────────────────
+  const warmGlow = new THREE.PointLight(0xfbbf24, 0.6, 4.2);
+  warmGlow.position.set(0, baseH + wallH * 0.4, 0);
+  group.add(warmGlow);
+
+  // ── CONTRIBUTOR PLAQUE ────────────────────────────────────────────────────────
+  buildPlaque(group, building, D / 2 + 0.12, 2.4);
+};
+
 // Distant hills
 export function createHills() {
   const group = new THREE.Group();
