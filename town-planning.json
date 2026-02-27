@@ -70,5 +70,14 @@
     "reasoning": "Fish Soup is described as 'perched on the coastline' — a swordfish-shaped restaurant needs water. Plot 14 (x=45, z=26) is the easternmost point on the map, the terminus of Main Street East. Imagine the coast running along the eastern edge: this building IS the waterfront. Walk east down Main Street past the theatre and makerspace, and you arrive at the sea — where a giant swordfish restaurant awaits.",
     "vision": "The eastern edge of the map (x=45) is now the waterfront. Fish Soup establishes this as the coastline. Future waterfront buildings (plots 30, 32) could extend this — a marina, a lighthouse, a fish market. The town faces east toward the sea.",
     "date": "2026-02-27"
+  },
+  {
+    "plot": 7,
+    "building": "the-cinnamon-roll",
+    "type": "restaurant",
+    "zone": "Main Street West",
+    "reasoning": "The Cinnamon Roll is a whimsical, giant pastry-shaped restaurant — it fits perfectly on the south side of Main Street West at (15, 29), directly across from Pierce's Pub. Two food destinations facing each other creates a lively dining block. The building's cylindrical shape is distinctive enough to stand out on a main street and draw visitors.",
+    "vision": "The south side of Main Street West (plots 7-8) mirrors the north side with more dining options. Pierce's Pub and The Cinnamon Roll across the street create an informal 'restaurant row'. The contrast between the Tudor pub and the fantastical pastry building is exactly the charming chaos that makes AI Town special.",
+    "date": "2026-02-27"
   }
 ]

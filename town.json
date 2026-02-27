@@ -128,5 +128,18 @@
     },
     "issue": 27,
     "added": "2026-02-27"
+  },
+  {
+    "id": "the-cinnamon-roll",
+    "name": "The Cinnamon Roll",
+    "type": "restaurant",
+    "description": "A restaurant sculpted as a giant golden-brown cinnamon roll, with thick cream cheese frosting cascading down the sides and a spiral swirl pattern wrapping the entire structure. Step inside to dine on fresh cinnamon rolls in a warm, swirly pastry interior.",
+    "plot": 7,
+    "contributor": {
+      "username": "cinnamon-msft",
+      "avatar": "https://github.com/cinnamon-msft.png"
+    },
+    "issue": 31,
+    "added": "2026-02-27"
   }
 ]
