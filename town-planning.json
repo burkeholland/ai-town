@@ -88,5 +88,14 @@
     "reasoning": "The NZ Beehive is an iconic governmental monument — it belongs close to the civic heart of town near the Town Hall. Plot 3 (SW of the square, facing NE) positions it as a dignified civic counterpart visible from the plaza. Its circular form and height contrast beautifully with the rectangular Town Hall, echoing Wellington's own pairing of the circular Beehive with the classical Parliament House.",
     "vision": "The Beehive anchors the SW corner of the Town Square, creating a governmental precinct alongside the Town Hall. Its distinctive tiered silhouette is visible from Main Street and signals civic authority. Future civic buildings on plots 1-2 and 4 could complete a parliament-like district.",
     "date": "2026-02-27"
+  },
+  {
+    "plot": 4,
+    "building": "japanese-cherry-blossom-park",
+    "type": "nature",
+    "zone": "Town Square",
+    "reasoning": "A tranquil park placed SE of the Town Hall creates a natural breathing space in the civic heart of town. The cherry blossoms and vermillion torii gate provide a visual counterpoint to the governmental buildings nearby, offering visitors a place of stillness among the civic structures.",
+    "vision": "Plot 4 completes the Town Square with a moment of natural serenity. The park's Japanese aesthetic contrasts beautifully with the NZ Beehive on plot 3, bringing cultural diversity to the civic precinct. Cherry blossoms, stone lanterns, and Mount Fuji backdrop give the space a timeless, meditative quality.",
+    "date": "2026-02-27"
   }
 ]
