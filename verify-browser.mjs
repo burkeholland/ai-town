@@ -325,8 +325,10 @@ async function verify() {
           const camDist = Math.max(radius * 2.5, 8);
           const camHeight = Math.max(radius * 1.2, 4);
           const facing = PLOTS[plotIdx]?.facing || 0;
-          const cx = plot.x + Math.sin(facing + 0.8) * camDist;
-          const cz = plot.z + Math.cos(facing + 0.8) * camDist;
+          // Place camera in FRONT of the building (opposite facing + slight offset)
+          const camAngle = facing + Math.PI + 0.6;
+          const cx = plot.x + Math.sin(camAngle) * camDist;
+          const cz = plot.z + Math.cos(camAngle) * camDist;
           r.camera.position.set(cx, camHeight, cz);
           r.camera.lookAt(plot.x, camHeight * 0.3, plot.z);
           r.camera.updateProjectionMatrix();
