@@ -5366,6 +5366,194 @@ CUSTOM_BUILDERS['motz-coffee-co'] = function (group, building) {
   buildPlaque(group, building, D / 2 + 0.05, 2.8);
 };
 
+// ─── Custom Building: Japanese Cherry Blossom Park ──────────────────────────
+
+CUSTOM_BUILDERS['japanese-cherry-blossom-park'] = function (group, building) {
+  // Materials
+  const grassMat      = new THREE.MeshStandardMaterial({ color: 0x84cc16, roughness: 0.9 });
+  const vermMat       = new THREE.MeshStandardMaterial({ color: 0xdc143c, roughness: 0.7 });
+  const stoneMat      = new THREE.MeshStandardMaterial({ color: 0x8b7d6b, roughness: 0.9 });
+  const trunkMat      = new THREE.MeshStandardMaterial({ color: 0x4a3728, roughness: 0.9 });
+  const blossomMat    = new THREE.MeshStandardMaterial({ color: 0xffb6d9, roughness: 0.8 });
+  const benchMat      = new THREE.MeshStandardMaterial({ color: 0x8b6f47, roughness: 0.85 });
+  const fujiBodyMat   = new THREE.MeshStandardMaterial({ color: 0xf5f5f0, roughness: 0.8, flatShading: true });
+  const fujiSnowMat   = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6, flatShading: true });
+  const petalMat      = new THREE.MeshStandardMaterial({ color: 0xffb6d9, roughness: 0.8, side: THREE.DoubleSide });
+  const mossMat       = new THREE.MeshStandardMaterial({ color: 0x2d5016, roughness: 0.95 });
+
+  // ── GROUND ──────────────────────────────────────────────────────────────────
+  const ground = new THREE.Mesh(new THREE.BoxGeometry(5.5, 0.05, 5.5), grassMat);
+  ground.position.y = 0.025;
+  ground.receiveShadow = true;
+  group.add(ground);
+
+  // ── MOUNT FUJI BACKDROP ──────────────────────────────────────────────────────
+  const fujiBody = new THREE.Mesh(new THREE.ConeGeometry(2.6, 3.0, 8), fujiBodyMat);
+  fujiBody.position.set(0, 1.5, -2.8);
+  fujiBody.castShadow = true;
+  group.add(fujiBody);
+  const fujiSnow = new THREE.Mesh(new THREE.ConeGeometry(0.85, 1.6, 8), fujiSnowMat);
+  fujiSnow.position.set(0, 3.8, -2.8);
+  fujiSnow.castShadow = true;
+  group.add(fujiSnow);
+
+  // ── TORII GATE ───────────────────────────────────────────────────────────────
+  const postGeo = new THREE.CylinderGeometry(0.12, 0.14, 2.8, 8);
+  for (const px of [-1.1, 1.1]) {
+    const post = new THREE.Mesh(postGeo, vermMat);
+    post.position.set(px, 1.4, 2.6);
+    post.castShadow = true;
+    group.add(post);
+  }
+  const kasagi = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.27, 0.22), vermMat);
+  kasagi.position.set(0, 2.72, 2.6);
+  kasagi.castShadow = true;
+  group.add(kasagi);
+  for (const sx of [-1, 1]) {
+    const tip = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.12, 0.22), vermMat);
+    tip.position.set(sx * 1.55, 2.79, 2.6);
+    tip.rotation.z = sx * 0.18;
+    group.add(tip);
+  }
+  const nuki = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.14, 0.14), vermMat);
+  nuki.position.set(0, 2.32, 2.6);
+  group.add(nuki);
+
+  // ── STONE LANTERNS (×2) ──────────────────────────────────────────────────────
+  for (const lx of [-1.55, 1.55]) {
+    const lz = 2.2;
+    const base = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.14, 0.35), stoneMat);
+    base.position.set(lx, 0.07, lz);
+    group.add(base);
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 0.58, 6), stoneMat);
+    post.position.set(lx, 0.43, lz);
+    group.add(post);
+    const mid = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.24, 0.38), stoneMat);
+    mid.position.set(lx, 0.84, lz);
+    group.add(mid);
+    // Warm glow orb (replaces PointLight for performance)
+    const glow = createGlowOrb(0xfbbf24);
+    glow.position.set(lx, 0.84, lz);
+    group.add(glow);
+    const roof = new THREE.Mesh(new THREE.ConeGeometry(0.28, 0.26, 4), stoneMat);
+    roof.position.set(lx, 1.1, lz);
+    roof.rotation.y = Math.PI / 4;
+    group.add(roof);
+  }
+
+  // ── STEPPING-STONE PATH ───────────────────────────────────────────────────────
+  const stonePositions = [
+    { x:  0.00, z:  2.3 }, { x:  0.25, z:  1.85 }, { x:  0.50, z:  1.40 },
+    { x:  0.70, z:  0.95 }, { x:  0.65, z:  0.50 }, { x:  0.40, z:  0.05 },
+    { x:  0.10, z: -0.40 }, { x: -0.20, z: -0.85 }, { x: -0.45, z: -1.30 },
+    { x: -0.40, z: -1.75 }, { x: -0.20, z: -2.20 }, { x:  0.05, z: -2.65 },
+  ];
+  const stoneRadii = [0.25, 0.27, 0.24, 0.26, 0.25, 0.27, 0.24, 0.26, 0.25, 0.27, 0.24, 0.26];
+  for (let i = 0; i < stonePositions.length; i++) {
+    const s = stonePositions[i];
+    const r = stoneRadii[i];
+    const stone = new THREE.Mesh(new THREE.CylinderGeometry(r, r, 0.07, 8), stoneMat);
+    stone.position.set(s.x, 0.06, s.z);
+    stone.rotation.y = i * 0.4;
+    group.add(stone);
+  }
+
+  // ── SAKURA TREES (×5) ─────────────────────────────────────────────────────────
+  const treeData = [
+    { x: -1.8, z:  0.6, trunkH: 2.0, trunkR: 0.10, canopyR: 1.0 },
+    { x:  1.6, z:  0.1, trunkH: 2.4, trunkR: 0.12, canopyR: 1.2 },
+    { x: -1.3, z: -1.4, trunkH: 1.9, trunkR: 0.09, canopyR: 0.95 },
+    { x:  1.9, z: -1.7, trunkH: 2.2, trunkR: 0.11, canopyR: 1.1 },
+    { x:  0.2, z: -2.7, trunkH: 2.1, trunkR: 0.10, canopyR: 1.05 },
+  ];
+  for (const t of treeData) {
+    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(t.trunkR * 0.75, t.trunkR, t.trunkH, 7), trunkMat);
+    trunk.position.set(t.x, t.trunkH / 2, t.z);
+    trunk.castShadow = true;
+    group.add(trunk);
+    const canopy = new THREE.Mesh(new THREE.SphereGeometry(t.canopyR, 10, 8), blossomMat);
+    canopy.position.set(t.x, t.trunkH + t.canopyR * 0.7, t.z);
+    canopy.castShadow = true;
+    group.add(canopy);
+    const fallAngles = [0, 0.78, 1.57, 2.36, 3.14, 3.93, 4.71, 5.50];
+    const fallDists  = [0.55, 0.40, 0.65, 0.35, 0.70, 0.45, 0.60, 0.50];
+    for (let i = 0; i < 8; i++) {
+      const petal = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.01, 0.05), petalMat);
+      petal.position.set(
+        t.x + Math.cos(fallAngles[i]) * fallDists[i],
+        0.055,
+        t.z + Math.sin(fallAngles[i]) * fallDists[i]
+      );
+      petal.rotation.y = fallAngles[i];
+      group.add(petal);
+    }
+  }
+
+  // ── WOODEN BENCHES (×2) ──────────────────────────────────────────────────────
+  const benchData = [
+    { x: -1.55, z: -0.5 },
+    { x:  1.55, z: -0.9 },
+  ];
+  for (const b of benchData) {
+    for (const [ox, oz] of [[-0.5, -0.10], [-0.5, 0.10], [0.5, -0.10], [0.5, 0.10]]) {
+      const leg = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.40, 0.07), benchMat);
+      leg.position.set(b.x + ox, 0.20, b.z + oz);
+      group.add(leg);
+    }
+    for (let si = 0; si < 3; si++) {
+      const plank = new THREE.Mesh(new THREE.BoxGeometry(1.15, 0.05, 0.27), benchMat);
+      plank.position.set(b.x, 0.43, b.z - 0.05 + si * 0.10);
+      group.add(plank);
+    }
+  }
+
+  // ── FLOATING PETALS ──────────────────────────────────────────────────────────
+  const floatingPetals = [
+    { x: -0.5, y: 0.50, z:  2.1, rx: 0.2, ry: 0.3, rz: 0.1 },
+    { x:  0.9, y: 0.30, z:  1.5, rx: 0.5, ry: 1.1, rz: 0.4 },
+    { x: -1.1, y: 0.70, z:  0.8, rx: 0.3, ry: 0.7, rz: 0.2 },
+    { x:  1.3, y: 0.40, z:  0.0, rx: 0.6, ry: 2.0, rz: 0.3 },
+    { x: -0.4, y: 0.60, z: -0.6, rx: 0.1, ry: 0.4, rz: 0.5 },
+    { x:  0.7, y: 0.25, z: -1.3, rx: 0.4, ry: 1.5, rz: 0.2 },
+    { x: -1.6, y: 0.55, z: -1.7, rx: 0.2, ry: 0.9, rz: 0.4 },
+    { x:  1.1, y: 0.80, z: -2.2, rx: 0.5, ry: 0.2, rz: 0.3 },
+    { x: -0.8, y: 0.35, z:  1.1, rx: 0.3, ry: 2.5, rz: 0.1 },
+    { x:  0.3, y: 0.65, z: -0.2, rx: 0.6, ry: 1.8, rz: 0.5 },
+  ];
+  for (const p of floatingPetals) {
+    const petal = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.01, 0.05), petalMat);
+    petal.position.set(p.x, p.y, p.z);
+    petal.rotation.set(p.rx, p.ry, p.rz);
+    group.add(petal);
+  }
+
+  // ── GROUND PETALS ──────────────────────────────────────────────────────────
+  const groundPetals = [
+    { x: -2.1, z:  1.2 }, { x:  2.0, z:  0.7 }, { x: -0.6, z:  1.9 },
+    { x:  1.3, z: -0.4 }, { x: -1.9, z: -0.9 }, { x:  2.2, z: -1.4 },
+    { x: -1.0, z: -2.1 }, { x:  0.6, z:  0.8 }, { x: -2.4, z:  0.4 },
+    { x:  2.4, z: -0.1 }, { x:  0.1, z: -1.7 }, { x: -1.6, z:  2.0 },
+  ];
+  for (let i = 0; i < groundPetals.length; i++) {
+    const p = groundPetals[i];
+    const petal = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.01, 0.05), petalMat);
+    petal.position.set(p.x, 0.055, p.z);
+    petal.rotation.y = i * 0.52;
+    group.add(petal);
+  }
+
+  // ── MOSS PATCHES ─────────────────────────────────────────────────────────────
+  for (const [mx, mz] of [[-1.55, 2.0], [1.55, 2.0], [0.1, -2.4]]) {
+    const moss = new THREE.Mesh(new THREE.SphereGeometry(0.28, 6, 4), mossMat);
+    moss.scale.y = 0.22;
+    moss.position.set(mx, 0.04, mz);
+    group.add(moss);
+  }
+
+  // ── CONTRIBUTOR PLAQUE ───────────────────────────────────────────────────────
+  buildPlaque(group, building, 2.75, 1.2);
+};
+
 // ─── Custom Building: The NZ Beehive ───────────────────────────────────────
 
 CUSTOM_BUILDERS['the-nz-beehive'] = function (group, building) {

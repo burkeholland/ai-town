@@ -100,5 +100,14 @@
     "building": "hot-yoga-studio-charlie",
     "type": "shop",
     "reasoning": "Relocated from Town Square to Main Street East south (plot 13). Commercial service belongs on the strip."
+  },
+  {
+    "plot": 4,
+    "building": "japanese-cherry-blossom-park",
+    "type": "nature",
+    "zone": "Town Square",
+    "reasoning": "A tranquil park placed SE of the Town Hall creates a natural breathing space in the civic heart of town. The cherry blossoms and vermillion torii gate provide a visual counterpoint to the governmental buildings nearby, offering visitors a place of stillness among the civic structures.",
+    "vision": "Plot 4 completes the Town Square with a moment of natural serenity. The park's Japanese aesthetic contrasts beautifully with the NZ Beehive on plot 3, bringing cultural diversity to the civic precinct. Cherry blossoms, stone lanterns, and Mount Fuji backdrop give the space a timeless, meditative quality.",
+    "date": "2026-02-27"
   }
 ]
