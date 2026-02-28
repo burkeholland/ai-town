@@ -29,58 +29,58 @@ export const TOWN_CENTER_X = 25;
 export const TOWN_CENTER_Z = 25;
 
 const PLOTS = [
-  // ─── Town Square ───
-  { x: 25,   z: 25,   facing: 0 },             // 0: center (fountain/park)
-  { x: 21,   z: 21.5, facing: 0.85 },          // 1: NW of square, faces SE
-  { x: 29,   z: 21.5, facing: -0.85 },         // 2: NE of square, faces SW
-  { x: 21,   z: 28.5, facing: 2.29 },          // 3: SW of square, faces NE
-  { x: 29,   z: 28.5, facing: -2.29 },         // 4: SE of square, faces NW
+  // ─── Town Square (center landmark — only small/medium buildings) ───
+  { x: 25,   z: 25,   facing: 0 },             // 0: center (Town Hall)
+  { x: 17,   z: 17,   facing: 0.85 },          // 1: NW of square
+  { x: 33,   z: 17,   facing: -0.85 },         // 2: NE of square
+  { x: 17,   z: 33,   facing: 2.29 },          // 3: SW of square
+  { x: 33,   z: 33,   facing: -2.29 },         // 4: SE of square
 
   // ─── Main Street West ───
-  { x: 15,   z: 21,   facing: 0 },             // 5
-  { x: 10,   z: 22,   facing: 0 },             // 6
-  { x: 15,   z: 30,   facing: Math.PI },       // 7
-  { x: 10,   z: 31,   facing: Math.PI },       // 8
-  { x: 3,    z: 22,   facing: Math.PI / 4 },   // 9: offset NW of road end
+  { x: 5,    z: 18,   facing: 0 },             // 5
+  { x: -5,   z: 20,   facing: 0 },             // 6
+  { x: 5,    z: 35,   facing: Math.PI },       // 7
+  { x: -5,   z: 37,   facing: Math.PI },       // 8
+  { x: -14,  z: 22,   facing: Math.PI / 4 },   // 9
 
   // ─── Main Street East ───
-  { x: 35,   z: 21,   facing: 0 },             // 10
-  { x: 40,   z: 22,   facing: 0 },             // 11
-  { x: 35,   z: 30,   facing: Math.PI },       // 12
-  { x: 40,   z: 31,   facing: Math.PI },       // 13
-  { x: 47,   z: 22,   facing: -Math.PI / 4 },  // 14: waterfront, offset NE of road end
+  { x: 45,   z: 18,   facing: 0 },             // 10
+  { x: 55,   z: 20,   facing: 0 },             // 11
+  { x: 45,   z: 35,   facing: Math.PI },       // 12
+  { x: 55,   z: 37,   facing: Math.PI },       // 13
+  { x: 63,   z: 22,   facing: -Math.PI / 4 },  // 14
 
-  // ─── North Path ───
-  { x: 20,   z: 17,   facing: Math.PI / 2 },   // 15
-  { x: 28,   z: 16,   facing: -Math.PI / 2 },  // 16
-  { x: 21,   z: 11,   facing: Math.PI / 2 },   // 17
-  { x: 28,   z: 10,   facing: -Math.PI / 2 },  // 18
-  { x: 20,   z: 5,    facing: Math.PI / 4 },   // 19: offset west of path end
+  // ─── North Road ───
+  { x: 18,   z: 4,    facing: Math.PI / 2 },   // 15
+  { x: 32,   z: 3,    facing: -Math.PI / 2 },  // 16
+  { x: 18,   z: -8,   facing: Math.PI / 2 },   // 17
+  { x: 32,   z: -9,   facing: -Math.PI / 2 },  // 18
+  { x: 14,   z: -18,  facing: Math.PI / 4 },   // 19
 
-  // ─── South Path ───
-  { x: 20,   z: 33,   facing: Math.PI / 2 },   // 20
-  { x: 28,   z: 34,   facing: -Math.PI / 2 },  // 21
-  { x: 21,   z: 39,   facing: Math.PI / 2 },   // 22
-  { x: 28,   z: 40,   facing: -Math.PI / 2 },  // 23
-  { x: 20,   z: 45,   facing: Math.PI / 4 },   // 24: offset west of path end
+  // ─── South Road ───
+  { x: 18,   z: 45,   facing: Math.PI / 2 },   // 20
+  { x: 32,   z: 46,   facing: -Math.PI / 2 },  // 21
+  { x: 18,   z: 56,   facing: Math.PI / 2 },   // 22
+  { x: 32,   z: 57,   facing: -Math.PI / 2 },  // 23
+  { x: 14,   z: 65,   facing: Math.PI / 4 },   // 24
 
-  // ─── Scattered Cottages ───
-  { x: 17,   z: 15,   facing: 0.4 },           // 25: moved north (was too close to Main St plots)
-  { x: 33,   z: 17,   facing: Math.PI - 0.4 }, // 26
-  { x: 17,   z: 36,   facing: -0.3 },          // 27: moved south (was too close to Main St plots)
-  { x: 33,   z: 33,   facing: Math.PI + 0.3 }, // 28
-  { x: 7,    z: 20,   facing: 0 },             // 29
-  { x: 43,   z: 20,   facing: Math.PI },       // 30
-  { x: 7,    z: 32,   facing: 0 },             // 31
-  { x: 43,   z: 32,   facing: Math.PI },       // 32
-  { x: 13,   z: 15,   facing: Math.PI / 4 },   // 33
-  { x: 37,   z: 15,   facing: Math.PI * 3 / 4 }, // 34
-  { x: 13,   z: 37,   facing: -Math.PI / 4 },  // 35
-  { x: 37,   z: 37,   facing: -Math.PI * 3 / 4 }, // 36
-  { x: 31,   z: 12,   facing: Math.PI * 3 / 4 }, // 37: moved off North Path
-  { x: 31,   z: 38,   facing: Math.PI / 4 },   // 38: moved off South Path
-  { x: 6,    z: 38,   facing: 0 },             // 39: moved off Main Street to far SW
-  { x: 50,   z: 8,    facing: Math.PI * 3 / 4 }, // 40: far NE, isolated (large buildings)
+  // ─── Scattered Cottages (well-spaced) ───
+  { x: 8,    z: 5,    facing: 0.4 },           // 25
+  { x: 42,   z: 5,    facing: Math.PI - 0.4 }, // 26
+  { x: 8,    z: 48,   facing: -0.3 },          // 27
+  { x: 42,   z: 48,   facing: Math.PI + 0.3 }, // 28
+  { x: -10,  z: 10,   facing: 0 },             // 29
+  { x: 60,   z: 10,   facing: Math.PI },       // 30
+  { x: -10,  z: 42,   facing: 0 },             // 31
+  { x: 60,   z: 42,   facing: Math.PI },       // 32
+  { x: -2,   z: -5,   facing: Math.PI / 4 },   // 33
+  { x: 52,   z: -5,   facing: Math.PI * 3 / 4 }, // 34
+  { x: -2,   z: 55,   facing: -Math.PI / 4 },  // 35
+  { x: 52,   z: 55,   facing: -Math.PI * 3 / 4 }, // 36
+  { x: 42,   z: -10,  facing: Math.PI * 3 / 4 }, // 37
+  { x: 42,   z: 58,   facing: Math.PI / 4 },   // 38
+  { x: -14,  z: 50,   facing: 0 },             // 39
+  { x: 68,   z: -5,   facing: Math.PI * 3 / 4 }, // 40: far NE (large buildings)
 ];
 
 export function plotToWorld(plotIndex) {
@@ -89,7 +89,7 @@ export function plotToWorld(plotIndex) {
 }
 
 export function getAvailablePlots() {
-  return PLOTS.map((p, i) => ({ plot: i, x: p.x, z: p.z }));
+  return PLOTS.map((p, i) => ({ plot: i, x: p.x, z: p.z, facing: p.facing }));
 }
 
 // Custom building renderers keyed by building ID
@@ -3546,7 +3546,7 @@ export function createGround() {
   group.add(field);
 
   // Village green — softer grass circle
-  const villageGeo = new THREE.CircleGeometry(28, 32);
+  const villageGeo = new THREE.CircleGeometry(45, 32);
   const villageMat = new THREE.MeshStandardMaterial({ color: 0x8fce4a, roughness: 0.9 });
   const village = new THREE.Mesh(villageGeo, villageMat);
   village.rotation.x = -Math.PI / 2;
@@ -3555,7 +3555,7 @@ export function createGround() {
   group.add(village);
 
   // Town square — cobblestone circle in the center
-  const squareGeo = new THREE.CircleGeometry(5, 24);
+  const squareGeo = new THREE.CircleGeometry(7, 24);
   const squareMat = new THREE.MeshStandardMaterial({ color: 0xc9b896, roughness: 0.95 });
   const square = new THREE.Mesh(squareGeo, squareMat);
   square.rotation.x = -Math.PI / 2;
@@ -3566,21 +3566,21 @@ export function createGround() {
   // Winding roads
   const roadMat = new THREE.MeshStandardMaterial({ color: 0xb8a88a, roughness: 1.0, side: THREE.DoubleSide });
   const roads = [
-    // Main Street (east-west curve)
+    // Main Street (east-west curve, extended)
     { points: [
-      { x: 0, z: 27 }, { x: 8, z: 26.5 }, { x: 15, z: 25.5 },
-      { x: 22, z: 25 }, { x: 25, z: 25 }, { x: 28, z: 25 },
-      { x: 35, z: 25.5 }, { x: 42, z: 26.5 }, { x: 50, z: 27 },
+      { x: -18, z: 27 }, { x: -8, z: 26.5 }, { x: 5, z: 26 },
+      { x: 15, z: 25.5 }, { x: 25, z: 25 }, { x: 35, z: 25.5 },
+      { x: 45, z: 26 }, { x: 58, z: 26.5 }, { x: 68, z: 27 },
     ], width: 2.8 },
-    // North Path
+    // North Path (extended)
     { points: [
-      { x: 25, z: 25 }, { x: 25, z: 20 }, { x: 24.5, z: 15 },
-      { x: 24, z: 10 }, { x: 24, z: 3 },
+      { x: 25, z: 25 }, { x: 25, z: 18 }, { x: 25, z: 10 },
+      { x: 25, z: 2 }, { x: 24, z: -8 }, { x: 22, z: -18 },
     ], width: 2.2 },
-    // South Path
+    // South Path (extended)
     { points: [
-      { x: 25, z: 25 }, { x: 25, z: 30 }, { x: 24.5, z: 35 },
-      { x: 24, z: 40 }, { x: 24, z: 47 },
+      { x: 25, z: 25 }, { x: 25, z: 32 }, { x: 25, z: 40 },
+      { x: 25, z: 50 }, { x: 24, z: 58 }, { x: 22, z: 65 },
     ], width: 2.2 },
   ];
 
@@ -3592,11 +3592,11 @@ export function createGround() {
   const seeded = seedRandom(123);
   const flowerColors = [0xff6b9d, 0xfbbf24, 0xf472b6, 0xa78bfa, 0xfb923c, 0xfde68a];
   for (let i = 0; i < 600; i++) {
-    const fx = seeded() * 200 - 75 + TOWN_CENTER_X;
-    const fz = seeded() * 200 - 75 + TOWN_CENTER_Z;
+    const fx = seeded() * 250 - 100 + TOWN_CENTER_X;
+    const fz = seeded() * 250 - 100 + TOWN_CENTER_Z;
     const dx = fx - TOWN_CENTER_X;
     const dz = fz - TOWN_CENTER_Z;
-    if (Math.sqrt(dx * dx + dz * dz) < 30) continue;
+    if (Math.sqrt(dx * dx + dz * dz) < 48) continue;
     const color = flowerColors[Math.floor(seeded() * flowerColors.length)];
     const size = 0.06 + seeded() * 0.08;
     const flowerGeo = new THREE.SphereGeometry(size, 4, 4);
@@ -3608,13 +3608,13 @@ export function createGround() {
 
   // Grass tufts within the village
   const grassMat = new THREE.MeshStandardMaterial({ color: 0x6db33f });
-  for (let i = 0; i < 150; i++) {
+  for (let i = 0; i < 250; i++) {
     const angle = seeded() * Math.PI * 2;
-    const dist = 5 + seeded() * 22;
+    const dist = 8 + seeded() * 38;
     const gx = Math.cos(angle) * dist + TOWN_CENTER_X;
     const gz = Math.sin(angle) * dist + TOWN_CENTER_Z;
     const d2c = Math.sqrt((gx - 25) ** 2 + (gz - 25) ** 2);
-    if (d2c < 5.5) continue;
+    if (d2c < 7.5) continue;
     const tGeo = new THREE.ConeGeometry(0.04 + seeded() * 0.03, 0.12 + seeded() * 0.08, 4);
     const tuft = new THREE.Mesh(tGeo, grassMat);
     tuft.position.set(gx, 0.06, gz);

@@ -132,7 +132,7 @@ export class TownRenderer {
   initCamera() {
     const w = this.container.clientWidth;
     const h = this.container.clientHeight;
-    this.camera = new THREE.PerspectiveCamera(60, w / h, 0.1, 200);
+    this.camera = new THREE.PerspectiveCamera(60, w / h, 0.1, 400);
 
     // Start at the edge of town, looking toward center
     const center = this.getTownCenter();
@@ -215,8 +215,8 @@ export class TownRenderer {
     const center = this.getTownCenter();
     this.orbit = {
       angle: Math.PI / 4,
-      height: 12,
-      radius: 20,
+      height: 18,
+      radius: 30,
       baseAutoSpeed: 0.12,
       lastInteraction: 0,
       centerX: center.x,
@@ -262,13 +262,12 @@ export class TownRenderer {
         const dx = e.touches[0].clientX - touchStart.x;
         const dy = e.touches[0].clientY - touchStart.y;
 
-        // Pan: move orbit center relative to camera orientation
+        // Pan: move orbit center opposite to drag (world follows finger)
         const panSpeed = this.orbit.radius * 0.002;
         const sinA = Math.sin(this.orbit.angle);
         const cosA = Math.cos(this.orbit.angle);
-        // Right vector: (sinA, 0, -cosA), Forward vector: (-cosA, 0, -sinA)
-        this.orbit.centerX += (dx * sinA + dy * (-cosA)) * panSpeed;
-        this.orbit.centerZ += (dx * (-cosA) + dy * (-sinA)) * panSpeed;
+        this.orbit.centerX -= (dx * sinA + dy * (-cosA)) * panSpeed;
+        this.orbit.centerZ -= (dx * (-cosA) + dy * (-sinA)) * panSpeed;
 
         touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
       } else if (e.touches.length === 2) {
@@ -279,7 +278,7 @@ export class TownRenderer {
         );
         if (lastTouchDist) {
           const delta = dist - lastTouchDist;
-          this.orbit.radius = Math.max(8, Math.min(40, this.orbit.radius - delta * 0.08));
+          this.orbit.radius = Math.max(10, Math.min(60, this.orbit.radius - delta * 0.08));
         }
         lastTouchDist = dist;
 
@@ -564,46 +563,46 @@ export class TownRenderer {
     const rand = rng(42);
 
     // Trees — countryside and village (avoiding buildings and square)
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 150; i++) {
       const angle = rand() * Math.PI * 2;
-      const dist = 8 + rand() * 60;
+      const dist = 12 + rand() * 80;
       const x = Math.cos(angle) * dist + TOWN_CENTER_X;
       const z = Math.sin(angle) * dist + TOWN_CENTER_Z;
       // Skip if in town square area
       const cdx = x - TOWN_CENTER_X;
       const cdz = z - TOWN_CENTER_Z;
-      if (cdx * cdx + cdz * cdz < 36) continue;
+      if (cdx * cdx + cdz * cdz < 64) continue;
       // Skip if too close to a building
       let skip = false;
       for (const b of this.buildings) {
         const pw = plotToWorld(b.plot);
         const dx = x - pw.x;
         const dz = z - pw.z;
-        if (dx * dx + dz * dz < 12) { skip = true; break; }
+        if (dx * dx + dz * dz < 25) { skip = true; break; }
       }
       if (skip) continue;
-      const scale = (dist < 28) ? 0.4 + rand() * 0.5 : 0.8 + rand() * 1.0;
+      const scale = (dist < 45) ? 0.4 + rand() * 0.5 : 0.8 + rand() * 1.0;
       this.scene.add(createSceneryTree(x, z, scale));
     }
 
     // Rocks in countryside
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 30; i++) {
       const angle = rand() * Math.PI * 2;
-      const dist = 28 + rand() * 40;
+      const dist = 45 + rand() * 50;
       const x = Math.cos(angle) * dist + TOWN_CENTER_X;
       const z = Math.sin(angle) * dist + TOWN_CENTER_Z;
       this.scene.add(createRock(x, z, 0.5 + rand() * 1.5));
     }
 
     // Pond outside town
-    this.scene.add(createPond(TOWN_CENTER_X - 35, TOWN_CENTER_Z + 10));
+    this.scene.add(createPond(TOWN_CENTER_X - 50, TOWN_CENTER_Z + 15));
 
     // Clouds
     this.clouds = [];
-    for (let i = 0; i < 8; i++) {
-      const x = TOWN_CENTER_X - 60 + rand() * 120;
+    for (let i = 0; i < 12; i++) {
+      const x = TOWN_CENTER_X - 80 + rand() * 160;
       const y = 25 + rand() * 15;
-      const z = TOWN_CENTER_Z - 60 + rand() * 120;
+      const z = TOWN_CENTER_Z - 80 + rand() * 160;
       const scale = 1.5 + rand() * 2;
       const cloud = createCloud(x, y, z, scale);
       cloud.userData.speed = 0.3 + rand() * 0.5;

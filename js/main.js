@@ -1,7 +1,8 @@
 // main.js — Load town.json and initialize the Three.js renderer
 
+import * as THREE from 'three';
 import { TownRenderer } from './renderer.js';
-
+import { getAvailablePlots } from './buildings.js';
 async function init() {
   const container = document.getElementById('scene-container');
   if (!container) {
@@ -35,6 +36,8 @@ async function init() {
   // Initialize 3D renderer
   const renderer = new TownRenderer(container, buildings);
   window.__townRenderer = renderer;
+  window.__townPlots = getAvailablePlots();
+  window.THREE = THREE;
 
   // Update controls hint for mobile
   if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {

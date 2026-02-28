@@ -13,7 +13,8 @@ import { join, extname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
-const slug = process.argv[2] || '';
+const inputSlug = process.argv[2] || '';
+const generateAll = inputSlug === '--all';
 
 const MIME_TYPES = {
   '.html': 'text/html',
@@ -73,6 +74,50 @@ function escapeHtml(str) {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
+}
+
+// ─── Share Page Generator ───────────────────────────────────────────────────
+function buildSharePage(building) {
+  const name = escapeHtml(building.name);
+  const desc = escapeHtml(building.description);
+  const user = escapeHtml(building.contributor.username);
+  const slug = building.id;
+  const baseUrl = 'https://burkeholland.github.io/ai-town';
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${name} — AI Town</title>
+  <meta property="og:title" content="${name} — AI Town">
+  <meta property="og:description" content="${desc} — Built by @${user}">
+  <meta property="og:image" content="${baseUrl}/town/${slug}/og.png">
+  <meta property="og:url" content="${baseUrl}/town/${slug}/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="AI Town">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${name} — AI Town">
+  <meta name="twitter:description" content="${desc} — Built by @${user}">
+  <meta name="twitter:image" content="${baseUrl}/town/${slug}/og.png">
+  <meta http-equiv="refresh" content="0;url=${baseUrl}/#building=${slug}">
+  <style>
+    body { font-family: system-ui, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background: #f0fdf4; }
+    .card { text-align: center; padding: 2rem; }
+    h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    p { color: #666; }
+    a { color: #22c55e; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🏘️ ${name}</h1>
+    <p>${desc}</p>
+    <p>Built by <strong>@${user}</strong></p>
+    <p><a href="${baseUrl}/">Visit AI Town →</a></p>
+  </div>
+</body>
+</html>`;
 }
 
 // ─── OG Composite Page ─────────────────────────────────────────────────────
@@ -161,28 +206,44 @@ async function verify() {
   }
   if (hasDupes) process.exit(1);
 
-  if (!slug) {
+  if (!inputSlug) {
     console.log('✅ Verification complete (no slug — skipping OG image).');
+    console.log('   Use: node verify-browser.mjs <slug> or node verify-browser.mjs --all');
     process.exit(0);
   }
 
-  if (!safeSlugs(slug)) {
-    console.error(`❌ Invalid slug "${slug}" — must be lowercase alphanumeric with hyphens`);
-    process.exit(1);
+  // Determine which buildings to process
+  let targets;
+  if (generateAll) {
+    targets = buildings;
+    console.log(`📸 Generating share cards for all ${buildings.length} buildings...`);
+  } else {
+    if (!safeSlugs(inputSlug)) {
+      console.error(`❌ Invalid slug "${inputSlug}" — must be lowercase alphanumeric with hyphens`);
+      process.exit(1);
+    }
+    const building = buildings.find(b => b.id === inputSlug);
+    if (!building) {
+      console.error(`❌ Building "${inputSlug}" not found in town.json`);
+      process.exit(1);
+    }
+    const validationError = validateBuilding(building);
+    if (validationError) {
+      console.error(`❌ Building "${inputSlug}" has invalid data: ${validationError}`);
+      process.exit(1);
+    }
+    targets = [building];
   }
 
-  const building = buildings.find(b => b.id === slug);
-  if (!building) {
-    console.error(`❌ Building "${slug}" not found in town.json`);
-    process.exit(1);
+  // Generate share page index.html for all targets (no puppeteer needed)
+  for (const b of targets) {
+    const dir = join(__dirname, 'town', b.id);
+    mkdirSync(dir, { recursive: true });
+    const htmlPath = join(dir, 'index.html');
+    const { writeFileSync } = await import('fs');
+    writeFileSync(htmlPath, buildSharePage(b));
+    console.log(`✅ Share page: town/${b.id}/index.html`);
   }
-
-  const validationError = validateBuilding(building);
-  if (validationError) {
-    console.error(`❌ Building "${slug}" has invalid data: ${validationError}`);
-    process.exit(1);
-  }
-  console.log(`✅ Building "${slug}" found and validated in town.json`);
 
   let puppeteer;
   try {
@@ -195,7 +256,7 @@ async function verify() {
   // Step 2: Start local server and load the 3D town
   const server = await startServer();
   const port = server.address().port;
-  console.log(`📸 Generating OG image for "${slug}" (port ${port})...`);
+  console.log(`📸 Generating OG images (port ${port})...`);
 
   try {
     const browser = await puppeteer.default.launch({
@@ -209,10 +270,7 @@ async function verify() {
     });
 
     const page = await browser.newPage();
-    // Render at higher res for the scene capture
     await page.setViewport({ width: 1200, height: 630, deviceScaleFactor: 2 });
-
-    // Suppress non-critical errors (favicon, etc)
     page.on('pageerror', () => {});
 
     await page.goto(`http://localhost:${port}/`, {
@@ -220,46 +278,17 @@ async function verify() {
       timeout: 15000,
     });
 
-    // Wait for Three.js to initialize, then position camera at the building
-    await new Promise(r => setTimeout(r, 3000));
+    // Wait for Three.js to initialize
+    await new Promise(r => setTimeout(r, 4000));
 
-    // Position camera to look at this building's plot
-    const plotIndex = building.plot || 0;
-    await page.evaluate((plotIdx) => {
-      // Plot positions (duplicated from buildings.js for headless access)
-      const PLOTS = [
-        { x: 25, z: 25 }, { x: 21, z: 21.5 }, { x: 29, z: 21.5 },
-        { x: 21, z: 28.5 }, { x: 29, z: 28.5 }, { x: 15, z: 21 },
-        { x: 10, z: 22 }, { x: 15, z: 30 }, { x: 10, z: 31 },
-        { x: 3, z: 22 }, { x: 35, z: 21 }, { x: 40, z: 22 },
-        { x: 35, z: 30 }, { x: 40, z: 31 }, { x: 47, z: 22 },
-        { x: 20, z: 17 }, { x: 28, z: 16 }, { x: 21, z: 11 },
-        { x: 28, z: 10 }, { x: 20, z: 5 }, { x: 20, z: 33 },
-        { x: 28, z: 34 }, { x: 21, z: 39 }, { x: 28, z: 40 },
-        { x: 20, z: 45 }, { x: 17, z: 15 }, { x: 33, z: 17 },
-        { x: 17, z: 36 }, { x: 33, z: 33 }, { x: 7, z: 20 },
-        { x: 43, z: 20 }, { x: 7, z: 32 }, { x: 43, z: 32 },
-        { x: 13, z: 15 }, { x: 37, z: 15 }, { x: 13, z: 37 },
-        { x: 37, z: 37 }, { x: 31, z: 12 }, { x: 31, z: 38 },
-        { x: 6, z: 38 },
-        { x: 50, z: 8 },
-      ];
-
-      const plot = PLOTS[plotIdx] || PLOTS[0];
-
-      // Hide all UI elements
+    // Hide UI once (persists across camera repositions)
+    await page.evaluate(() => {
       document.querySelector('header').style.display = 'none';
       document.querySelector('footer').style.display = 'none';
-      const hint = document.getElementById('controls-hint');
-      if (hint) hint.style.display = 'none';
-      const labels = document.getElementById('building-labels');
-      if (labels) labels.style.display = 'none';
-      const crosshair = document.getElementById('crosshair');
-      if (crosshair) crosshair.style.display = 'none';
-      const tooltip = document.getElementById('tooltip');
-      if (tooltip) tooltip.style.display = 'none';
-
-      // Make scene container fullscreen
+      for (const id of ['controls-hint', 'building-labels', 'crosshair', 'tooltip', 'info-panel']) {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+      }
       const container = document.getElementById('scene-container');
       if (container) {
         container.style.position = 'fixed';
@@ -268,53 +297,97 @@ async function verify() {
         container.style.width = '100vw';
         container.style.height = '100vh';
       }
+    });
 
-      // Access the Three.js renderer instance to reposition camera
-      // The renderer stores camera on the TownRenderer instance
-      // We need to find it via the canvas's parent
-      if (window.__townRenderer) {
-        const r = window.__townRenderer;
-        // Position camera in front of the building, looking at it
-        const camDist = 8;
-        const camHeight = 4;
-        // Place camera to the south-east of the building looking at it
-        r.camera.position.set(plot.x + 5, camHeight, plot.z + 6);
-        r.camera.lookAt(plot.x, 1.5, plot.z);
-        r.camera.updateProjectionMatrix();
+    for (const building of targets) {
+      const slug = building.id;
+      console.log(`  📷 ${slug}...`);
+
+      // Set target slug and position camera
+      await page.evaluate((targetSlug, plotIdx) => {
+        const PLOTS = window.__townPlots || [];
+        const plot = PLOTS[plotIdx] || { x: 25, z: 25 };
+
+        if (window.__townRenderer) {
+          const r = window.__townRenderer;
+
+          // Find building bounding box for proper framing
+          let radius = 4;
+          r.scene.traverse((obj) => {
+            if (obj.userData && obj.userData.id === targetSlug) {
+              const box = new window.THREE.Box3().setFromObject(obj);
+              const size = new window.THREE.Vector3();
+              box.getSize(size);
+              radius = Math.max(size.x, size.y, size.z) / 2;
+            }
+          });
+
+          const camDist = Math.max(radius * 2.5, 8);
+          const camHeight = Math.max(radius * 1.2, 4);
+          const facing = PLOTS[plotIdx]?.facing || 0;
+          const cx = plot.x + Math.sin(facing + 0.8) * camDist;
+          const cz = plot.z + Math.cos(facing + 0.8) * camDist;
+          r.camera.position.set(cx, camHeight, cz);
+          r.camera.lookAt(plot.x, camHeight * 0.3, plot.z);
+          r.camera.updateProjectionMatrix();
+        }
+      }, slug, building.plot || 0);
+
+      await new Promise(r => setTimeout(r, 1500));
+
+      // Take scene screenshot
+      const sceneScreenshot = await page.screenshot({
+        encoding: 'base64',
+        clip: { x: 0, y: 0, width: 1200, height: 630 },
+      });
+
+      // Render composite card
+      const compositeHtml = buildCompositeHtml(
+        building,
+        `data:image/png;base64,${sceneScreenshot}`
+      );
+      await page.setViewport({ width: 1200, height: 630, deviceScaleFactor: 2 });
+      await page.setContent(compositeHtml, { waitUntil: 'load', timeout: 30000 });
+      await new Promise(r => setTimeout(r, 1000));
+
+      const ogDir = join(__dirname, 'town', slug);
+      mkdirSync(ogDir, { recursive: true });
+      const ogPath = join(ogDir, 'og.png');
+
+      await page.screenshot({
+        path: ogPath,
+        clip: { x: 0, y: 0, width: 1200, height: 630 },
+      });
+
+      const size = statSync(ogPath).size;
+      console.log(`  ✅ town/${slug}/og.png (${(size / 1024).toFixed(0)} KB)`);
+
+      // Navigate back to the town for the next building
+      if (targets.indexOf(building) < targets.length - 1) {
+        await page.goto(`http://localhost:${port}/`, {
+          waitUntil: 'domcontentloaded',
+          timeout: 15000,
+        });
+        await new Promise(r => setTimeout(r, 3000));
+        // Re-hide UI
+        await page.evaluate(() => {
+          document.querySelector('header').style.display = 'none';
+          document.querySelector('footer').style.display = 'none';
+          for (const id of ['controls-hint', 'building-labels', 'crosshair', 'tooltip', 'info-panel']) {
+            const el = document.getElementById(id);
+            if (el) el.style.display = 'none';
+          }
+          const container = document.getElementById('scene-container');
+          if (container) {
+            container.style.position = 'fixed';
+            container.style.top = '0';
+            container.style.left = '0';
+            container.style.width = '100vw';
+            container.style.height = '100vh';
+          }
+        });
       }
-    }, plotIndex);
-
-    // Let the scene re-render fullscreen
-    await new Promise(r => setTimeout(r, 2000));
-
-    // Take the scene screenshot as a data URL
-    const sceneScreenshot = await page.screenshot({
-      encoding: 'base64',
-      clip: { x: 0, y: 0, width: 1200, height: 630 },
-    });
-
-    // Step 3: Render the composite card (scene + branding overlay)
-    const compositeHtml = buildCompositeHtml(
-      building,
-      `data:image/png;base64,${sceneScreenshot}`
-    );
-
-    // Navigate to composite page
-    await page.setViewport({ width: 1200, height: 630, deviceScaleFactor: 2 });
-    await page.setContent(compositeHtml, { waitUntil: 'load', timeout: 30000 });
-    await new Promise(r => setTimeout(r, 1000));
-
-    const ogDir = join(__dirname, 'town', slug);
-    mkdirSync(ogDir, { recursive: true });
-    const ogPath = join(ogDir, 'og.png');
-
-    await page.screenshot({
-      path: ogPath,
-      clip: { x: 0, y: 0, width: 1200, height: 630 },
-    });
-
-    const size = statSync(ogPath).size;
-    console.log(`✅ OG image saved to town/${slug}/og.png (${(size / 1024).toFixed(0)} KB)`);
+    }
 
     await browser.close();
   } catch (err) {
@@ -324,7 +397,7 @@ async function verify() {
   }
 
   server.close();
-  console.log('✅ All checks passed.');
+  console.log(`✅ All done — ${targets.length} building(s) processed.`);
   process.exit(0);
 }
 
