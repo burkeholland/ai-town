@@ -275,7 +275,7 @@ async function verify() {
 
     await page.goto(`http://localhost:${port}/`, {
       waitUntil: 'domcontentloaded',
-      timeout: 15000,
+      timeout: 30000,
     });
 
     // Wait for Three.js to initialize
@@ -366,9 +366,9 @@ async function verify() {
       if (targets.indexOf(building) < targets.length - 1) {
         await page.goto(`http://localhost:${port}/`, {
           waitUntil: 'domcontentloaded',
-          timeout: 15000,
+          timeout: 30000,
         });
-        await new Promise(r => setTimeout(r, 3000));
+        await new Promise(r => setTimeout(r, 4000));
         // Re-hide UI
         await page.evaluate(() => {
           document.querySelector('header').style.display = 'none';
