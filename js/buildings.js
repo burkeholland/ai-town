@@ -5759,6 +5759,308 @@ CUSTOM_BUILDERS['the-nz-beehive'] = function (group, building) {
   buildPlaque(group, building, baseR + 0.5, 3.5);
 };
 
+// ─── Custom Building: The Verdant Fitness Grove ────────────────────────────
+
+CUSTOM_BUILDERS['verdant-fitness-grove'] = function (group, building) {
+  // Materials
+  const lawnMat     = new THREE.MeshStandardMaterial({ color: 0x2d6a4f, roughness: 0.9 });
+  const rubberMat   = new THREE.MeshStandardMaterial({ color: 0x4a4a4a, roughness: 0.85 });
+  const pathMat     = new THREE.MeshStandardMaterial({ color: 0xd4a373, roughness: 0.85 });
+  const trunkMat    = new THREE.MeshStandardMaterial({ color: 0x5c4033, roughness: 0.9 });
+  const canopy1Mat  = new THREE.MeshStandardMaterial({ color: 0xa3b18a, roughness: 0.85 });
+  const canopy2Mat  = new THREE.MeshStandardMaterial({ color: 0x6b8f5e, roughness: 0.85 });
+  const shrubMat    = new THREE.MeshStandardMaterial({ color: 0xa3b18a, roughness: 0.9 });
+  const planterMat  = new THREE.MeshStandardMaterial({ color: 0x8b6c42, roughness: 0.85 });
+  const stemMat     = new THREE.MeshStandardMaterial({ color: 0x3a7d44, roughness: 0.9 });
+  const flowerMats  = [
+    new THREE.MeshStandardMaterial({ color: 0xb57edc }),
+    new THREE.MeshStandardMaterial({ color: 0xf2cc60 }),
+    new THREE.MeshStandardMaterial({ color: 0xf0f0f0 }),
+  ];
+  const steelMat    = new THREE.MeshStandardMaterial({ color: 0x888888, metalness: 0.6, roughness: 0.4 });
+  const woodGripMat = new THREE.MeshStandardMaterial({ color: 0x5c4033, roughness: 0.85 });
+  const cedarMat    = new THREE.MeshStandardMaterial({ color: 0xd4a373, roughness: 0.7 });
+  const darkCedarMat = new THREE.MeshStandardMaterial({ color: 0xb8956a, roughness: 0.75 });
+  const concreteMat = new THREE.MeshStandardMaterial({ color: 0x9ca3af, roughness: 0.8 });
+  const grassMat    = new THREE.MeshStandardMaterial({ color: 0xa3b18a, roughness: 0.9 });
+
+  // ── GROUND (lawn base) ─────────────────────────────────────────────────────
+  const lawn = new THREE.Mesh(new THREE.BoxGeometry(6, 0.05, 6), lawnMat);
+  lawn.position.y = 0.025;
+  lawn.receiveShadow = true;
+  group.add(lawn);
+
+  // ── RUBBERIZED WORKOUT PADS (2) ───────────────────────────────────────────
+  const pad1 = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.05, 1.2), rubberMat);
+  pad1.position.set(-0.8, 0.048, -0.3);
+  pad1.receiveShadow = true;
+  group.add(pad1);
+
+  const pad2 = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.05, 1.2), rubberMat);
+  pad2.position.set(-0.8, 0.048, 1.2);
+  pad2.receiveShadow = true;
+  group.add(pad2);
+
+  // ── WINDING PATH (S-curve from front to back-right) ───────────────────────
+  const pathSegments = [
+    { x:  0.3, z:  2.7, ry: 0.0 },
+    { x:  0.5, z:  2.1, ry: 0.1 },
+    { x:  0.8, z:  1.5, ry: 0.2 },
+    { x:  1.1, z:  0.8, ry: -0.1 },
+    { x:  1.3, z:  0.1, ry: 0.15 },
+    { x:  1.5, z: -0.6, ry: 0.05 },
+    { x:  1.7, z: -1.3, ry: 0.0 },
+  ];
+  for (const seg of pathSegments) {
+    const p = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.04, 0.38), pathMat);
+    p.position.set(seg.x, 0.047, seg.z);
+    p.rotation.y = seg.ry;
+    group.add(p);
+  }
+
+  // ── PERIMETER TREES (6) ───────────────────────────────────────────────────
+  const treeData = [
+    { x: -2.5, z: -2.5, trunkH: 0.9, c1r: 0.38, c2r: 0.32, c3r: 0.28 },
+    { x:  2.5, z: -2.5, trunkH: 0.9, c1r: 0.40, c2r: 0.30, c3r: 0.26 },
+    { x: -2.5, z:  0.0, trunkH: 0.7, c1r: 0.35, c2r: 0.28, c3r: 0.22 },
+    { x:  2.5, z:  0.0, trunkH: 0.7, c1r: 0.35, c2r: 0.30, c3r: 0.24 },
+    { x: -2.4, z:  2.5, trunkH: 0.7, c1r: 0.32, c2r: 0.26, c3r: 0.20 },
+    { x:  2.4, z:  2.5, trunkH: 0.7, c1r: 0.34, c2r: 0.28, c3r: 0.22 },
+  ];
+  for (const t of treeData) {
+    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.07, t.trunkH, 7), trunkMat);
+    trunk.position.set(t.x, t.trunkH / 2, t.z);
+    trunk.castShadow = true;
+    group.add(trunk);
+    const c1 = new THREE.Mesh(new THREE.SphereGeometry(t.c1r, 8, 6), canopy1Mat);
+    c1.position.set(t.x, t.trunkH + t.c1r * 0.7, t.z);
+    c1.castShadow = true;
+    group.add(c1);
+    const c2 = new THREE.Mesh(new THREE.SphereGeometry(t.c2r, 8, 6), canopy2Mat);
+    c2.position.set(t.x + 0.15, t.trunkH + t.c2r * 0.9, t.z + 0.12);
+    group.add(c2);
+    const c3 = new THREE.Mesh(new THREE.SphereGeometry(t.c3r, 7, 5), canopy1Mat);
+    c3.position.set(t.x - 0.12, t.trunkH + t.c3r * 1.1, t.z - 0.10);
+    group.add(c3);
+  }
+
+  // ── SHRUB BORDER (8 low hedge spheres) ───────────────────────────────────
+  const shrubPos = [
+    { x: -2.5, z: -1.3 }, { x: -2.5, z:  1.2 },
+    { x:  2.5, z: -1.3 }, { x:  2.5, z:  1.2 },
+    { x: -1.2, z: -2.6 }, { x:  1.2, z: -2.6 },
+    { x: -1.2, z:  2.6 }, { x:  1.2, z:  2.6 },
+  ];
+  for (const s of shrubPos) {
+    const shrub = new THREE.Mesh(new THREE.SphereGeometry(0.1, 6, 4), shrubMat);
+    shrub.scale.y = 0.6;
+    shrub.position.set(s.x, 0.06, s.z);
+    group.add(shrub);
+  }
+
+  // ── CORNER GARDEN BEDS (4 corners) ──────────────────────────────────────
+  const cornerBeds = [
+    { x: -2.2, z: -2.2 }, { x:  2.2, z: -2.2 },
+    { x: -2.2, z:  2.2 }, { x:  2.2, z:  2.2 },
+  ];
+  for (const b of cornerBeds) {
+    const box = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.08, 0.4), planterMat);
+    box.position.set(b.x, 0.04, b.z);
+    group.add(box);
+    // Flowers (3 per bed, different colors)
+    for (let fi = 0; fi < 3; fi++) {
+      const angle = (fi / 3) * Math.PI * 2;
+      const fx = b.x + Math.cos(angle) * 0.1;
+      const fz = b.z + Math.sin(angle) * 0.1;
+      const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 0.07, 4), stemMat);
+      stem.position.set(fx, 0.12, fz);
+      group.add(stem);
+      const flower = new THREE.Mesh(new THREE.SphereGeometry(0.025, 5, 4), flowerMats[fi]);
+      flower.position.set(fx, 0.17, fz);
+      group.add(flower);
+    }
+  }
+
+  // ── ENTRANCE SIGN (front-center) ─────────────────────────────────────────
+  for (const px of [-0.2, 0.2]) {
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.2, 5), trunkMat);
+    post.position.set(px, 0.1, 2.75);
+    group.add(post);
+  }
+  const sign = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.15, 0.06), cedarMat);
+  sign.position.set(0, 0.22, 2.75);
+  group.add(sign);
+
+  // ── CALISTHENICS ZONE — PULL-UP RIG ──────────────────────────────────────
+  for (const px of [-1.05, -0.55]) {
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.65, 7), steelMat);
+    post.position.set(px, 0.37, 0.35);
+    post.castShadow = true;
+    group.add(post);
+  }
+  const crossbar = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.5, 7), steelMat);
+  crossbar.rotation.z = Math.PI / 2;
+  crossbar.position.set(-0.8, 0.69, 0.35);
+  group.add(crossbar);
+  for (const px of [-1.05, -0.55]) {
+    const grip = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.06, 6), woodGripMat);
+    grip.rotation.z = Math.PI / 2;
+    grip.position.set(px + (px < -0.8 ? 0.035 : -0.035), 0.69, 0.35);
+    group.add(grip);
+  }
+
+  // ── CALISTHENICS ZONE — PARALLEL BARS ────────────────────────────────────
+  const pbOffsets = [{ z: 0.7 }, { z: 1.1 }];
+  for (const pb of pbOffsets) {
+    for (const px of [-1.15, -0.45]) {
+      const vp = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.4, 6), steelMat);
+      vp.position.set(px, 0.2, pb.z);
+      group.add(vp);
+    }
+    const hbar = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.7, 6), steelMat);
+    hbar.rotation.z = Math.PI / 2;
+    hbar.position.set(-0.8, 0.38, pb.z);
+    group.add(hbar);
+    const centerGrip = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.12, 5), woodGripMat);
+    centerGrip.rotation.z = Math.PI / 2;
+    centerGrip.position.set(-0.8, 0.38, pb.z);
+    group.add(centerGrip);
+  }
+
+  // ── CALISTHENICS ZONE — CLIMBING A-FRAME ─────────────────────────────────
+  // Front A-frame
+  const aFrameData = [
+    { bx: -1.05, bz: -0.5, tx: -0.8, tz: -0.3 },
+    { bx: -0.55, bz: -0.5, tx: -0.8, tz: -0.3 },
+  ];
+  for (const af of aFrameData) {
+    const dx = af.tx - af.bx;
+    const dy = 0.7;
+    const dz = af.tz - af.bz;
+    const len = Math.sqrt(dx * dx + dy * dy + dz * dz);
+    const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, len, 6), steelMat);
+    leg.position.set((af.bx + af.tx) / 2, 0.5, (af.bz + af.tz) / 2);
+    leg.rotation.z = Math.atan2(dx, dy);
+    leg.castShadow = true;
+    group.add(leg);
+  }
+  // Apex cap
+  const apex = new THREE.Mesh(new THREE.SphereGeometry(0.04, 6, 5), steelMat);
+  apex.position.set(-0.8, 1.04, -0.3);
+  group.add(apex);
+  // Rungs (4)
+  for (let ri = 0; ri < 4; ri++) {
+    const ry = 0.18 + ri * 0.18;
+    const rung = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.36, 5), steelMat);
+    rung.rotation.z = Math.PI / 2;
+    rung.position.set(-0.8, ry, -0.5 + ri * 0.05);
+    group.add(rung);
+  }
+  // Tiny bird on apex (two cones joined at base)
+  const birdMat = new THREE.MeshStandardMaterial({ color: 0x5c4033, roughness: 0.85 });
+  for (const bx of [-0.03, 0.03]) {
+    const wing = new THREE.Mesh(new THREE.ConeGeometry(0.02, 0.06, 4), birdMat);
+    wing.rotation.z = bx < 0 ? Math.PI / 4 : -Math.PI / 4;
+    wing.position.set(-0.8 + bx, 1.10, -0.3);
+    group.add(wing);
+  }
+
+  // ── STRETCHING DECK (back-right corner) ──────────────────────────────────
+  // Legs
+  for (const [lx, lz] of [[-0.55, -2.35], [0.55, -2.35], [-0.55, -1.65], [0.55, -1.65]]) {
+    const dleg = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.06, 0.06), trunkMat);
+    dleg.position.set(lx, 0.03, lz);
+    group.add(dleg);
+  }
+  // Platform
+  const deck = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.08, 0.8), cedarMat);
+  deck.position.set(0, 0.1, -2.0);
+  deck.castShadow = true;
+  group.add(deck);
+  // Plank grooves (2 thin strips)
+  for (const gz of [-2.07, -1.97]) {
+    const groove = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.005, 0.01), darkCedarMat);
+    groove.position.set(0, 0.145, gz);
+    group.add(groove);
+  }
+  // Ornamental grasses (border of deck)
+  for (let gi = 0; gi < 5; gi++) {
+    const gx = -0.7 + gi * 0.35;
+    for (const gz of [-2.45, -1.55]) {
+      const blade = new THREE.Mesh(new THREE.ConeGeometry(0.01, 0.15, 4), grassMat);
+      blade.position.set(gx, 0.15, gz);
+      blade.rotation.x = (Math.random() - 0.5) * 0.4;
+      group.add(blade);
+    }
+  }
+
+  // ── HYDRATION STATION (front-right) ─────────────────────────────────────
+  const pedestal = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.35, 0.15), concreteMat);
+  pedestal.position.set(1.8, 0.175, 2.2);
+  group.add(pedestal);
+  const basin = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.03, 10), concreteMat);
+  basin.position.set(1.8, 0.365, 2.2);
+  group.add(basin);
+  const spout = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 0.08, 6), steelMat);
+  spout.position.set(1.8, 0.42, 2.2);
+  group.add(spout);
+  // Water droplet orb
+  const dropMat = new THREE.MeshStandardMaterial({ color: 0xbfdbfe, roughness: 0.2 });
+  const drop = new THREE.Mesh(new THREE.SphereGeometry(0.02, 6, 5), dropMat);
+  drop.position.set(1.8, 0.47, 2.2);
+  group.add(drop);
+
+  // ── BENCH-PLANTERS (2) ───────────────────────────────────────────────────
+  const benchPlanterData = [
+    { x: 1.6, z: 1.6 },
+    { x: 1.6, z: 0.7 },
+  ];
+  for (const b of benchPlanterData) {
+    // Legs
+    for (const lx of [-0.22, 0.22]) {
+      const bleg = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.15, 0.18), concreteMat);
+      bleg.position.set(b.x + lx, 0.075, b.z);
+      group.add(bleg);
+    }
+    // Seat
+    const seat = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.04, 0.18), cedarMat);
+    seat.position.set(b.x, 0.17, b.z);
+    group.add(seat);
+    // Planter box
+    const pbox = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.18, 0.18), planterMat);
+    pbox.position.set(b.x + 0.33, 0.09, b.z);
+    group.add(pbox);
+    // Shrub spheres in planter
+    for (let si = 0; si < 3; si++) {
+      const sh = new THREE.Mesh(new THREE.SphereGeometry(0.04, 5, 4), canopy2Mat);
+      sh.position.set(b.x + 0.28 + si * 0.05, 0.22, b.z + (si - 1) * 0.04);
+      group.add(sh);
+    }
+    // Flower
+    const bf = new THREE.Mesh(new THREE.SphereGeometry(0.02, 5, 4), flowerMats[1]);
+    bf.position.set(b.x + 0.34, 0.27, b.z);
+    group.add(bf);
+  }
+
+  // ── BOLLARD LIGHTS (6) ────────────────────────────────────────────────────
+  const bollardPos = [
+    { x:  0.3, z:  2.55 }, { x: -0.3, z:  2.55 },   // flanking entrance
+    { x:  0.9, z:  1.55 }, { x:  1.1, z:  0.3 },     // mid-path
+    { x:  0.8, z: -1.6  }, { x: -0.5, z: -1.8  },    // near stretching deck
+  ];
+  for (const bp of bollardPos) {
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.15, 6), rubberMat);
+    post.position.set(bp.x, 0.075, bp.z);
+    group.add(post);
+    const glow = createGlowOrb(0xfbbf24);
+    glow.position.set(bp.x, 0.165, bp.z);
+    group.add(glow);
+  }
+
+  // ── CONTRIBUTOR PLAQUE ────────────────────────────────────────────────────
+  buildPlaque(group, building, 2.85, 1.1);
+};
+
 // Distant hills
 export function createHills() {
   const group = new THREE.Group();
