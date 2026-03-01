@@ -58,7 +58,7 @@ Issues labeled `building-modification` ask to change an **existing** building. T
 4. If the modification involves custom visuals, update or add a `CUSTOM_BUILDERS` entry in `js/buildings.js` keyed by the building's `id`.
 5. Do NOT change the `contributor`, `plot`, `issue`, or `added` fields. The `plot` field is assigned by the AI planning committee and is **non-negotiable**.
 6. Plots 1-4 (Town Square) are **permanently reserved** as open civic space. Never place any building on these plots.
-6. Do NOT touch any other building's data or code.
+7. Do NOT touch any other building's data or code.
 
 ## Building Types & Colors
 
@@ -74,22 +74,57 @@ Issues labeled `building-modification` ask to change an **existing** building. T
 
 ## Windows
 
-All windows MUST use `MeshPhysicalMaterial` with transparency so interiors are visible:
+All windows MUST use `MeshStandardMaterial` with transparency so interiors are visible:
 
 ```js
-const winMat = new THREE.MeshPhysicalMaterial({
+const winMat = new THREE.MeshStandardMaterial({
   color: 0xbfdbfe,
   emissive: 0x3b82f6,
   emissiveIntensity: 0.15,
   transparent: true,
   opacity: 0.35,
-  transmission: 0.6,
   roughness: 0.1,
-  thickness: 0.05,
 });
 ```
 
-Never use opaque `MeshStandardMaterial` for windows. Windows should look like glass — translucent with a slight blue tint and glow. If a building has interior details (furniture, items, displays), they should be visible through the windows.
+**Never use `MeshPhysicalMaterial`** — its transmission/thickness properties trigger expensive refraction shaders. Use `MeshStandardMaterial` with transparency and emissive tint for a glass-like look without the GPU cost.
+
+## Performance Rules
+
+- **No PointLights.** Use `createGlowOrb(color)` from `buildings.js` instead — a tiny emissive sphere that looks like a glow with zero GPU cost. PointLights add per-pixel shader passes and kill performance.
+- **No `MeshPhysicalMaterial`.** Always use `MeshStandardMaterial`. Physical materials with `transmission`/`thickness` trigger expensive refraction shaders.
+- **Limit geometry complexity.** Keep cylinder/sphere segments to 16 or fewer for small objects. Large structures can use up to 24.
+- **No `castShadow` on decorative details.** Only main structural elements (walls, roof, base) should cast shadows.
+
+## Town Layout & City Planning
+
+The town follows organic village planning principles inspired by European hamlets and cozy game towns:
+
+### Road Network
+- **Main Street** runs east-west through the center (z≈25), curving gently
+- **North Path** branches north from the town center
+- **South Path** branches south from the town center
+- Roads are the town's skeleton — all buildings relate to them
+
+### Building Placement Rules
+- **Road frontage**: Buildings sit 3-4 units from road centerline (≈1.5-2.5 units from road edge). This creates a cozy sidewalk feel.
+- **Facing**: Buildings face the nearest road. Front doors and windows should be visible from the street.
+- **Variety**: Stagger setbacks slightly between neighbors for organic feel — not a rigid line.
+- **Scale matters**: Small cottages along residential paths, larger structures on Main Street, monuments in the outskirts where they have room.
+
+### Zone Character
+- **Town Square (plots 1-4)**: RESERVED — open civic space around Town Hall
+- **Main Street West (plots 5-9)**: Shops, cafes, bakeries — the bustling commercial strip
+- **Main Street East (plots 10-14)**: Entertainment, restaurants, nightlife — the fun district
+- **North Road (plots 15-19)**: Quiet residential — cottages with gardens
+- **South Road (plots 20-24)**: Residential village lane — houses, community spaces
+- **Outskirts (plots 25-40)**: Unique/large structures that need room — monuments, parks, quirky builds
+
+### Planning Principles
+- Complementary neighbors (bookshop next to cafe = ✅, two pubs side-by-side = ❌)
+- Mix building types within zones for vibrancy
+- The eastern edge (x≥50) is the waterfront/coastline
+- Large structures (monuments, arenas) go to outskirts plots where they won't crowd neighbors
 
 ## File Structure
 

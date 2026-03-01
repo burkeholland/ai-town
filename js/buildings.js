@@ -29,58 +29,58 @@ export const TOWN_CENTER_X = 25;
 export const TOWN_CENTER_Z = 25;
 
 const PLOTS = [
-  // ─── Town Square (center landmark — only small/medium buildings) ───
-  { x: 25,   z: 25,   facing: 0 },             // 0: center (Town Hall)
-  { x: 17,   z: 17,   facing: 0.85 },          // 1: NW of square
-  { x: 33,   z: 17,   facing: -0.85 },         // 2: NE of square
-  { x: 17,   z: 33,   facing: 2.29 },          // 3: SW of square
-  { x: 33,   z: 33,   facing: -2.29 },         // 4: SE of square
+  // ─── Town Square (center — RESERVED plots 1-4) ───
+  { x: 25,   z: 25,   facing: 0 },                // 0: Town Hall
+  { x: 21,   z: 21.5, facing: Math.PI / 4 },      // 1: NW (RESERVED)
+  { x: 29,   z: 21.5, facing: -Math.PI / 4 },     // 2: NE (RESERVED)
+  { x: 21,   z: 28.5, facing: 3 * Math.PI / 4 },  // 3: SW (RESERVED)
+  { x: 29,   z: 28.5, facing: -3 * Math.PI / 4 }, // 4: SE (RESERVED)
 
-  // ─── Main Street West ───
-  { x: 5,    z: 18,   facing: 0 },             // 5
-  { x: -5,   z: 20,   facing: 0 },             // 6
-  { x: 5,    z: 35,   facing: Math.PI },       // 7
-  { x: -5,   z: 37,   facing: Math.PI },       // 8
-  { x: -14,  z: 22,   facing: Math.PI / 4 },   // 9
+  // ─── Main Street West (3-4 units from road) ───
+  { x: 15,   z: 22,   facing: 0 },                 // 5: north side (faces +Z toward road)
+  { x: 8,    z: 22,   facing: 0 },                 // 6: north side
+  { x: 15,   z: 29,   facing: Math.PI },           // 7: south side (faces -Z toward road)
+  { x: 8,    z: 29,   facing: Math.PI },           // 8: south side
+  { x: 0,    z: 22,   facing: 0 },                 // 9: west terminus north side
 
-  // ─── Main Street East ───
-  { x: 45,   z: 18,   facing: 0 },             // 10
-  { x: 55,   z: 20,   facing: 0 },             // 11
-  { x: 45,   z: 35,   facing: Math.PI },       // 12
-  { x: 55,   z: 37,   facing: Math.PI },       // 13
-  { x: 63,   z: 22,   facing: -Math.PI / 4 },  // 14
+  // ─── Main Street East (3-4 units from road) ───
+  { x: 35,   z: 22,   facing: 0 },                 // 10: north side
+  { x: 42,   z: 22,   facing: 0 },                 // 11: north side
+  { x: 35,   z: 29,   facing: Math.PI },           // 12: south side
+  { x: 42,   z: 29,   facing: Math.PI },           // 13: south side
+  { x: 50,   z: 22,   facing: 0 },                 // 14: east terminus (waterfront)
 
-  // ─── North Road ───
-  { x: 18,   z: 4,    facing: Math.PI / 2 },   // 15
-  { x: 32,   z: 3,    facing: -Math.PI / 2 },  // 16
-  { x: 18,   z: -8,   facing: Math.PI / 2 },   // 17
-  { x: 32,   z: -9,   facing: -Math.PI / 2 },  // 18
-  { x: 14,   z: -18,  facing: Math.PI / 4 },   // 19
+  // ─── North Road (3.5 units from road) ───
+  { x: 21.5, z: 15,   facing: Math.PI / 2 },      // 15: west side
+  { x: 28.5, z: 15,   facing: -Math.PI / 2 },     // 16: east side
+  { x: 21.5, z: 8,    facing: Math.PI / 2 },      // 17: west side
+  { x: 28.5, z: 8,    facing: -Math.PI / 2 },     // 18: east side
+  { x: 21,   z: 1,    facing: Math.PI / 2 },      // 19: west side far north
 
-  // ─── South Road ───
-  { x: 18,   z: 45,   facing: Math.PI / 2 },   // 20
-  { x: 32,   z: 46,   facing: -Math.PI / 2 },  // 21
-  { x: 18,   z: 56,   facing: Math.PI / 2 },   // 22
-  { x: 32,   z: 57,   facing: -Math.PI / 2 },  // 23
-  { x: 14,   z: 65,   facing: Math.PI / 4 },   // 24
+  // ─── South Road (3.5 units from road) ───
+  { x: 21.5, z: 35,   facing: Math.PI / 2 },      // 20: west side
+  { x: 28.5, z: 35,   facing: -Math.PI / 2 },     // 21: east side
+  { x: 21.5, z: 42,   facing: Math.PI / 2 },      // 22: west side
+  { x: 28.5, z: 42,   facing: -Math.PI / 2 },     // 23: east side
+  { x: 21,   z: 50,   facing: Math.PI / 2 },      // 24: west side far south
 
-  // ─── Scattered Cottages (well-spaced) ───
-  { x: 8,    z: 5,    facing: 0.4 },           // 25
-  { x: 42,   z: 5,    facing: Math.PI - 0.4 }, // 26
-  { x: 8,    z: 48,   facing: -0.3 },          // 27
-  { x: 42,   z: 48,   facing: Math.PI + 0.3 }, // 28
-  { x: -10,  z: 10,   facing: 0 },             // 29
-  { x: 60,   z: 10,   facing: Math.PI },       // 30
-  { x: -10,  z: 42,   facing: 0 },             // 31
-  { x: 60,   z: 42,   facing: Math.PI },       // 32
-  { x: -2,   z: -5,   facing: Math.PI / 4 },   // 33
-  { x: 52,   z: -5,   facing: Math.PI * 3 / 4 }, // 34
-  { x: -2,   z: 55,   facing: -Math.PI / 4 },  // 35
-  { x: 52,   z: 55,   facing: -Math.PI * 3 / 4 }, // 36
-  { x: 42,   z: -10,  facing: Math.PI * 3 / 4 }, // 37
-  { x: 42,   z: 58,   facing: Math.PI / 4 },   // 38
-  { x: -14,  z: 50,   facing: 0 },             // 39
-  { x: 68,   z: -5,   facing: Math.PI * 3 / 4 }, // 40: far NE (large buildings)
+  // ─── Scattered / Outskirts ───
+  { x: 14,   z: 15,   facing: Math.PI / 3 },      // 25: NW quadrant
+  { x: 36,   z: 15,   facing: -Math.PI / 3 },     // 26: NE quadrant
+  { x: 14,   z: 35,   facing: 2 * Math.PI / 3 },  // 27: SW quadrant
+  { x: 36,   z: 35,   facing: -2 * Math.PI / 3 }, // 28: SE quadrant
+  { x: 4,    z: 15,   facing: Math.PI / 4 },      // 29: far west north
+  { x: 46,   z: 15,   facing: -Math.PI / 4 },     // 30: far east north
+  { x: 4,    z: 38,   facing: Math.PI / 4 },      // 31: far west south
+  { x: 46,   z: 38,   facing: -Math.PI / 4 },     // 32: far east south
+  { x: 10,   z: 5,    facing: Math.PI / 4 },      // 33: outskirts NW
+  { x: 40,   z: 5,    facing: -Math.PI / 4 },     // 34: outskirts NE
+  { x: 10,   z: 45,   facing: -Math.PI / 4 },     // 35: outskirts SW
+  { x: 40,   z: 45,   facing: Math.PI / 4 },      // 36: outskirts SE
+  { x: 35,   z: 4,    facing: Math.PI },           // 37: outskirts far N
+  { x: 35,   z: 46,   facing: 0 },                 // 38: outskirts far S
+  { x: -5,   z: 26,   facing: 0 },                 // 39: outskirts far W
+  { x: 55,   z: 8,    facing: Math.PI * 3 / 4 },  // 40: outskirts far NE (large)
 ];
 
 export function plotToWorld(plotIndex) {
