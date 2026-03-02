@@ -6215,6 +6215,413 @@ CUSTOM_BUILDERS['fountain-of-happiness'] = function (group, building) {
   buildPlaque(group, building, 4.6, 1.2);
 };
 
+// ─── Custom Building: The Aussie Escape ────────────────────────────────────
+
+CUSTOM_BUILDERS['the-aussie-escape'] = function (group, building) {
+  const W = 3.0;
+  const D = 2.5;
+  const wallH = 1.8;
+  const baseH = 0.15;
+
+  // ── MATERIALS ──
+  const wallMat     = new THREE.MeshStandardMaterial({ color: 0xF4E9CD, roughness: 0.85 });
+  const roofMat     = new THREE.MeshStandardMaterial({ color: 0x2E5339, roughness: 0.8 });
+  const sailMat     = new THREE.MeshStandardMaterial({ color: 0xF5F5F0, roughness: 0.4, metalness: 0.1 });
+  const timberMat   = new THREE.MeshStandardMaterial({ color: 0x8B5E3C, roughness: 0.9 });
+  const stoneMat    = new THREE.MeshStandardMaterial({ color: 0xD4A76A, roughness: 0.85 });
+  const navyMat     = new THREE.MeshStandardMaterial({ color: 0x1E3A5F, roughness: 0.8 });
+  const steelMat    = new THREE.MeshStandardMaterial({ color: 0x4A6274, roughness: 0.6 });
+  const redMat      = new THREE.MeshStandardMaterial({ color: 0xC8102E, roughness: 0.8 });
+  const goldMat     = new THREE.MeshStandardMaterial({ color: 0xFFD700, metalness: 0.4, roughness: 0.4 });
+  const creamMat    = new THREE.MeshStandardMaterial({ color: 0xF5F5F0, roughness: 0.7 });
+  const winMat      = new THREE.MeshStandardMaterial({
+    color: 0xbfdbfe, emissive: 0x3b82f6, emissiveIntensity: 0.15,
+    transparent: true, opacity: 0.35, roughness: 0.1,
+  });
+  const earthMat    = new THREE.MeshStandardMaterial({ color: 0xB5451B, roughness: 0.9 });
+  const floorMat    = new THREE.MeshStandardMaterial({ color: 0xD4A574, roughness: 0.8 });
+  const kangMat     = new THREE.MeshStandardMaterial({ color: 0x8B6914, roughness: 0.8 });
+  const greyMat     = new THREE.MeshStandardMaterial({ color: 0x9E9E9E, roughness: 0.8 });
+  const earMat      = new THREE.MeshStandardMaterial({ color: 0xB0B0B0, roughness: 0.85 });
+  const barkMat     = new THREE.MeshStandardMaterial({ color: 0xC4B8A8, roughness: 0.9 });
+  const eucaMat     = new THREE.MeshStandardMaterial({ color: 0x7BA05B, roughness: 0.8 });
+  const platMat     = new THREE.MeshStandardMaterial({ color: 0x5D4037, roughness: 0.9 });
+  const billMat     = new THREE.MeshStandardMaterial({ color: 0x607D6B, roughness: 0.8 });
+  const crimsonMat  = new THREE.MeshStandardMaterial({ color: 0xDC143C, roughness: 0.8 });
+  const deepRedMat  = new THREE.MeshStandardMaterial({ color: 0x8B2500, roughness: 0.8 });
+  const noseMat     = new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.8 });
+  const brassMat    = new THREE.MeshStandardMaterial({ color: 0xB8860B, roughness: 0.6 });
+  const khakiMat    = new THREE.MeshStandardMaterial({ color: 0xC2B280, roughness: 0.85 });
+  const vegMat      = new THREE.MeshStandardMaterial({ color: 0x3E2723, roughness: 0.8 });
+  const lidMat      = new THREE.MeshStandardMaterial({ color: 0xFFD700, roughness: 0.7 });
+
+  // ── FOUNDATION ──
+  const base = new THREE.Mesh(new THREE.BoxGeometry(W + 0.2, baseH, D + 0.2), stoneMat);
+  base.position.y = baseH / 2;
+  base.castShadow = true;
+  base.receiveShadow = true;
+  group.add(base);
+
+  // ── MAIN WALLS ──
+  const walls = new THREE.Mesh(new THREE.BoxGeometry(W, wallH, D), wallMat);
+  walls.position.y = baseH + wallH / 2;
+  walls.castShadow = true;
+  walls.receiveShadow = true;
+  group.add(walls);
+
+  // ── INTERIOR FLOOR ──
+  const floorMesh = new THREE.Mesh(new THREE.BoxGeometry(W - 0.06, 0.04, D - 0.06), floorMat);
+  floorMesh.position.y = baseH + 0.02;
+  floorMesh.receiveShadow = true;
+  group.add(floorMesh);
+
+  // ── GABLE ROOF (4-sided pyramid, Wilderness Green) ──
+  const roofH = 1.3;
+  const roofRadius = Math.sqrt(W * W + D * D) / 2 * 0.73;
+  const roofMesh = new THREE.Mesh(new THREE.ConeGeometry(roofRadius, roofH, 4), roofMat);
+  roofMesh.rotation.y = Math.PI / 4;
+  roofMesh.position.y = baseH + wallH + roofH / 2;
+  roofMesh.castShadow = true;
+  group.add(roofMesh);
+
+  // Roofline eave trim
+  const roofTrim = new THREE.Mesh(new THREE.BoxGeometry(W + 0.18, 0.07, D + 0.18), timberMat);
+  roofTrim.position.y = baseH + wallH + 0.035;
+  group.add(roofTrim);
+
+  // ── VERANDAH ──
+  const verD = 0.65;
+  const verH = baseH + wallH * 0.82;
+
+  // Lean-to verandah roof slab
+  const verRoof = new THREE.Mesh(new THREE.BoxGeometry(W + 0.1, 0.07, verD), roofMat);
+  verRoof.position.set(0, verH, D / 2 + verD / 2);
+  verRoof.castShadow = true;
+  group.add(verRoof);
+
+  // Four chunky verandah posts
+  for (const px of [-W / 2 + 0.1, -W / 6 + 0.05, W / 6 - 0.05, W / 2 - 0.1]) {
+    const post = new THREE.Mesh(new THREE.BoxGeometry(0.1, verH, 0.1), timberMat);
+    post.position.set(px, verH / 2, D / 2 + verD - 0.07);
+    post.castShadow = true;
+    group.add(post);
+  }
+
+  // ── THREE TIMBER STEPS ──
+  for (let i = 0; i < 3; i++) {
+    const sW = 1.1 - i * 0.1;
+    const step = new THREE.Mesh(new THREE.BoxGeometry(sW, 0.05, 0.2), timberMat);
+    step.position.set(0, (i + 0.5) * 0.05, D / 2 + verD + 0.2 * (2 - i) + 0.1);
+    group.add(step);
+  }
+
+  // ── DOOR (double-width, centered on front wall) ──
+  const doorH = 1.1;
+  const door = new THREE.Mesh(new THREE.BoxGeometry(0.7, doorH, 0.05), timberMat);
+  door.position.set(0, baseH + doorH / 2, D / 2 + 0.03);
+  group.add(door);
+
+  // Door frame
+  const dftop = new THREE.Mesh(new THREE.BoxGeometry(0.82, 0.06, 0.04), creamMat);
+  dftop.position.set(0, baseH + doorH + 0.03, D / 2 + 0.03);
+  group.add(dftop);
+  for (const dx of [-0.41, 0.41]) {
+    const dfs = new THREE.Mesh(new THREE.BoxGeometry(0.06, doorH + 0.06, 0.04), creamMat);
+    dfs.position.set(dx, baseH + doorH / 2, D / 2 + 0.03);
+    group.add(dfs);
+  }
+
+  // ── FRONT WINDOWS (flanking door, with 2×2 mullion grid) ──
+  for (const wx of [-1.05, 1.05]) {
+    const wframe = new THREE.Mesh(new THREE.BoxGeometry(0.68, 0.78, 0.04), creamMat);
+    wframe.position.set(wx, baseH + wallH * 0.45, D / 2 + 0.025);
+    group.add(wframe);
+    const win = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.7, 0.05), winMat);
+    win.position.set(wx, baseH + wallH * 0.45, D / 2 + 0.03);
+    group.add(win);
+    // Horizontal mullion
+    const mH = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.03, 0.04), creamMat);
+    mH.position.set(wx, baseH + wallH * 0.45, D / 2 + 0.055);
+    group.add(mH);
+    // Vertical mullion
+    const mV = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.72, 0.04), creamMat);
+    mV.position.set(wx, baseH + wallH * 0.45, D / 2 + 0.055);
+    group.add(mV);
+  }
+
+  // ── HARBOUR BRIDGE ARCH (over entrance) ──
+  const archR = 0.75;
+  const archCenterY = verH;
+  const archCenterZ = D / 2 + verD * 0.45;
+  const archGeo = new THREE.TorusGeometry(archR, 0.055, 7, 14, Math.PI);
+  const arch = new THREE.Mesh(archGeo, steelMat);
+  arch.position.set(0, archCenterY, archCenterZ);
+  group.add(arch);
+
+  // Four suspender cables hanging from arch to verandah-beam level
+  for (const a of [0.3, 0.8, Math.PI - 0.8, Math.PI - 0.3]) {
+    const cabX = archR * Math.cos(a);
+    const cableLen = archR * Math.sin(a);
+    const cable = new THREE.Mesh(new THREE.BoxGeometry(0.025, cableLen, 0.025), steelMat);
+    cable.position.set(cabX, archCenterY + cableLen / 2, archCenterZ);
+    group.add(cable);
+  }
+
+  // ── MAIN SIGN above verandah ("THE AUSSIE ESCAPE") ──
+  const signBoard = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.36, 0.06), navyMat);
+  signBoard.position.set(0, verH + 0.32, D / 2 + 0.05);
+  group.add(signBoard);
+
+  // Hanging brackets
+  for (const bx of [-0.9, 0.9]) {
+    const bracket = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.38, 0.04), timberMat);
+    bracket.position.set(bx, verH + 0.28, D / 2 + 0.04);
+    group.add(bracket);
+  }
+
+  // Sub-sign "FAIR DINKUM SOUVENIRS"
+  const subSign = new THREE.Mesh(new THREE.BoxGeometry(1.85, 0.2, 0.05), stoneMat);
+  subSign.position.set(0, verH + 0.62, D / 2 + 0.05);
+  group.add(subSign);
+
+  // ── SIDE SIGN (right wall, red "COLD BEER") ──
+  const sideSign = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.32, 0.75), redMat);
+  sideSign.position.set(W / 2 + 0.04, baseH + 1.0, 0);
+  group.add(sideSign);
+
+  // ── SURFBOARD (yellow with red stripe, leaning left of entrance) ──
+  const surfBody = new THREE.Mesh(new THREE.SphereGeometry(0.09, 8, 10), goldMat);
+  surfBody.scale.set(0.25, 1.15, 0.12);
+  surfBody.position.set(-0.72, baseH + 0.62, D / 2 + 0.07);
+  surfBody.rotation.z = 0.22;
+  surfBody.castShadow = true;
+  group.add(surfBody);
+
+  const surfStripe = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.58, 0.13), redMat);
+  surfStripe.position.set(-0.72, baseH + 0.62, D / 2 + 0.08);
+  surfStripe.rotation.z = 0.22;
+  group.add(surfStripe);
+
+  // ── PLANTERS flanking entrance (red earth + bottlebrush) ──
+  for (const px of [-0.42, 0.42]) {
+    const planter = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.22, 0.28), earthMat);
+    planter.position.set(px, baseH + 0.11, D / 2 + 0.1);
+    group.add(planter);
+    const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.28, 5), timberMat);
+    stem.position.set(px, baseH + 0.36, D / 2 + 0.1);
+    group.add(stem);
+    for (let i = 0; i < 4; i++) {
+      const ang = (i / 4) * Math.PI * 2;
+      const bristle = new THREE.Mesh(new THREE.SphereGeometry(0.07, 6, 5), crimsonMat);
+      bristle.position.set(px + Math.cos(ang) * 0.08, baseH + 0.5, D / 2 + 0.1 + Math.sin(ang) * 0.06);
+      group.add(bristle);
+    }
+  }
+
+  // ── OPERA HOUSE SAILS (rear-left roof corner) ──
+  const sailCornerX = -W / 2 + 0.3;
+  const sailCornerZ = -D / 2 + 0.25;
+  const roofTopY = baseH + wallH + roofH;
+
+  const sailSpecs = [
+    { h: 1.3, r: 0.42, rx: -0.35, rz: -0.2,  ox: -0.1,  oz:  0.05 },
+    { h: 1.0, r: 0.34, rx: -0.28, rz:  0.1,  ox:  0.12, oz: -0.1  },
+    { h: 0.7, r: 0.26, rx: -0.22, rz:  0.32, ox:  0.22, oz: -0.22 },
+  ];
+  for (const s of sailSpecs) {
+    const sail = new THREE.Mesh(new THREE.ConeGeometry(s.r, s.h, 10), sailMat);
+    sail.position.set(sailCornerX + s.ox, roofTopY + s.h / 2 - 0.2, sailCornerZ + s.oz);
+    sail.rotation.x = s.rx;
+    sail.rotation.z = s.rz;
+    sail.castShadow = true;
+    group.add(sail);
+  }
+
+  // ── CHURCH SPIRE (right front corner — Adelaide-style) ──
+  const spireX = W / 2 - 0.25;
+  const spireZ = D / 2 - 0.25;
+  const turretH = 0.85;
+
+  const turret = new THREE.Mesh(new THREE.BoxGeometry(0.38, turretH, 0.38), stoneMat);
+  turret.position.set(spireX, baseH + wallH + turretH / 2, spireZ);
+  turret.castShadow = true;
+  group.add(turret);
+
+  const spireTop = new THREE.Mesh(new THREE.ConeGeometry(0.24, 0.65, 4), stoneMat);
+  spireTop.rotation.y = Math.PI / 4;
+  spireTop.position.set(spireX, baseH + wallH + turretH + 0.32, spireZ);
+  spireTop.castShadow = true;
+  group.add(spireTop);
+
+  // Gold cross
+  const crossV = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.22, 0.05), goldMat);
+  crossV.position.set(spireX, baseH + wallH + turretH + 0.73, spireZ);
+  group.add(crossV);
+  const crossH = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.05, 0.05), goldMat);
+  crossH.position.set(spireX, baseH + wallH + turretH + 0.80, spireZ);
+  group.add(crossH);
+
+  // ── INTERIOR: Counter at back of shop ──
+  const counter = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.62, 0.32), timberMat);
+  counter.position.set(0, baseH + 0.31, -D / 2 + 0.28);
+  group.add(counter);
+
+  // Brass cash register on counter
+  const cashReg = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.16, 0.16), brassMat);
+  cashReg.position.set(-0.28, baseH + 0.71, -D / 2 + 0.25);
+  group.add(cashReg);
+
+  // ── INTERIOR: Shelves on left wall (Vegemite jars) ──
+  for (let i = 0; i < 3; i++) {
+    const shelf = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.04, 0.14), timberMat);
+    shelf.position.set(-W / 2 + 0.33, baseH + 0.3 + i * 0.4, 0.1);
+    group.add(shelf);
+    for (let j = 0; j < 3; j++) {
+      const jar = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.09, 0.05), vegMat);
+      jar.position.set(-W / 2 + 0.13 + j * 0.11, baseH + 0.38 + i * 0.4, 0.1);
+      group.add(jar);
+      const lid = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.02, 0.05), lidMat);
+      lid.position.set(-W / 2 + 0.13 + j * 0.11, baseH + 0.43 + i * 0.4, 0.1);
+      group.add(lid);
+    }
+  }
+
+  // ── INTERIOR: Hat stand (right wall) with Akubra hats ──
+  const hatPole = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 1.0, 6), timberMat);
+  hatPole.position.set(W / 2 - 0.24, baseH + 0.5, 0.1);
+  group.add(hatPole);
+  for (const hy of [0.65, 0.9]) {
+    const brim = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.04, 10), khakiMat);
+    brim.position.set(W / 2 - 0.24, baseH + hy, 0.1);
+    group.add(brim);
+    const crown = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.13, 0.1, 10), khakiMat);
+    crown.position.set(W / 2 - 0.24, baseH + hy + 0.07, 0.1);
+    group.add(crown);
+  }
+
+  // ── INTERIOR: Boomerang on back wall ──
+  for (const bz of [1, -1]) {
+    const boom = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.06, 0.04), deepRedMat);
+    boom.position.set(0.25 + bz * 0.18, baseH + 1.2, -D / 2 + 0.04);
+    boom.rotation.z = bz * 0.45;
+    group.add(boom);
+  }
+
+  // ── GLOW ORBS (warm amber interior light, no PointLights) ──
+  const orb1 = createGlowOrb(0xFBBF24);
+  orb1.position.set(0, baseH + 1.6, 0);
+  group.add(orb1);
+  const orb2 = createGlowOrb(0xFBBF24);
+  orb2.position.set(0, baseH + 0.82, -D / 2 + 0.45);
+  group.add(orb2);
+
+  // ── KANGAROO (right of building) ──
+  const kx = W / 2 + 0.9;
+
+  const kangBody = new THREE.Mesh(new THREE.SphereGeometry(0.3, 10, 8), kangMat);
+  kangBody.scale.y = 1.35;
+  kangBody.position.set(kx, 0.42, 0);
+  kangBody.castShadow = true;
+  group.add(kangBody);
+
+  const kangHead = new THREE.Mesh(new THREE.SphereGeometry(0.17, 8, 7), kangMat);
+  kangHead.position.set(kx + 0.05, 0.9, 0.1);
+  group.add(kangHead);
+
+  const kangSnout = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.07, 0.12), kangMat);
+  kangSnout.position.set(kx + 0.08, 0.87, 0.25);
+  group.add(kangSnout);
+
+  for (const ex of [-0.07, 0.07]) {
+    const ear = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.15, 5), kangMat);
+    ear.position.set(kx + 0.05 + ex, 1.08, 0.07);
+    group.add(ear);
+  }
+
+  for (const ax of [-0.14, 0.14]) {
+    const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.04, 0.22, 6), kangMat);
+    arm.rotation.z = ax > 0 ? 0.55 : -0.55;
+    arm.position.set(kx + ax * 1.7, 0.68, 0.12);
+    group.add(arm);
+  }
+
+  const tail = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.65, 6), kangMat);
+  tail.rotation.x = -Math.PI * 0.35;
+  tail.position.set(kx, 0.22, -0.42);
+  group.add(tail);
+
+  for (const lx of [-0.13, 0.13]) {
+    const leg = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.32, 0.1), kangMat);
+    leg.position.set(kx + lx, 0.17, 0.05);
+    leg.rotation.x = -0.15;
+    group.add(leg);
+  }
+
+  // ── EUCALYPTUS TREE + KOALA (left of building) ──
+  const treeX = -W / 2 - 0.9;
+
+  const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.13, 2.0, 8), barkMat);
+  trunk.position.set(treeX, 1.0, 0);
+  trunk.castShadow = true;
+  group.add(trunk);
+
+  for (const cp of [
+    { y: 2.1,  r: 0.5,  ox:  0.18, oz:  0.08 },
+    { y: 2.55, r: 0.42, ox: -0.16, oz: -0.1  },
+    { y: 2.9,  r: 0.35, ox:  0.1,  oz:  0.18 },
+  ]) {
+    const canopy = new THREE.Mesh(new THREE.SphereGeometry(cp.r, 8, 7), eucaMat);
+    canopy.position.set(treeX + cp.ox, cp.y, cp.oz);
+    canopy.castShadow = true;
+    group.add(canopy);
+  }
+
+  // Koala clinging to trunk at mid-height
+  const koalaBody = new THREE.Mesh(new THREE.SphereGeometry(0.14, 8, 7), greyMat);
+  koalaBody.position.set(treeX + 0.14, 1.05, 0.06);
+  group.add(koalaBody);
+
+  const koalaHead = new THREE.Mesh(new THREE.SphereGeometry(0.13, 8, 7), greyMat);
+  koalaHead.position.set(treeX + 0.18, 1.28, 0.08);
+  group.add(koalaHead);
+
+  for (const ex of [-0.07, 0.07]) {
+    const koalaEar = new THREE.Mesh(new THREE.SphereGeometry(0.07, 6, 5), earMat);
+    koalaEar.position.set(treeX + 0.18 + ex, 1.41, 0.06);
+    group.add(koalaEar);
+  }
+
+  const koalaNose = new THREE.Mesh(new THREE.SphereGeometry(0.03, 5, 4), noseMat);
+  koalaNose.position.set(treeX + 0.28, 1.27, 0.12);
+  group.add(koalaNose);
+
+  // ── PLATYPUS (near front-left corner) ──
+  const platX = -W / 2 + 0.25;
+  const platZ = D / 2 + 0.65;
+
+  const platBody = new THREE.Mesh(new THREE.SphereGeometry(0.14, 8, 7), platMat);
+  platBody.scale.set(1.25, 0.55, 0.9);
+  platBody.position.set(platX, 0.07, platZ);
+  group.add(platBody);
+
+  const bill = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.04, 0.12), billMat);
+  bill.position.set(platX, 0.08, platZ + 0.23);
+  group.add(bill);
+
+  const platTail = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.04, 0.2), platMat);
+  platTail.position.set(platX, 0.07, platZ - 0.25);
+  group.add(platTail);
+
+  for (const [lx, lz] of [[-0.08, 0.08], [0.08, 0.08], [-0.08, -0.1], [0.08, -0.1]]) {
+    const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.06, 4), platMat);
+    leg.position.set(platX + lx, 0.02, platZ + lz);
+    group.add(leg);
+  }
+
+  // ── CONTRIBUTOR PLAQUE ──
+  buildPlaque(group, building, D / 2 + 0.1, 1.5);
+};
+
 // Distant hills
 export function createHills() {
   const group = new THREE.Group();
