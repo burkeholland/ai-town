@@ -286,6 +286,19 @@
     "added": "2026-03-02"
   },
   {
+    "id": "ivproduced-tech-corner",
+    "name": "IVProduced Tech Corner",
+    "type": "shop",
+    "description": "A dark-mode developer sanctum shaped like a half-open laptop, its angular roofline echoing the GitHub Copilot sparkle silhouette. Rows of glowing monitors — Macs and PCs alike — spill cool blue light through floor-to-ceiling glass walls. NVIDIA green accents frame the door, a GPU grille ventilates the side wall, and a Copilot-blue glow orb at the roof apex turns the whole building into a dev beacon.",
+    "plot": 17,
+    "contributor": {
+      "username": "ivproduced",
+      "avatar": "https://github.com/ivproduced.png"
+    },
+    "issue": 59,
+    "added": "2026-03-02"
+  },
+  {
     "id": "the-aussie-escape",
     "name": "The Aussie Escape",
     "type": "shop",

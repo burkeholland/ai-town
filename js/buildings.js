@@ -6622,6 +6622,376 @@ CUSTOM_BUILDERS['the-aussie-escape'] = function (group, building) {
   buildPlaque(group, building, D / 2 + 0.1, 1.5);
 };
 
+// ─── Custom Building: IVProduced Tech Corner ───────────────────────────────
+
+CUSTOM_BUILDERS['ivproduced-tech-corner'] = function (group, building) {
+  const W = 5.0;     // width
+  const D = 4.5;     // depth
+  const wallH = 3.6; // wall height
+  const baseH = 0.12; // foundation
+
+  // ── MATERIALS ──────────────────────────────────────────────────────────────
+  const slateMat    = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.85 });
+  const roofMat     = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.8 });
+  const midSlateMat = new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.8 });
+  const concreteMat = new THREE.MeshStandardMaterial({ color: 0xcbd5e1, roughness: 0.9 });
+  const nvidiaGreen = new THREE.MeshStandardMaterial({ color: 0x76b900, emissive: 0x76b900, emissiveIntensity: 0.25 });
+  const winMat      = new THREE.MeshStandardMaterial({
+    color: 0xbfdbfe, emissive: 0x3b82f6, emissiveIntensity: 0.15,
+    transparent: true, opacity: 0.35, roughness: 0.1,
+  });
+  const whiteMat    = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.7 });
+  const deskMat     = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.75 });
+  const legMat      = new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.8 });
+  const screenMat   = new THREE.MeshStandardMaterial({
+    color: 0xf8fafc, emissive: 0x0ea5e9, emissiveIntensity: 0.3,
+  });
+  const silverMat   = new THREE.MeshStandardMaterial({ color: 0xc0c0c0, roughness: 0.5, metalness: 0.3 });
+  const darkBgMat   = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.9 });
+  const wallScreenMat = new THREE.MeshStandardMaterial({
+    color: 0x0ea5e9, emissive: 0x0ea5e9, emissiveIntensity: 0.2,
+  });
+  const greenLineMat = new THREE.MeshStandardMaterial({ color: 0x22c55e, emissive: 0x22c55e, emissiveIntensity: 0.3 });
+  const chairMat    = new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.85 });
+  const gpuPanelMat = new THREE.MeshStandardMaterial({
+    color: 0xbfdbfe, transparent: true, opacity: 0.25, roughness: 0.1,
+  });
+  const antennaM    = new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.7 });
+  const dishMat     = new THREE.MeshStandardMaterial({ color: 0x9ca3af, roughness: 0.6 });
+  const snakeMat    = new THREE.MeshStandardMaterial({ color: 0x22c55e, roughness: 0.8 });
+  const tableTopM   = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.85 });
+
+  // ── FOUNDATION ─────────────────────────────────────────────────────────────
+  const base = new THREE.Mesh(new THREE.BoxGeometry(W + 0.3, baseH, D + 0.3), concreteMat);
+  base.position.y = baseH / 2;
+  base.castShadow = true;
+  base.receiveShadow = true;
+  group.add(base);
+
+  // ── MAIN WALLS ─────────────────────────────────────────────────────────────
+  const walls = new THREE.Mesh(new THREE.BoxGeometry(W, wallH, D), slateMat);
+  walls.position.y = baseH + wallH / 2;
+  walls.castShadow = true;
+  walls.receiveShadow = true;
+  group.add(walls);
+
+  // ── ANGULAR ROOF ── flat canopy at front, peaked ridge at rear ─────────────
+  // Front flat canopy (extends 0.6 past facade)
+  const canopyGeo = new THREE.BoxGeometry(W + 0.2, 0.12, D / 2 + 0.6);
+  const canopy = new THREE.Mesh(canopyGeo, roofMat);
+  canopy.position.set(0, baseH + wallH + 0.06, (D / 2 + 0.6) / 2 - D / 2);
+  canopy.castShadow = true;
+  group.add(canopy);
+
+  // Rear peaked roof — CylinderGeometry(0 top radius, r bottom, h, 4 segments) creates a
+  // square pyramid; rotating 45° on Y aligns the diamond-shaped base with the building walls
+  const peakH = 1.2;
+  const rearRoofGeo = new THREE.CylinderGeometry(0, W / 2, peakH, 4, 1);
+  const rearRoof = new THREE.Mesh(rearRoofGeo, roofMat);
+  rearRoof.position.set(0, baseH + wallH + peakH / 2, -D / 4);
+  rearRoof.rotation.y = Math.PI / 4;
+  rearRoof.castShadow = true;
+  group.add(rearRoof);
+
+  // Apex glow — Copilot blue sparkle point
+  const apexGlow = createGlowOrb(0x0ea5e9);
+  apexGlow.position.set(0, baseH + wallH + peakH + 0.15, -D / 4);
+  group.add(apexGlow);
+
+  // ── FRONT FACADE — glass panels + mullions ─────────────────────────────────
+  const frontZ = D / 2;
+  const winH = 2.4;
+  const winY = baseH + 0.8 + winH / 2;
+
+  // Three large window panels (left, center, right)
+  const panelW = [1.4, 1.4, 1.4];
+  const panelX = [-1.6, 0, 1.6];
+  for (let i = 0; i < 3; i++) {
+    const win = new THREE.Mesh(new THREE.BoxGeometry(panelW[i], winH, 0.06), winMat);
+    win.position.set(panelX[i], winY, frontZ + 0.03);
+    group.add(win);
+  }
+
+  // Thin mullions between panels
+  for (const mx of [-0.85, 0.85]) {
+    const mullion = new THREE.Mesh(new THREE.BoxGeometry(0.08, winH, 0.08), slateMat);
+    mullion.position.set(mx, winY, frontZ + 0.04);
+    group.add(mullion);
+  }
+
+  // ── DOOR (left of center, NVIDIA green frame) ──────────────────────────────
+  const doorX = -1.1;
+  const doorW = 1.0;
+  const doorH = 2.2;
+  const doorY = baseH + doorH / 2;
+
+  // Door fill (dark, recessed)
+  const door = new THREE.Mesh(new THREE.BoxGeometry(doorW, doorH, 0.04), slateMat);
+  door.position.set(doorX, doorY, frontZ + 0.02);
+  group.add(door);
+
+  // NVIDIA green door frame (four strips)
+  const frameThick = 0.06;
+  const frameMeshes = [
+    // top
+    [doorW + frameThick * 2, frameThick, 0.08, doorX, doorY + doorH / 2 + frameThick / 2, frontZ + 0.05],
+    // bottom
+    [doorW + frameThick * 2, frameThick, 0.08, doorX, doorY - doorH / 2 - frameThick / 2, frontZ + 0.05],
+    // left
+    [frameThick, doorH + frameThick * 2, 0.08, doorX - doorW / 2 - frameThick / 2, doorY, frontZ + 0.05],
+    // right
+    [frameThick, doorH + frameThick * 2, 0.08, doorX + doorW / 2 + frameThick / 2, doorY, frontZ + 0.05],
+  ];
+  for (const [fw, fh, fd, fx, fy, fz] of frameMeshes) {
+    const f = new THREE.Mesh(new THREE.BoxGeometry(fw, fh, fd), nvidiaGreen);
+    f.position.set(fx, fy, fz);
+    group.add(f);
+  }
+
+  // LED accent strip above door
+  const ledStrip = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.12, 0.06), nvidiaGreen);
+  ledStrip.position.set(doorX, baseH + doorH + 0.18, frontZ + 0.05);
+  group.add(ledStrip);
+
+  // ── FRONT SIGN PANEL (above windows) ──────────────────────────────────────
+  const signPanel = new THREE.Mesh(new THREE.BoxGeometry(4.0, 0.5, 0.06), slateMat);
+  signPanel.position.set(0, baseH + wallH - 0.05, frontZ + 0.03);
+  group.add(signPanel);
+
+  // White text inset
+  const signText = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.28, 0.04), whiteMat);
+  signText.position.set(0.3, baseH + wallH - 0.05, frontZ + 0.06);
+  group.add(signText);
+
+  // Copilot sparkle — two tiny diamond boxes (rotated 45°) in sky blue
+  const sparkleM = new THREE.MeshStandardMaterial({ color: 0x0ea5e9, emissive: 0x0ea5e9, emissiveIntensity: 0.4 });
+  for (const [sx, sy] of [[-1.5, 0.05], [-1.5, -0.05]]) {
+    const diamond = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.15, 0.05), sparkleM);
+    diamond.rotation.z = Math.PI / 4;
+    diamond.position.set(sx, baseH + wallH - 0.05 + sy, frontZ + 0.07);
+    group.add(diamond);
+  }
+
+  // ── BLADE SIGN (perpendicular, right edge of canopy) ──────────────────────
+  const bladeSign = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.6, 1.8), slateMat);
+  bladeSign.position.set(W / 2 - 0.1, baseH + wallH - 0.22, -0.3);
+  group.add(bladeSign);
+
+  // White inset on blade sign
+  const bladeText = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.38, 1.4), whiteMat);
+  bladeText.position.set(W / 2 - 0.07, baseH + wallH - 0.22, -0.3);
+  group.add(bladeText);
+
+  // Code bracket < /> in NVIDIA green below blade sign
+  for (const [bz, rx] of [[-1.0, 0.4], [-0.6, -0.4]]) {
+    const bracket = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.18, 0.25), nvidiaGreen);
+    bracket.rotation.y = rx;
+    bracket.position.set(W / 2 - 0.07, baseH + wallH - 0.68, bz);
+    group.add(bracket);
+  }
+
+  // ── LEFT SIDE WALL — two small windows ────────────────────────────────────
+  for (const wz of [-0.8, 0.8]) {
+    const sw = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.6, 0.6), winMat);
+    sw.position.set(-W / 2 - 0.03, baseH + 1.5, wz);
+    group.add(sw);
+  }
+
+  // ── RIGHT SIDE WALL — GPU grille (3×4 slats) ──────────────────────────────
+  for (let row = 0; row < 3; row++) {
+    for (let col = 0; col < 4; col++) {
+      const slat = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.07, 0.55), midSlateMat);
+      slat.position.set(W / 2 + 0.03, baseH + 0.8 + row * 0.45, -0.9 + col * 0.55);
+      group.add(slat);
+    }
+  }
+
+  // ── REAR WALL — HVAC utility box ──────────────────────────────────────────
+  const hvac = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.12), midSlateMat);
+  hvac.position.set(0.8, baseH + 2.5, -D / 2 - 0.06);
+  group.add(hvac);
+
+  // ── ROOF DETAILS ───────────────────────────────────────────────────────────
+  // Satellite dish on rear-right roof corner
+  const dishPost = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.4, 6), antennaM);
+  dishPost.position.set(W / 2 - 0.5, baseH + wallH + 0.2, -D / 2 + 0.5);
+  group.add(dishPost);
+  const dish = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.05, 0.05, 12), dishMat);
+  dish.rotation.x = 0.5;
+  dish.position.set(W / 2 - 0.5, baseH + wallH + 0.45, -D / 2 + 0.5);
+  group.add(dish);
+
+  // Antenna mast next to dish
+  const antMast = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.6, 6), antennaM);
+  antMast.position.set(W / 2 - 0.8, baseH + wallH + 0.3, -D / 2 + 0.5);
+  group.add(antMast);
+  for (const ay of [0.1, 0.3]) {
+    const bar = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.03, 0.03), antennaM);
+    bar.position.set(W / 2 - 0.8, baseH + wallH + ay, -D / 2 + 0.5);
+    group.add(bar);
+  }
+
+  // ── GROUND LEVEL DETAILS ───────────────────────────────────────────────────
+  // Concrete step across full front width
+  const step = new THREE.Mesh(new THREE.BoxGeometry(W, 0.1, 0.6), concreteMat);
+  step.position.set(0, baseH + 0.05, frontZ + 0.3);
+  step.receiveShadow = true;
+  group.add(step);
+
+  // Two planters flanking the door
+  for (const px of [doorX - 0.8, doorX + 0.8]) {
+    const planter = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.5, 0.4), midSlateMat);
+    planter.position.set(px, baseH + 0.25, frontZ + 0.15);
+    group.add(planter);
+    // Snake plant leaves
+    for (let leaf = 0; leaf < 3; leaf++) {
+      const h = 0.32 + leaf * 0.05;
+      const leafMesh = new THREE.Mesh(new THREE.BoxGeometry(0.04, h, 0.03), snakeMat);
+      leafMesh.position.set(px + (leaf - 1) * 0.07, baseH + 0.5 + h / 2, frontZ + 0.15);
+      group.add(leafMesh);
+    }
+  }
+
+  // Outdoor standing table (right of door, set 1.5 units from door center)
+  const tableX = doorX + 1.5;
+  const tablePostH = 1.0;
+  const tablePost = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, tablePostH, 6), legMat);
+  tablePost.position.set(tableX, baseH + tablePostH / 2, frontZ + 0.2);
+  group.add(tablePost);
+  const tableTop = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.04, 12), tableTopM);
+  tableTop.position.set(tableX, baseH + tablePostH + 0.02, frontZ + 0.2);
+  group.add(tableTop);
+
+  // ── INTERIOR ───────────────────────────────────────────────────────────────
+  // Two rows of workstations facing front windows
+  // Left row: iMac-style silver monitors (3 desks)
+  for (let i = 0; i < 3; i++) {
+    const dx = -1.6 + i * 1.5;
+    const dz = -0.4;
+    // Desk surface
+    const desk = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.05, 0.5), deskMat);
+    desk.position.set(dx, baseH + 0.7, dz);
+    group.add(desk);
+    // Desk legs
+    for (const [lx, lz2] of [[-0.35, 0.2], [0.35, 0.2], [-0.35, -0.2], [0.35, -0.2]]) {
+      const leg = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.7, 0.05), legMat);
+      leg.position.set(dx + lx, baseH + 0.35, dz + lz2);
+      group.add(leg);
+    }
+    // iMac silver body
+    const imac = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.3, 0.04), silverMat);
+    imac.position.set(dx, baseH + 0.99, dz - 0.05);
+    group.add(imac);
+    // Screen face
+    const screen = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.22, 0.02), screenMat);
+    screen.position.set(dx, baseH + 0.99, dz - 0.04);
+    group.add(screen);
+  }
+
+  // Right row: dual-monitor desks (3 desks)
+  for (let i = 0; i < 3; i++) {
+    const dx = -1.6 + i * 1.5;
+    const dz = 0.9;
+    const desk = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.05, 0.5), deskMat);
+    desk.position.set(dx, baseH + 0.7, dz);
+    group.add(desk);
+    for (const [lx, lz2] of [[-0.35, 0.2], [0.35, 0.2], [-0.35, -0.2], [0.35, -0.2]]) {
+      const leg = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.7, 0.05), legMat);
+      leg.position.set(dx + lx, baseH + 0.35, dz + lz2);
+      group.add(leg);
+    }
+    // Two monitors per desk
+    for (const mx of [-0.18, 0.18]) {
+      const mon = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.22, 0.03), slateMat);
+      mon.position.set(dx + mx, baseH + 0.95, dz - 0.05);
+      group.add(mon);
+      const scr = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.16, 0.02), screenMat);
+      scr.position.set(dx + mx, baseH + 0.95, dz - 0.04);
+      group.add(scr);
+    }
+  }
+
+  // Collaborative table at center
+  const colTable = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.05, 0.7), deskMat);
+  colTable.position.set(0.5, baseH + 0.7, 0.2);
+  group.add(colTable);
+  for (const [cx2, cz2] of [[-0.6, 0.25], [0.6, 0.25], [-0.6, -0.25], [0.6, -0.25]]) {
+    const tleg = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.7, 0.06), slateMat);
+    tleg.position.set(0.5 + cx2, baseH + 0.35, 0.2 + cz2);
+    group.add(tleg);
+    // Chairs
+    const chair = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.3), chairMat);
+    chair.position.set(0.5 + cx2 * 1.3, baseH + 0.45, 0.2 + cz2 * 1.5);
+    group.add(chair);
+  }
+
+  // Wall-mounted display (back wall)
+  const wallMon = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.7, 0.06), darkBgMat);
+  wallMon.position.set(0, baseH + 1.8, -D / 2 + 0.08);
+  group.add(wallMon);
+  const wallScreen = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.6, 0.04), wallScreenMat);
+  wallScreen.position.set(0, baseH + 1.8, -D / 2 + 0.1);
+  group.add(wallScreen);
+  // Code lines on wall display
+  for (let cl = 0; cl < 3; cl++) {
+    const codeLine = new THREE.Mesh(new THREE.BoxGeometry(0.6 - cl * 0.1, 0.04, 0.03), greenLineMat);
+    codeLine.position.set(-0.15, baseH + 1.95 - cl * 0.14, -D / 2 + 0.12);
+    group.add(codeLine);
+  }
+
+  // PC tower rig (back-right corner) with GPU glow
+  const tower = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.6, 0.4), slateMat);
+  tower.position.set(W / 2 - 0.5, baseH + 0.3, -D / 2 + 0.5);
+  group.add(tower);
+  const sidePanel = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.5, 0.35), gpuPanelMat);
+  sidePanel.position.set(W / 2 - 0.33, baseH + 0.3, -D / 2 + 0.5);
+  group.add(sidePanel);
+  const gpuGlow = createGlowOrb(0x76b900);
+  gpuGlow.position.set(W / 2 - 0.4, baseH + 0.3, -D / 2 + 0.5);
+  group.add(gpuGlow);
+
+  // Shelf unit (left wall) with books + server rack
+  const shelf = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.8, 0.15), slateMat);
+  shelf.position.set(-W / 2 + 0.35, baseH + 0.55, -0.5);
+  group.add(shelf);
+  const bookColors = [0xef4444, 0x3b82f6, 0x22c55e];
+  for (let b = 0; b < 3; b++) {
+    const bookM = new THREE.MeshStandardMaterial({ color: bookColors[b] });
+    const book = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.22, 0.1), bookM);
+    book.position.set(-W / 2 + 0.15 + b * 0.14, baseH + 0.87, -0.5);
+    group.add(book);
+  }
+  // Server rack
+  const rack = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.4, 0.1), new THREE.MeshStandardMaterial({ color: 0x374151 }));
+  rack.position.set(-W / 2 + 0.35, baseH + 1.1, -0.5);
+  group.add(rack);
+  for (let led = 0; led < 3; led++) {
+    const ledOrb = createGlowOrb(0x22c55e);
+    ledOrb.position.set(-W / 2 + 0.28, baseH + 0.96 + led * 0.13, -0.5);
+    group.add(ledOrb);
+  }
+
+  // ── PENDANT LAMPS ──────────────────────────────────────────────────────────
+  const lampHeights = [2.8, 3.0, 2.9];
+  const lampX = [-1.2, 0.3, 1.5];
+  for (let l = 0; l < 3; l++) {
+    const lampBody = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.08, 0.1, 8), slateMat);
+    lampBody.position.set(lampX[l], baseH + lampHeights[l], 0);
+    group.add(lampBody);
+    const lampGlow = createGlowOrb(0xf8fafc);
+    lampGlow.position.set(lampX[l], baseH + lampHeights[l] - 0.1, 0);
+    group.add(lampGlow);
+  }
+
+  // Copilot blue ambient glow behind front signage
+  const frontGlow = createGlowOrb(0x0ea5e9);
+  frontGlow.position.set(0, baseH + wallH - 0.1, frontZ - 0.2);
+  group.add(frontGlow);
+
+  // ── CONTRIBUTOR PLAQUE ──────────────────────────────────────────────────────
+  buildPlaque(group, building, D / 2 + 0.15, 1.6);
+};
+
 // Distant hills
 export function createHills() {
   const group = new THREE.Group();
