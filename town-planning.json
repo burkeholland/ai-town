@@ -118,5 +118,14 @@
     "reasoning": "Tacos el Cochi is a lively street taquería — it belongs on Main Street West's commercial strip at the west terminus (x=0). The cluster of restaurants and shops (Pierce's Pub, The Cinnamon Roll, Motz Coffee) along Main Street West creates a vibrant food corridor; adding Tacos el Cochi at the far-west anchor extends the strip and draws visitors all the way to the end.",
     "vision": "The west terminus of Main Street now has character — a colorful taquería with papel picado banners and a luchador mask in the window marks the end of the commercial strip. Walking west down Main Street, visitors smell carne asada before they see it.",
     "date": "2026-03-02"
+  },
+  {
+    "plot": 39,
+    "building": "federal-bureau-of-ai-investigation",
+    "type": "other",
+    "zone": "Outskirts Far West",
+    "reasoning": "The Federal Bureau of AI Investigation is a massive Brutalist fortress — it needs space and isolation befitting federal authority. Plot 39 in the far western outskirts provides visual separation from residential/commercial zones, establishing government presence at the edge of town.",
+    "vision": "Plot 39 anchors the western outskirts with institutional gravitas. The waffle-grid facade and concrete overhang make it unmistakable from a distance. Future government buildings (courthouse, archives) could form a federal district here — away from Main Street, where authority observes from the periphery.",
+    "date": "2026-03-02"
   }
 ]

@@ -245,5 +245,18 @@
     },
     "issue": 50,
     "added": "2026-03-02"
+  },
+  {
+    "id": "federal-bureau-of-ai-investigation",
+    "name": "Federal Bureau of AI Investigation",
+    "type": "other",
+    "description": "A squat, menacing Brutalist concrete fortress with a waffle-grid facade of deeply recessed window bays, heavy cantilevered upper floors looming over a shadowed ground level — the unblinking eye of AI Town's federal authority.",
+    "plot": 39,
+    "contributor": {
+      "username": "johnturek",
+      "avatar": "https://github.com/johnturek.png"
+    },
+    "issue": 51,
+    "added": "2026-03-02"
   }
 ]
