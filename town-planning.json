@@ -117,12 +117,12 @@
     "reasoning": "NE quadrant outdoor fitness area. Nature spots need space and fresh air on the outskirts."
   },
   {
-    "plot": 9,
+    "plot": 39,
     "building": "federal-bureau-of-ai-investigation",
     "type": "other",
-    "zone": "Main Street West (terminus)",
-    "reasoning": "The FBI building anchors the far-west terminus of Main Street at (0, 21.5), facing east toward the town — like the Hoover Building on Pennsylvania Avenue facing the Capitol. Its imposing Brutalist mass is the first thing visible from the western approach, commanding authority over the entire street. A large government building at a road's end is classic city planning: it terminates the sightline and signals civic power.",
-    "vision": "Plot 9 establishes a governmental quarter at the western edge of Main Street. The building's width (6 units) fills the terminus zone, and its recessed ground floor arcade creates a welcoming-yet-menacing approach from the road.",
+    "zone": "Outskirts Far West",
+    "reasoning": "The FBI building stands guard at the far-western sentinel position (x=-5, z=26) — directly on the Main Street axis, facing east toward the town. Anyone travelling west along Main Street eventually reaches this Brutalist concrete fortress at road's end. Placing a government authority building at the western terminus echoes how the actual Hoover Building anchors Pennsylvania Avenue's western stretch, watching over all who approach. Large outskirts plots give it the isolation and presence befitting a federal headquarters.",
+    "vision": "Plot 39 establishes a governmental perimeter at AI Town's western edge. The building's width (6 units) dominates the terminus zone. Future civic buildings could complete a loose 'federal quarter' along this edge.",
     "date": "2026-03-02"
   }
 ]
