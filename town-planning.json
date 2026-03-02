@@ -115,5 +115,14 @@
     "building": "verdant-fitness-grove",
     "type": "nature",
     "reasoning": "NE quadrant outdoor fitness area. Nature spots need space and fresh air on the outskirts."
+  },
+  {
+    "plot": 9,
+    "building": "federal-bureau-of-ai-investigation",
+    "type": "other",
+    "zone": "Main Street West (terminus)",
+    "reasoning": "The FBI building anchors the far-west terminus of Main Street at (0, 21.5), facing east toward the town — like the Hoover Building on Pennsylvania Avenue facing the Capitol. Its imposing Brutalist mass is the first thing visible from the western approach, commanding authority over the entire street. A large government building at a road's end is classic city planning: it terminates the sightline and signals civic power.",
+    "vision": "Plot 9 establishes a governmental quarter at the western edge of Main Street. The building's width (6 units) fills the terminus zone, and its recessed ground floor arcade creates a welcoming-yet-menacing approach from the road.",
+    "date": "2026-03-02"
   }
 ]
