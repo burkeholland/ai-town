@@ -31,38 +31,38 @@ export const TOWN_CENTER_Z = 25;
 const PLOTS = [
   // ─── Town Square (center — RESERVED plots 1-4) ───
   { x: 25,   z: 25,   facing: 0 },                // 0: Town Hall
-  { x: 21,   z: 21.5, facing: Math.PI / 4 },      // 1: NW (RESERVED)
-  { x: 29,   z: 21.5, facing: -Math.PI / 4 },     // 2: NE (RESERVED)
-  { x: 21,   z: 28.5, facing: 3 * Math.PI / 4 },  // 3: SW (RESERVED)
-  { x: 29,   z: 28.5, facing: -3 * Math.PI / 4 }, // 4: SE (RESERVED)
+  { x: 20,   z: 20,   facing: Math.PI / 4 },      // 1: NW (RESERVED)
+  { x: 30,   z: 20,   facing: -Math.PI / 4 },     // 2: NE (RESERVED)
+  { x: 20,   z: 30,   facing: 3 * Math.PI / 4 },  // 3: SW (RESERVED)
+  { x: 30,   z: 30,   facing: -3 * Math.PI / 4 }, // 4: SE (RESERVED)
 
-  // ─── Main Street West (3-4 units from road) ───
-  { x: 15,   z: 22,   facing: 0 },                 // 5: north side (faces +Z toward road)
-  { x: 8,    z: 22,   facing: 0 },                 // 6: north side
-  { x: 15,   z: 29,   facing: Math.PI },           // 7: south side (faces -Z toward road)
-  { x: 8,    z: 29,   facing: Math.PI },           // 8: south side
-  { x: 0,    z: 22,   facing: 0 },                 // 9: west terminus north side
+  // ─── Main Street West (5+ units from road center, clears steps) ───
+  { x: 15,   z: 20,   facing: 0 },                 // 5: north side (faces +Z toward road)
+  { x: 8,    z: 20,   facing: 0 },                 // 6: north side
+  { x: 15,   z: 30,   facing: Math.PI },           // 7: south side (faces -Z toward road)
+  { x: 8,    z: 30,   facing: Math.PI },           // 8: south side
+  { x: 0,    z: 20,   facing: 0 },                 // 9: west terminus north side
 
-  // ─── Main Street East (3-4 units from road) ───
-  { x: 35,   z: 22,   facing: 0 },                 // 10: north side
-  { x: 42,   z: 22,   facing: 0 },                 // 11: north side
-  { x: 35,   z: 29,   facing: Math.PI },           // 12: south side
-  { x: 42,   z: 29,   facing: Math.PI },           // 13: south side
-  { x: 50,   z: 22,   facing: 0 },                 // 14: east terminus (waterfront)
+  // ─── Main Street East (5+ units from road center, clears steps) ───
+  { x: 35,   z: 20,   facing: 0 },                 // 10: north side
+  { x: 42,   z: 20,   facing: 0 },                 // 11: north side
+  { x: 35,   z: 30,   facing: Math.PI },           // 12: south side
+  { x: 42,   z: 30,   facing: Math.PI },           // 13: south side
+  { x: 50,   z: 20,   facing: 0 },                 // 14: east terminus (waterfront)
 
-  // ─── North Road (3.5 units from road) ───
-  { x: 21.5, z: 15,   facing: Math.PI / 2 },      // 15: west side
-  { x: 28.5, z: 15,   facing: -Math.PI / 2 },     // 16: east side
-  { x: 21.5, z: 8,    facing: Math.PI / 2 },      // 17: west side
-  { x: 28.5, z: 8,    facing: -Math.PI / 2 },     // 18: east side
-  { x: 21,   z: 1,    facing: Math.PI / 2 },      // 19: west side far north
+  // ─── North Road (5+ units from road center, clears steps) ───
+  { x: 20,   z: 15,   facing: Math.PI / 2 },      // 15: west side
+  { x: 30,   z: 15,   facing: -Math.PI / 2 },     // 16: east side
+  { x: 20,   z: 8,    facing: Math.PI / 2 },      // 17: west side
+  { x: 30,   z: 8,    facing: -Math.PI / 2 },     // 18: east side
+  { x: 20,   z: 1,    facing: Math.PI / 2 },      // 19: west side far north
 
-  // ─── South Road (3.5 units from road) ───
-  { x: 21.5, z: 35,   facing: Math.PI / 2 },      // 20: west side
-  { x: 28.5, z: 35,   facing: -Math.PI / 2 },     // 21: east side
-  { x: 21.5, z: 42,   facing: Math.PI / 2 },      // 22: west side
-  { x: 28.5, z: 42,   facing: -Math.PI / 2 },     // 23: east side
-  { x: 21,   z: 50,   facing: Math.PI / 2 },      // 24: west side far south
+  // ─── South Road (5+ units from road center, clears steps) ───
+  { x: 20,   z: 35,   facing: Math.PI / 2 },      // 20: west side
+  { x: 30,   z: 35,   facing: -Math.PI / 2 },     // 21: east side
+  { x: 20,   z: 42,   facing: Math.PI / 2 },      // 22: west side
+  { x: 30,   z: 42,   facing: -Math.PI / 2 },     // 23: east side
+  { x: 20,   z: 50,   facing: Math.PI / 2 },      // 24: west side far south
 
   // ─── Scattered / Outskirts ───
   { x: 14,   z: 15,   facing: Math.PI / 3 },      // 25: NW quadrant
@@ -3566,22 +3566,22 @@ export function createGround() {
   // Winding roads
   const roadMat = new THREE.MeshStandardMaterial({ color: 0xb8a88a, roughness: 1.0, side: THREE.DoubleSide });
   const roads = [
-    // Main Street (east-west curve, extended)
+    // Main Street (east-west curve, 2-lane width)
     { points: [
       { x: -18, z: 27 }, { x: -8, z: 26.5 }, { x: 5, z: 26 },
       { x: 15, z: 25.5 }, { x: 25, z: 25 }, { x: 35, z: 25.5 },
       { x: 45, z: 26 }, { x: 58, z: 26.5 }, { x: 68, z: 27 },
-    ], width: 2.8 },
-    // North Path (extended)
+    ], width: 4.0 },
+    // North Path (2-lane width)
     { points: [
       { x: 25, z: 25 }, { x: 25, z: 18 }, { x: 25, z: 10 },
       { x: 25, z: 2 }, { x: 24, z: -8 }, { x: 22, z: -18 },
-    ], width: 2.2 },
-    // South Path (extended)
+    ], width: 3.5 },
+    // South Path (2-lane width)
     { points: [
       { x: 25, z: 25 }, { x: 25, z: 32 }, { x: 25, z: 40 },
       { x: 25, z: 50 }, { x: 24, z: 58 }, { x: 22, z: 65 },
-    ], width: 2.2 },
+    ], width: 3.5 },
   ];
 
   for (const road of roads) {

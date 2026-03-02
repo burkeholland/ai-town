@@ -694,15 +694,15 @@ export class TownRenderer {
       const x = (tempVec.x * 0.5 + 0.5) * this.container.clientWidth;
       const y = (-tempVec.y * 0.5 + 0.5) * this.container.clientHeight;
 
-      // Hide if behind camera or too far
-      if (tempVec.z > 1 || dist > 30) {
+      // Only show when nearby (proximity-based)
+      if (tempVec.z > 1 || dist > 10) {
         el.style.display = 'none';
       } else {
         el.style.display = 'flex';
         el.style.left = x + 'px';
         el.style.top = y + 'px';
-        // Fade with distance
-        el.style.opacity = Math.max(0.3, Math.min(1, 1 - (dist - 5) / 25));
+        // Fade in as you approach, fully hidden at 10 units
+        el.style.opacity = Math.min(1, Math.max(0, 1 - (dist - 4) / 6));
       }
     }
   }
