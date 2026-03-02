@@ -323,5 +323,18 @@
     },
     "issue": 52,
     "added": "2026-03-02"
+  },
+  {
+    "id": "the-b",
+    "name": "The B",
+    "type": "entertainment",
+    "description": "A neon-drenched 1980s arcade bunker where the main attraction is Dragon's Lair. The black facade pulses with electric pink and blue outlines, and a glowing dragon marquee crowns the entrance.",
+    "plot": 29,
+    "contributor": {
+      "username": "burnbay",
+      "avatar": "https://github.com/burnbay.png"
+    },
+    "issue": 62,
+    "added": "2026-03-02"
   }
 ]
