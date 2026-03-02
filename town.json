@@ -234,6 +234,19 @@
     "added": "2026-02-28"
   },
   {
+    "id": "sawasdi-baan-thai",
+    "name": "S̄wạs̄dī Bāan Thai",
+    "type": "restaurant",
+    "description": "A warm, bustling street-side Thai eatery with a teak-toned shophouse body, a low-pitched gable roof with upswept gold eave tips, and a covered front veranda with low dining tables. An open wok kitchen counter billows emissive steam, amber lanterns glow along the eaves, and a striped street-food cart sits to the side.",
+    "plot": 15,
+    "contributor": {
+      "username": "ritthikrairw",
+      "avatar": "https://github.com/ritthikrairw.png"
+    },
+    "issue": 47,
+    "added": "2026-03-02"
+  },
+  {
     "id": "fountain-of-happiness",
     "name": "Fountain of Happiness",
     "type": "nature",

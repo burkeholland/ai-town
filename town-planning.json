@@ -111,6 +111,15 @@
     "date": "2026-02-27"
   },
   {
+    "plot": 15,
+    "building": "sawasdi-baan-thai",
+    "type": "restaurant",
+    "zone": "North Road",
+    "reasoning": "Plot 9 (Main Street West terminus) was claimed by Tacos el Cochi, so the Thai eatery moves to plot 15 — the first building on North Road west side (x=21.5, z=15). A warm neighborhood restaurant at the junction between Main Street and North Road, welcoming residents and visitors as they turn off the main drag.",
+    "vision": "S̄wạs̄dī Bāan Thai anchors the corner where North Road branches from Main Street. The aroma of lemongrass and pad thai drifts south toward the commercial strip, drawing curious diners north. A Thai eatery at this junction diversifies the food scene beyond the Main Street corridor.",
+    "date": "2026-03-02"
+  },
+  {
     "plot": 9,
     "building": "tacos-el-cochi",
     "type": "restaurant",

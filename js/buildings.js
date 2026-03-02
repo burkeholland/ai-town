@@ -6457,3 +6457,372 @@ export function highlightBuilding(group, highlight) {
     }
   });
 }
+
+
+// ─── Custom Building: S̄wạs̄dī Bāan Thai ─────────────────────────────────────
+
+CUSTOM_BUILDERS['sawasdi-baan-thai'] = function (group, building) {
+  const W = 2.6;        // main building width
+  const D = 2.0;        // main building depth
+  const wallH = 1.7;    // wall height
+  const baseH = 0.12;   // foundation slab height
+  const verandaD = 0.8; // veranda depth (extends in +Z / front direction)
+
+  // Materials
+  const wallMat     = new THREE.MeshStandardMaterial({ color: 0x8B4513, roughness: 0.85 });
+  const foundMat    = new THREE.MeshStandardMaterial({ color: 0x8B6F4E, roughness: 0.9 });
+  const roofMat     = new THREE.MeshStandardMaterial({ color: 0x5D3A1A, roughness: 0.8 });
+  const doorMat     = new THREE.MeshStandardMaterial({ color: 0x2E1A0E, roughness: 0.8 });
+  const darkOakMat  = new THREE.MeshStandardMaterial({ color: 0x4A2E0E, roughness: 0.8 });
+  const goldMat     = new THREE.MeshStandardMaterial({ color: 0xF6A623, roughness: 0.4, metalness: 0.3 });
+  const signMat     = new THREE.MeshStandardMaterial({ color: 0xC2185B, roughness: 0.6 });
+  const creamMat    = new THREE.MeshStandardMaterial({ color: 0xFEF3C7, roughness: 0.7 });
+  const woodMat     = new THREE.MeshStandardMaterial({ color: 0x8B6F4E, roughness: 0.85 });
+  const darkWoodMat = new THREE.MeshStandardMaterial({ color: 0x6B3A1F, roughness: 0.9 });
+  const ironMat     = new THREE.MeshStandardMaterial({ color: 0x374151, roughness: 0.6 });
+  const winMat      = new THREE.MeshStandardMaterial({
+    color: 0xbfdbfe, emissive: 0x3b82f6, emissiveIntensity: 0.15,
+    transparent: true, opacity: 0.35, roughness: 0.1,
+  });
+  const interiorMat = new THREE.MeshStandardMaterial({
+    color: 0xFEF3C7, emissive: 0xfbbf24, emissiveIntensity: 0.12,
+  });
+
+  // ── FOUNDATION (spans main building + veranda) ─────────────────────────
+  const found = new THREE.Mesh(
+    new THREE.BoxGeometry(W + 0.2, baseH, D + verandaD + 0.1),
+    foundMat
+  );
+  found.position.set(0, baseH / 2, verandaD / 2);
+  found.castShadow = true;
+  found.receiveShadow = true;
+  group.add(found);
+
+  // ── MAIN WALLS ─────────────────────────────────────────────────────────
+  const walls = new THREE.Mesh(new THREE.BoxGeometry(W, wallH, D), wallMat);
+  walls.position.y = baseH + wallH / 2;
+  walls.castShadow = true;
+  walls.receiveShadow = true;
+  group.add(walls);
+
+  // Interior warm back wall (visible through windows)
+  const iWall = new THREE.Mesh(new THREE.BoxGeometry(W - 0.2, wallH - 0.2, 0.04), interiorMat);
+  iWall.position.set(0, baseH + wallH / 2, -D / 2 + 0.1);
+  group.add(iWall);
+
+  // ── HORIZONTAL TIMBER TRIM BANDS (front facade) ────────────────────────
+  for (const trimY of [baseH, baseH + wallH * 0.5, baseH + wallH]) {
+    const trim = new THREE.Mesh(new THREE.BoxGeometry(W + 0.04, 0.05, 0.04), darkOakMat);
+    trim.position.set(0, trimY + 0.025, D / 2 + 0.02);
+    group.add(trim);
+  }
+
+  // ── DOOR (offset right to leave room for windows on left) ──────────────
+  const door = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.7, 0.06), doorMat);
+  door.position.set(0.5, baseH + 0.36, D / 2 + 0.04);
+  group.add(door);
+
+  // ── FRONT WINDOWS (left half of facade) ────────────────────────────────
+  for (const wx of [-0.9, -0.3]) {
+    const win = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.35, 0.05), winMat);
+    win.position.set(wx, baseH + wallH * 0.6, D / 2 + 0.04);
+    group.add(win);
+    const frame = new THREE.Mesh(new THREE.BoxGeometry(0.39, 0.39, 0.03), darkOakMat);
+    frame.position.set(wx, baseH + wallH * 0.6, D / 2 + 0.02);
+    group.add(frame);
+  }
+
+  // ── OPEN KITCHEN COUNTER (left side of facade) ─────────────────────────
+  const counter = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.08, 0.5), darkWoodMat);
+  counter.position.set(-W / 2 + 0.45, baseH + 0.55, D / 2 + 0.06);
+  counter.castShadow = true;
+  group.add(counter);
+
+  // ── MAIN ROOF (low-pitched gable) ──────────────────────────────────────
+  const roofSlab = new THREE.Mesh(new THREE.BoxGeometry(W + 0.4, 0.12, D + 0.3), roofMat);
+  roofSlab.position.set(0, baseH + wallH + 0.06, 0);
+  roofSlab.castShadow = true;
+  group.add(roofSlab);
+
+  const ridge = new THREE.Mesh(new THREE.BoxGeometry(W + 0.4, 0.14, 0.12), roofMat);
+  ridge.position.set(0, baseH + wallH + 0.19, 0);
+  group.add(ridge);
+
+  // Upswept eave tips (chofa silhouette) at each roof corner
+  for (const [ex, ez, rx, rz] of [
+    [-W / 2 - 0.18,  D / 2 + 0.14, -0.45,  0.5],
+    [ W / 2 + 0.18,  D / 2 + 0.14,  0.45,  0.5],
+    [-W / 2 - 0.18, -D / 2 - 0.14, -0.45, -0.5],
+    [ W / 2 + 0.18, -D / 2 - 0.14,  0.45, -0.5],
+  ]) {
+    const tip = new THREE.Mesh(new THREE.ConeGeometry(0.03, 0.25, 6), goldMat);
+    tip.position.set(ex, baseH + wallH + 0.13, ez);
+    tip.rotation.z = rx;
+    tip.rotation.x = rz;
+    group.add(tip);
+  }
+
+  // ── VERANDA PLATFORM ───────────────────────────────────────────────────
+  const verandaFloor = new THREE.Mesh(new THREE.BoxGeometry(W + 0.1, 0.06, verandaD), foundMat);
+  verandaFloor.position.set(0, baseH + 0.03, D / 2 + verandaD / 2);
+  verandaFloor.receiveShadow = true;
+  group.add(verandaFloor);
+
+  // Veranda roof
+  const verandaRoof = new THREE.Mesh(new THREE.BoxGeometry(W + 0.4, 0.08, verandaD + 0.15), roofMat);
+  verandaRoof.position.set(0, baseH + wallH + 0.04, D / 2 + verandaD / 2);
+  verandaRoof.castShadow = true;
+  group.add(verandaRoof);
+
+  // Veranda posts (4 corners)
+  for (const [px, pz] of [
+    [-W / 2 + 0.2, D / 2 + 0.1],
+    [ W / 2 - 0.2, D / 2 + 0.1],
+    [-W / 2 + 0.2, D / 2 + verandaD - 0.1],
+    [ W / 2 - 0.2, D / 2 + verandaD - 0.1],
+  ]) {
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, wallH, 8), darkWoodMat);
+    post.position.set(px, baseH + wallH / 2, pz);
+    post.castShadow = true;
+    group.add(post);
+  }
+
+  // ── SIGNBOARD ──────────────────────────────────────────────────────────
+  const sign = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.35, 0.05), signMat);
+  sign.position.set(0, baseH + wallH * 0.85, D / 2 + 0.08);
+  group.add(sign);
+  // Gold border
+  for (const [bw, bh, bx, by] of [
+    [1.06, 0.03,   0,    baseH + wallH * 0.85 + 0.19],
+    [1.06, 0.03,   0,    baseH + wallH * 0.85 - 0.19],
+    [0.03, 0.41, -0.52,  baseH + wallH * 0.85],
+    [0.03, 0.41,  0.52,  baseH + wallH * 0.85],
+  ]) {
+    const b = new THREE.Mesh(new THREE.BoxGeometry(bw, bh, 0.04), goldMat);
+    b.position.set(bx, by, D / 2 + 0.09);
+    group.add(b);
+  }
+  // Subtitle bar
+  const subtitle = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.1, 0.04), creamMat);
+  subtitle.position.set(0, baseH + wallH * 0.85 - 0.28, D / 2 + 0.08);
+  group.add(subtitle);
+
+  // ── HANGING PAPER LANTERNS (along veranda roof edge) ───────────────────
+  for (let i = 0; i < 4; i++) {
+    const lx = -W / 2 + 0.3 + i * (W - 0.45) / 3;
+    const lz = D / 2 + verandaD - 0.05;
+    const string = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.2, 4), ironMat);
+    string.position.set(lx, baseH + wallH - 0.1, lz);
+    group.add(string);
+    const lantern = createGlowOrb(0xF6A623);
+    lantern.scale.set(1.2, 1.6, 1.2);
+    lantern.position.set(lx, baseH + wallH - 0.28, lz);
+    group.add(lantern);
+  }
+
+  // ── STRING LIGHTS (veranda front edge) ─────────────────────────────────
+  for (let i = 0; i < 6; i++) {
+    const lx = -W / 2 + 0.22 + i * (W - 0.35) / 5;
+    const orb = createGlowOrb(0xFBBF24);
+    orb.scale.setScalar(0.32);
+    orb.position.set(lx, baseH + wallH + 0.02, D / 2 + verandaD + 0.05);
+    group.add(orb);
+  }
+
+  // ── VERANDA DINING TABLES & BENCHES ────────────────────────────────────
+  for (const tx of [-0.65, 0.65]) {
+    const tbl = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.15, 0.25), woodMat);
+    tbl.position.set(tx, baseH + 0.06 + 0.075, D / 2 + 0.44);
+    group.add(tbl);
+    for (const bz of [-0.22, 0.22]) {
+      const bench = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.06, 0.08), darkWoodMat);
+      bench.position.set(tx, baseH + 0.06 + 0.03, D / 2 + 0.44 + bz);
+      group.add(bench);
+    }
+  }
+
+  // ── POTTED PLANTS (flanking door) ──────────────────────────────────────
+  for (const px of [0.1, 1.05]) {
+    const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.05, 0.08, 8), wallMat);
+    pot.position.set(px, baseH + 0.04, D / 2 + 0.12);
+    group.add(pot);
+    const foliage = new THREE.Mesh(new THREE.SphereGeometry(0.1, 7, 5),
+      new THREE.MeshStandardMaterial({ color: 0x2E7D32 }));
+    foliage.position.set(px, baseH + 0.18, D / 2 + 0.12);
+    foliage.castShadow = true;
+    group.add(foliage);
+  }
+
+  // ── ACCESSIBILITY RAMP ─────────────────────────────────────────────────
+  const ramp = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.06, 0.2),
+    new THREE.MeshStandardMaterial({ color: 0xD1D5DB }));
+  ramp.position.set(0, 0.03, D / 2 + verandaD + 0.1);
+  group.add(ramp);
+
+  // ── STREET-FOOD CART (right side +X) ───────────────────────────────────
+  const cartX = W / 2 + 0.42;
+  const cartZ = D / 2 - 0.1;
+  const cart = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.45, 0.5), woodMat);
+  cart.position.set(cartX, baseH + 0.225, cartZ);
+  cart.castShadow = true;
+  group.add(cart);
+  // Wheels
+  for (const wz of [cartZ - 0.22, cartZ + 0.22]) {
+    const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.04, 10), ironMat);
+    wheel.rotation.x = Math.PI / 2;
+    wheel.position.set(cartX + 0.32, 0.1, wz);
+    group.add(wheel);
+  }
+  // Striped awning (3 strips, alternating red/white)
+  for (let i = 0; i < 3; i++) {
+    const strip = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.02, 0.14),
+      new THREE.MeshStandardMaterial({ color: i % 2 === 0 ? 0xDC2626 : 0xFAFAFA, roughness: 0.7 }));
+    strip.position.set(cartX, baseH + 0.57 + i * 0.045, cartZ - 0.12 + i * 0.04);
+    strip.rotation.x = -0.25;
+    group.add(strip);
+  }
+  // Chalkboard menu
+  const chalk = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.15, 0.02),
+    new THREE.MeshStandardMaterial({ color: 0x1F2937 }));
+  chalk.position.set(cartX, baseH + 0.45 + 0.075, cartZ + 0.28);
+  group.add(chalk);
+
+  // ── INTERIOR: WOK STATION (left side, behind kitchen counter) ──────────
+  const stove = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.04, 0.28), ironMat);
+  stove.position.set(-W / 2 + 0.45, baseH + 0.57, 0.1);
+  group.add(stove);
+  for (const wox of [-0.1, 0.1]) {
+    const wok = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.04, 0.025, 8), ironMat);
+    wok.position.set(-W / 2 + 0.45 + wox, baseH + 0.595, 0.1);
+    group.add(wok);
+    // Steam orbs rising above wok
+    for (let s = 0; s < 3; s++) {
+      const steam = new THREE.Mesh(new THREE.SphereGeometry(0.04, 5, 4),
+        new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.22 - s * 0.04 }));
+      steam.position.set(-W / 2 + 0.45 + wox, baseH + 0.67 + s * 0.1, 0.1);
+      group.add(steam);
+    }
+  }
+
+  // Spice jar shelf + jars
+  const shelf = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.02, 0.06), darkWoodMat);
+  shelf.position.set(-W / 2 + 0.45, baseH + wallH * 0.56, -D / 2 + 0.18);
+  group.add(shelf);
+  for (let j = 0; j < 4; j++) {
+    const jar = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.04, 6),
+      new THREE.MeshStandardMaterial({ color: [0xDC2626, 0x2E7D32, 0xF6A623, 0x8B4513][j] }));
+    jar.position.set(-W / 2 + 0.34 + j * 0.065, baseH + wallH * 0.56 + 0.03, -D / 2 + 0.18);
+    group.add(jar);
+  }
+
+  // Hanging pans (from ceiling)
+  for (const px of [-0.25, 0.0]) {
+    const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.005, 0.005, 0.2, 4), ironMat);
+    rod.position.set(-W / 2 + 0.45 + px, baseH + wallH - 0.1, 0.1);
+    group.add(rod);
+    const pan = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.012, 8), ironMat);
+    pan.position.set(-W / 2 + 0.45 + px, baseH + wallH - 0.21, 0.1);
+    group.add(pan);
+  }
+
+  // ── INTERIOR: DINING TABLES + BOWLS + PENDANT LAMPS ────────────────────
+  for (const [dtx, dtz] of [[0.3, 0.25], [0.3, -0.3]]) {
+    const dtable = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.12, 0.25), woodMat);
+    dtable.position.set(dtx, baseH + 0.45, dtz);
+    group.add(dtable);
+    const bowl = new THREE.Mesh(new THREE.SphereGeometry(0.025, 6, 4),
+      new THREE.MeshStandardMaterial({ color: 0xF0F9FF }));
+    bowl.scale.y = 0.5;
+    bowl.position.set(dtx, baseH + 0.515, dtz);
+    group.add(bowl);
+    // Pendant lamp
+    const lampRod = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.28, 4), ironMat);
+    lampRod.position.set(dtx, baseH + wallH - 0.14, dtz);
+    group.add(lampRod);
+    const shade = new THREE.Mesh(new THREE.SphereGeometry(0.05, 7, 5),
+      new THREE.MeshStandardMaterial({ color: 0xD4A574, roughness: 0.7 }));
+    shade.position.set(dtx, baseH + wallH - 0.31, dtz);
+    group.add(shade);
+    const lampGlow = createGlowOrb(0xFBBF24);
+    lampGlow.scale.setScalar(0.45);
+    lampGlow.position.set(dtx, baseH + wallH - 0.31, dtz);
+    group.add(lampGlow);
+  }
+
+  // ── INTERIOR: BAMBOO STEAMER BASKETS ───────────────────────────────────
+  for (let bs = 0; bs < 3; bs++) {
+    const stmr = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.03, 8),
+      new THREE.MeshStandardMaterial({ color: 0xC4A35A }));
+    stmr.position.set(-W / 2 + 0.3, baseH + 0.49 + bs * 0.034, -D / 2 + 0.2);
+    group.add(stmr);
+  }
+
+  // ── INTERIOR: BACK MENU BOARD ───────────────────────────────────────────
+  const mboard = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.12, 0.02), ironMat);
+  mboard.position.set(W / 2 - 0.2, baseH + wallH * 0.5, -D / 2 + 0.06);
+  group.add(mboard);
+  const mtext = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.015, 0.015), creamMat);
+  mtext.position.set(W / 2 - 0.2, baseH + wallH * 0.5 + 0.02, -D / 2 + 0.08);
+  group.add(mtext);
+
+  // ── AMBIENT INTERIOR GLOW ──────────────────────────────────────────────
+  const glow = createGlowOrb(0xFBBF24);
+  glow.scale.setScalar(0.8);
+  glow.position.set(0, baseH + wallH * 0.5, 0);
+  group.add(glow);
+
+  // ── PLAQUE ANCHOR ──────────────────────────────────────────────────────
+  buildPlaque(group, building, D / 2 + verandaD, baseH + wallH * 0.65);
+};
+
+// Distant hills
+export function createHills() {
+  const group = new THREE.Group();
+  const cx = TOWN_CENTER_X;
+  const cz = TOWN_CENTER_Z;
+  const hillData = [
+    { x: cx - 70, z: cz - 80, r: 25, h: 12, color: 0x5b8c3e },
+    { x: cx,      z: cz - 90, r: 35, h: 18, color: 0x4a7c31 },
+    { x: cx + 60, z: cz - 75, r: 20, h: 10, color: 0x6b9e4a },
+    { x: cx - 55, z: cz - 60, r: 18, h: 8,  color: 0x5d9040 },
+    { x: cx + 80, z: cz - 85, r: 30, h: 15, color: 0x4f8535 },
+    { x: cx - 40, z: cz + 90, r: 22, h: 10, color: 0x5b8c3e },
+    { x: cx + 35, z: cz + 95, r: 30, h: 14, color: 0x4a7c31 },
+    { x: cx + 85, z: cz + 65, r: 20, h: 9,  color: 0x6b9e4a },
+    { x: cx - 75, z: cz + 55, r: 25, h: 11, color: 0x4f8535 },
+    { x: cx - 85, z: cz,      r: 28, h: 13, color: 0x5d9040 },
+    { x: cx + 90, z: cz,      r: 24, h: 11, color: 0x5b8c3e },
+  ];
+
+  for (const h of hillData) {
+    const geo = new THREE.ConeGeometry(h.r, h.h, 8);
+    const mat = new THREE.MeshStandardMaterial({
+      color: h.color,
+      roughness: 0.9,
+      flatShading: true,
+    });
+    const hill = new THREE.Mesh(geo, mat);
+    hill.position.set(h.x, h.h / 2 - 2, h.z);
+    hill.receiveShadow = true;
+    group.add(hill);
+  }
+
+  return group;
+}
+
+// Highlight a building (glow effect)
+export function highlightBuilding(group, highlight) {
+  group.traverse((child) => {
+    if (child.isMesh && child.material) {
+      if (highlight) {
+        child.material._origEmissive = child.material.emissive?.clone();
+        child.material.emissive = child.material.emissive || new THREE.Color(0);
+        child.material.emissiveIntensity = (child.material.emissiveIntensity || 0) + 0.3;
+      } else if (child.material._origEmissive) {
+        child.material.emissive.copy(child.material._origEmissive);
+        child.material.emissiveIntensity = Math.max(0, (child.material.emissiveIntensity || 0) - 0.3);
+        delete child.material._origEmissive;
+      }
+    }
+  });
+}
