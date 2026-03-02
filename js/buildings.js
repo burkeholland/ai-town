@@ -6061,6 +6061,160 @@ CUSTOM_BUILDERS['verdant-fitness-grove'] = function (group, building) {
   buildPlaque(group, building, 2.85, 1.1);
 };
 
+// ─── Custom Building: Fountain of Happiness ────────────────────────────────
+
+CUSTOM_BUILDERS['fountain-of-happiness'] = function (group, building) {
+  // Materials
+  const marbleMat   = new THREE.MeshStandardMaterial({ color: 0xF5F0E8, roughness: 0.5 });
+  const warmStoneMat = new THREE.MeshStandardMaterial({ color: 0xE0D8CC, roughness: 0.6 });
+  const darkPoolMat  = new THREE.MeshStandardMaterial({ color: 0x1A1A2E, roughness: 0.2, metalness: 0.3 });
+  const goldMat      = new THREE.MeshStandardMaterial({ color: 0xD4AF37, emissive: 0xD4AF37, emissiveIntensity: 0.4, roughness: 0.3, metalness: 0.4 });
+  const waterMat     = new THREE.MeshStandardMaterial({ color: 0x4FC3F7, transparent: true, opacity: 0.25, roughness: 0.1 });
+  const waterSheetMat = new THREE.MeshStandardMaterial({ color: 0x4FC3F7, transparent: true, opacity: 0.4, roughness: 0.1 });
+  const jetMat       = new THREE.MeshStandardMaterial({ color: 0xD6EAF8, transparent: true, opacity: 0.75, roughness: 0.1 });
+  const splashMat    = new THREE.MeshStandardMaterial({ color: 0x4FC3F7, transparent: true, opacity: 0.5, roughness: 0.1 });
+  const arcStreamMat = new THREE.MeshStandardMaterial({ color: 0xB3E5FC, transparent: true, opacity: 0.35, roughness: 0.1 });
+  const haloMat      = new THREE.MeshStandardMaterial({ color: 0xFFFACD, transparent: true, opacity: 0.15, roughness: 0.1 });
+  const bollardMat   = new THREE.MeshStandardMaterial({ color: 0x9CA3AF, roughness: 0.7 });
+
+  // ── BASE PLATFORM (marble plaza) ──
+  const plaza = new THREE.Mesh(new THREE.CylinderGeometry(6.0, 6.0, 0.08, 16), marbleMat);
+  plaza.position.y = 0.04;
+  plaza.receiveShadow = true;
+  group.add(plaza);
+
+  const plazaStep = new THREE.Mesh(new THREE.CylinderGeometry(5.8, 5.8, 0.04, 16), warmStoneMat);
+  plazaStep.position.y = 0.1;
+  plazaStep.receiveShadow = true;
+  group.add(plazaStep);
+
+  // ── BASIN ──
+  const basinOuter = new THREE.Mesh(new THREE.CylinderGeometry(4.5, 4.5, 0.6, 24), marbleMat);
+  basinOuter.position.y = 0.42;
+  basinOuter.castShadow = true;
+  basinOuter.receiveShadow = true;
+  group.add(basinOuter);
+
+  const basinFloor = new THREE.Mesh(new THREE.CylinderGeometry(4.2, 4.2, 0.02, 24), darkPoolMat);
+  basinFloor.position.y = 0.63;
+  group.add(basinFloor);
+
+  const basinRim = new THREE.Mesh(new THREE.CylinderGeometry(4.5, 4.5, 0.15, 24), warmStoneMat);
+  basinRim.position.y = 0.795;
+  group.add(basinRim);
+
+  // ── WATER SURFACE ──
+  const waterSurf = new THREE.Mesh(new THREE.CylinderGeometry(4.2, 4.2, 0.02, 24), waterMat);
+  waterSurf.position.y = 0.75;
+  group.add(waterSurf);
+
+  // ── CENTRAL WINGS ──
+  // Two tapered box columns angled inward (~8° from vertical)
+  const wingAngle = 0.14; // radians (~8°)
+  for (const side of [-1, 1]) {
+    const wing = new THREE.Mesh(new THREE.BoxGeometry(0.4, 7.0, 0.8), marbleMat);
+    wing.position.set(side * 0.5, 3.85, 0);
+    wing.rotation.z = -side * wingAngle;
+    wing.castShadow = true;
+    group.add(wing);
+
+    // Water-sheet inner faces (3 thin slabs per wing)
+    for (let s = 0; s < 3; s++) {
+      const sheetY = 1.5 + s * 1.8;
+      const sheet = new THREE.Mesh(new THREE.BoxGeometry(0.05, 1.4, 0.7), waterSheetMat);
+      sheet.position.set(side * 0.25, sheetY, 0);
+      group.add(sheet);
+    }
+
+    // Gold sphere at outer wing tip (~5.5m height)
+    const wingTip = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 8), goldMat);
+    wingTip.position.set(side * 1.1, 5.5, 0);
+    group.add(wingTip);
+  }
+
+  // Gold detail band just below orb
+  const goldBand = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.1, 16), goldMat);
+  goldBand.position.y = 6.5;
+  group.add(goldBand);
+
+  // ── APEX GOLDEN ORB ──
+  const orb = new THREE.Mesh(new THREE.SphereGeometry(0.4, 16, 12), goldMat);
+  orb.position.y = 7.2;
+  group.add(orb);
+
+  // Halo sphere
+  const halo = new THREE.Mesh(new THREE.SphereGeometry(0.6, 16, 12), haloMat);
+  halo.position.y = 7.2;
+  group.add(halo);
+
+  // Glow orb beacon at apex
+  const apexGlow = createGlowOrb(0xD4AF37);
+  apexGlow.scale.setScalar(3.0);
+  apexGlow.position.y = 7.2;
+  group.add(apexGlow);
+
+  // ── CROWN WATER JETS (12) ──
+  for (let i = 0; i < 12; i++) {
+    const angle = (i / 12) * Math.PI * 2;
+    const jx = Math.cos(angle) * 4.0;
+    const jz = Math.sin(angle) * 4.0;
+
+    const jet = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 2.0, 6), jetMat);
+    jet.position.set(jx, 1.87, jz);
+    group.add(jet);
+
+    const splash = new THREE.Mesh(new THREE.SphereGeometry(0.08, 6, 6), splashMat);
+    splash.position.set(jx, 2.97, jz);
+    group.add(splash);
+  }
+
+  // ── ARCHED DOME STREAMS (6) ──
+  for (let i = 0; i < 6; i++) {
+    const angle = ((i * 2) / 12) * Math.PI * 2; // every other jet
+    const ax = Math.cos(angle) * 4.0;
+    const az = Math.sin(angle) * 4.0;
+
+    const stream = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 3.5, 6), arcStreamMat);
+    stream.position.set(ax * 0.6, 3.5, az * 0.6);
+    // Tilt inward at ~55° from vertical, toward center
+    stream.rotation.z = (Math.PI / 180) * 55 * Math.sign(ax) || 0;
+    stream.rotation.x = (Math.PI / 180) * -55 * Math.sign(az) || 0;
+    group.add(stream);
+  }
+
+  // ── PERIMETER UPLIGHTS (8) ──
+  for (let i = 0; i < 8; i++) {
+    const angle = (i / 8) * Math.PI * 2;
+    const ux = Math.cos(angle) * 5.0;
+    const uz = Math.sin(angle) * 5.0;
+    const uplight = createGlowOrb(0x4FC3F7);
+    uplight.scale.setScalar(1.5);
+    uplight.position.set(ux, 0.12, uz);
+    group.add(uplight);
+  }
+
+  // ── COLUMN BASE UPLIGHTS (4) ──
+  for (const [cx, cz] of [[0.8, 0], [-0.8, 0], [0, 0.8], [0, -0.8]]) {
+    const baseLight = createGlowOrb(0xD4AF37);
+    baseLight.scale.setScalar(1.2);
+    baseLight.position.set(cx, 0.1, cz);
+    group.add(baseLight);
+  }
+
+  // ── DECORATIVE BOLLARDS (4) ──
+  for (const [bx, bz] of [[5.5, 0], [-5.5, 0], [0, 5.5], [0, -5.5]]) {
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.5, 8), bollardMat);
+    post.position.set(bx, 0.37, bz);
+    group.add(post);
+    const cap = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 8), goldMat);
+    cap.position.set(bx, 0.67, bz);
+    group.add(cap);
+  }
+
+  // ── CONTRIBUTOR PLAQUE ──
+  buildPlaque(group, building, 4.6, 1.2);
+};
+
 // Distant hills
 export function createHills() {
   const group = new THREE.Group();

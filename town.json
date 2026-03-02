@@ -219,5 +219,18 @@
     },
     "issue": 45,
     "added": "2026-02-28"
+  },
+  {
+    "id": "fountain-of-happiness",
+    "name": "Fountain of Happiness",
+    "type": "nature",
+    "description": "A celestial sculptural fountain — twin marble wings rising 7 meters to cradle a radiant golden orb, surrounded by a dark reflecting basin ringed with glowing water-jet columns. Twelve slim jets form a crown of light; six arched streams create a water-dome canopy. At night the golden apex glows like a star, a luminous beacon pulling every eye toward the heavens.",
+    "plot": 28,
+    "contributor": {
+      "username": "Pavel-Piha",
+      "avatar": "https://github.com/Pavel-Piha.png"
+    },
+    "issue": 50,
+    "added": "2026-03-02"
   }
 ]
