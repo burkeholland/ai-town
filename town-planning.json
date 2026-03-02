@@ -133,5 +133,14 @@
     "reasoning": "The IVProduced Tech Corner is a tech-focused developer hub with strong visual identity (dark slate, NVIDIA green, Copilot blue glow). Plot 17 on the North Road west side (x=21.5, z=8) places it mid-way along the residential north lane, adding commercial diversity. Its dark-mode facade and glowing monitors make it a striking landmark when approaching from Main Street.",
     "vision": "The North Road gains its first tech landmark. Devs wandering north from Main Street discover the Copilot-sparkle roofline glowing at the end of the lane — a beacon for builders.",
     "date": "2026-03-02"
+  },
+  {
+    "plot": 18,
+    "building": "arasaka-customer-experience-center",
+    "type": "shop",
+    "zone": "North Road",
+    "reasoning": "The Arasaka pop-up kiosk is placed on the North Road east side (plot 18, x=28.5, z=8) — tucked between Bobby's House and Hilbert's Hotel along the quiet residential lane. A glossy corporate kiosk that clearly wandered in from a megacity mall feels perfectly out-of-place nestled in the neighborhood, which is exactly the vibe the contributor requested.",
+    "vision": "The North Road gains a delightfully incongruous corporate intruder. Residents heading to Hilbert's Hotel pass a suspiciously spotless kiosk offering 'Personal Security Solutions for Everyday Life', survey drone hovering hopefully outside.",
+    "date": "2026-03-02"
   }
 ]

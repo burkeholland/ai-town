@@ -299,6 +299,19 @@
     "added": "2026-03-02"
   },
   {
+    "id": "arasaka-customer-experience-center",
+    "name": "Arasaka Customer Experience Center (Pop-Up)",
+    "type": "shop",
+    "description": "A tiny Arasaka-branded corporate kiosk squeezed into the village — glossy charcoal panels, red LED accents, and a suspiciously spotless interior. Through the large front window: sleek white counters, holographic brochures, and a lone intern practicing their 'Welcome to Arasaka!' smile. A survey drone drifts outside, politely requesting customer feedback.",
+    "plot": 18,
+    "contributor": {
+      "username": "jongalloway",
+      "avatar": "https://github.com/jongalloway.png"
+    },
+    "issue": 65,
+    "added": "2026-03-02"
+  },
+  {
     "id": "the-aussie-escape",
     "name": "The Aussie Escape",
     "type": "shop",
