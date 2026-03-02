@@ -8826,6 +8826,245 @@ CUSTOM_BUILDERS['the-b'] = function (group, building) {
   buildPlaque(group, building, D / 2 + 0.1, 1.4);
 };
 
+// ─── Custom Building: Mumi House ───────────────────────────────────────────
+
+CUSTOM_BUILDERS['mumi-house'] = function (group, building) {
+  // Materials
+  const wallMat  = new THREE.MeshStandardMaterial({ color: 0x87ceeb, roughness: 0.7 });  // sky-blue
+  const roofMat  = new THREE.MeshStandardMaterial({ color: 0xc0392b, roughness: 0.7 });  // warm red
+  const eaveMat  = new THREE.MeshStandardMaterial({ color: 0x962d22, roughness: 0.7 });  // darker red eave
+  const trimMat  = new THREE.MeshStandardMaterial({ color: 0xf5e6ca, roughness: 0.8 });  // cream trim
+  const stoneMat = new THREE.MeshStandardMaterial({ color: 0xa0937d, roughness: 0.9 });  // warm stone
+  const woodMat  = new THREE.MeshStandardMaterial({ color: 0x8b6914, roughness: 0.7 });  // warm wood door
+  const frameMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6 });  // white frames
+  const brickMat = new THREE.MeshStandardMaterial({ color: 0x8b4513, roughness: 0.9 });  // brick chimney
+  const stonePathMat = new THREE.MeshStandardMaterial({ color: 0xb0a999, roughness: 0.9 });
+  const winMat   = new THREE.MeshStandardMaterial({
+    color: 0xbfdbfe,
+    emissive: 0xf59e0b,
+    emissiveIntensity: 0.25,
+    transparent: true,
+    opacity: 0.35,
+    roughness: 0.1,
+  });
+
+  const R = 1.6;    // cylinder radius
+  const H = 5.5;    // cylinder height
+
+  // ── FOUNDATION RING ──────────────────────────────────────────────────────
+  const foundGeo = new THREE.CylinderGeometry(1.8, 1.8, 0.15, 16);
+  const found = new THREE.Mesh(foundGeo, stoneMat);
+  found.position.y = 0.075;
+  found.castShadow = true;
+  found.receiveShadow = true;
+  group.add(found);
+
+  // ── MAIN CYLINDER BODY ──────────────────────────────────────────────────
+  const bodyGeo = new THREE.CylinderGeometry(R, R, H, 16);
+  const body = new THREE.Mesh(bodyGeo, wallMat);
+  body.position.y = H / 2 + 0.15;
+  body.castShadow = true;
+  body.receiveShadow = true;
+  group.add(body);
+
+  // ── FLOOR TRIM BANDS ────────────────────────────────────────────────────
+  for (const bandY of [1.4, 2.8, 4.2]) {
+    const bandGeo = new THREE.CylinderGeometry(1.65, 1.65, 0.06, 16);
+    const band = new THREE.Mesh(bandGeo, trimMat);
+    band.position.y = bandY + 0.15;
+    group.add(band);
+  }
+
+  // ── EAVE LIP ─────────────────────────────────────────────────────────────
+  const eaveGeo = new THREE.CylinderGeometry(1.85, 1.85, 0.25, 16);
+  const eave = new THREE.Mesh(eaveGeo, eaveMat);
+  eave.position.y = H + 0.15 - 0.12;
+  group.add(eave);
+
+  // ── ROOF CONE ───────────────────────────────────────────────────────────
+  const roofGeo = new THREE.ConeGeometry(1.75, 2.2, 16);
+  const roof = new THREE.Mesh(roofGeo, roofMat);
+  roof.position.y = H + 0.15 + 2.2 / 2;
+  roof.castShadow = true;
+  group.add(roof);
+
+  // ── CHIMNEY ──────────────────────────────────────────────────────────────
+  const chimneyGeo = new THREE.CylinderGeometry(0.15, 0.15, 1.0, 8);
+  const chimney = new THREE.Mesh(chimneyGeo, brickMat);
+  // Tilt ~8 degrees off vertical
+  chimney.rotation.z = 0.14;
+  chimney.position.set(0.5, H + 0.15 + 2.2 * 0.6 + 0.5, -0.3);
+  chimney.castShadow = true;
+  group.add(chimney);
+  // Chimney cap
+  const capGeo = new THREE.CylinderGeometry(0.22, 0.22, 0.08, 8);
+  const cap = new THREE.Mesh(capGeo, brickMat);
+  cap.position.set(0.57, H + 0.15 + 2.2 * 0.6 + 1.06, -0.3);
+  group.add(cap);
+  // Smoke wisps (3 translucent spheres)
+  const smokeMat = new THREE.MeshStandardMaterial({ color: 0xd3d3d3, transparent: true, opacity: 0.4 });
+  for (let i = 0; i < 3; i++) {
+    const smokeGeo = new THREE.SphereGeometry(0.08, 6, 6);
+    const smoke = new THREE.Mesh(smokeGeo, smokeMat);
+    smoke.position.set(0.57 + i * 0.06, H + 0.15 + 2.2 * 0.6 + 1.2 + i * 0.15, -0.3 + i * 0.04);
+    group.add(smoke);
+  }
+
+  // ── WINDOWS (3 per floor × 4 floors = 12 total) ─────────────────────────
+  const floorYList = [0.8, 2.1, 3.5, 4.8];
+  for (const floorY of floorYList) {
+    for (let wi = 0; wi < 3; wi++) {
+      const angle = (wi / 3) * Math.PI * 2;
+      const wx = Math.sin(angle) * (R + 0.01);
+      const wz = Math.cos(angle) * (R + 0.01);
+
+      // White frame (slightly larger, behind)
+      const frameGeo = new THREE.BoxGeometry(0.42, 0.58, 0.03);
+      const frame = new THREE.Mesh(frameGeo, frameMat);
+      frame.position.set(wx * 1.01, floorY + 0.15, wz * 1.01);
+      frame.rotation.y = -angle;
+      group.add(frame);
+      // Arch top frame
+      const archFrameGeo = new THREE.CylinderGeometry(0.21, 0.21, 0.03, 8, 1, false, 0, Math.PI);
+      const archFrame = new THREE.Mesh(archFrameGeo, frameMat);
+      archFrame.rotation.x = Math.PI / 2;
+      archFrame.rotation.z = 0;
+      archFrame.position.set(wx * 1.01, floorY + 0.15 + 0.29, wz * 1.01);
+      archFrame.rotation.y = -angle;
+      group.add(archFrame);
+
+      // Glass pane
+      const paneGeo = new THREE.BoxGeometry(0.35, 0.5, 0.05);
+      const pane = new THREE.Mesh(paneGeo, winMat);
+      pane.position.set(wx * 1.02, floorY + 0.15, wz * 1.02);
+      pane.rotation.y = -angle;
+      group.add(pane);
+      // Arch pane
+      const archPaneGeo = new THREE.CylinderGeometry(0.175, 0.175, 0.05, 8, 1, false, 0, Math.PI);
+      const archPane = new THREE.Mesh(archPaneGeo, winMat);
+      archPane.rotation.x = Math.PI / 2;
+      archPane.position.set(wx * 1.02, floorY + 0.15 + 0.25, wz * 1.02);
+      archPane.rotation.y = -angle;
+      group.add(archPane);
+    }
+  }
+
+  // ── FRONT DOOR (facing +Z, i.e. angle = 0) ───────────────────────────────
+  const doorFZ = R + 0.03;
+  // Door frame
+  const doorFrameGeo = new THREE.BoxGeometry(0.58, 0.96, 0.04);
+  const doorFrameMesh = new THREE.Mesh(doorFrameGeo, frameMat);
+  doorFrameMesh.position.set(0, 0.6, doorFZ);
+  group.add(doorFrameMesh);
+  // Arch door frame
+  const doorArchFrameGeo = new THREE.CylinderGeometry(0.29, 0.29, 0.04, 8, 1, false, 0, Math.PI);
+  const doorArchFrame = new THREE.Mesh(doorArchFrameGeo, frameMat);
+  doorArchFrame.rotation.x = Math.PI / 2;
+  doorArchFrame.position.set(0, 0.6 + 0.48, doorFZ);
+  group.add(doorArchFrame);
+  // Door panel
+  const doorGeo = new THREE.BoxGeometry(0.5, 0.9, 0.06);
+  const doorMesh = new THREE.Mesh(doorGeo, woodMat);
+  doorMesh.position.set(0, 0.6, doorFZ + 0.01);
+  doorMesh.castShadow = true;
+  group.add(doorMesh);
+  // Door arch
+  const doorArchGeo = new THREE.CylinderGeometry(0.25, 0.25, 0.06, 8, 1, false, 0, Math.PI);
+  const doorArch = new THREE.Mesh(doorArchGeo, woodMat);
+  doorArch.rotation.x = Math.PI / 2;
+  doorArch.position.set(0, 0.6 + 0.45, doorFZ + 0.01);
+  group.add(doorArch);
+  // Door handle
+  const handleGeo = new THREE.SphereGeometry(0.04, 6, 6);
+  const handleMat = new THREE.MeshStandardMaterial({ color: 0xd4a017, metalness: 0.6, roughness: 0.3 });
+  const handle = new THREE.Mesh(handleGeo, handleMat);
+  handle.position.set(0.18, 0.6, doorFZ + 0.05);
+  group.add(handle);
+
+  // ── FRONT STOOP ──────────────────────────────────────────────────────────
+  const stoopMat = new THREE.MeshStandardMaterial({ color: 0xc9a96e, roughness: 0.8 });
+  const stoopGeo = new THREE.BoxGeometry(0.8, 0.08, 0.5);
+  const stoop = new THREE.Mesh(stoopGeo, stoopMat);
+  stoop.position.set(0, 0.04, doorFZ + 0.3);
+  stoop.receiveShadow = true;
+  group.add(stoop);
+  // Steps
+  for (let s = 0; s < 2; s++) {
+    const stepGeo = new THREE.BoxGeometry(0.6, 0.04, 0.25);
+    const step = new THREE.Mesh(stepGeo, stoopMat);
+    step.position.set(0, -0.02 - s * 0.04, doorFZ + 0.3 + 0.25 + s * 0.25);
+    step.receiveShadow = true;
+    group.add(step);
+  }
+
+  // ── BENCH (right of door) ─────────────────────────────────────────────────
+  const benchMat = new THREE.MeshStandardMaterial({ color: 0xa0855b, roughness: 0.9 });
+  const seatGeo = new THREE.BoxGeometry(0.5, 0.06, 0.2);
+  const seat = new THREE.Mesh(seatGeo, benchMat);
+  seat.position.set(0.52, 0.22, doorFZ + 0.05);
+  group.add(seat);
+  for (const lx of [-0.18, 0.18]) {
+    const legGeo = new THREE.BoxGeometry(0.06, 0.22, 0.06);
+    const leg = new THREE.Mesh(legGeo, benchMat);
+    leg.position.set(0.52 + lx, 0.11, doorFZ + 0.05);
+    group.add(leg);
+  }
+
+  // ── LANTERN POST (left of door) ───────────────────────────────────────────
+  const postGeo = new THREE.CylinderGeometry(0.03, 0.03, 0.35, 6);
+  const postMesh = new THREE.Mesh(postGeo, woodMat);
+  postMesh.position.set(-0.5, 0.175, doorFZ + 0.1);
+  group.add(postMesh);
+  const lantern = createGlowOrb(0xfbbf24);
+  lantern.position.set(-0.5, 0.38, doorFZ + 0.1);
+  group.add(lantern);
+
+  // ── INTERIOR GLOW ORBS ───────────────────────────────────────────────────
+  const fireOrb = createGlowOrb(0xf59e0b);
+  fireOrb.position.set(0, 0.7, 0);
+  group.add(fireOrb);
+  for (const gy of [2.1, 3.5]) {
+    const floorOrb = createGlowOrb(0xfbbf24);
+    floorOrb.position.set(0, gy, 0);
+    group.add(floorOrb);
+  }
+
+  // ── WILDFLOWER RING ───────────────────────────────────────────────────────
+  const flowerColors = [0x9b59b6, 0xf4d03f, 0xffffff, 0xe88dbd];
+  const stemMat = new THREE.MeshStandardMaterial({ color: 0x5a8a3c });
+  for (let f = 0; f < 18; f++) {
+    const fAngle = (f / 18) * Math.PI * 2 + 0.15 * Math.sin(f * 2.5);
+    const fDist = 2.5 + Math.random() * 1.0;
+    const fx = Math.sin(fAngle) * fDist;
+    const fz = Math.cos(fAngle) * fDist;
+    const stemH = 0.12 + Math.random() * 0.08;
+    const stemGeo = new THREE.CylinderGeometry(0.03, 0.03, stemH, 4);
+    const stem = new THREE.Mesh(stemGeo, stemMat);
+    stem.position.set(fx, stemH / 2, fz);
+    group.add(stem);
+    const petalGeo = new THREE.SphereGeometry(0.05, 4, 4);
+    const petalMat = new THREE.MeshStandardMaterial({ color: flowerColors[f % flowerColors.length] });
+    const petal = new THREE.Mesh(petalGeo, petalMat);
+    petal.position.set(fx, stemH + 0.03, fz);
+    group.add(petal);
+  }
+
+  // ── STONE PATH ────────────────────────────────────────────────────────────
+  for (let p = 0; p < 5; p++) {
+    const stoneR = 0.15 + Math.random() * 0.05;
+    const stoneGeo = new THREE.CylinderGeometry(stoneR, stoneR, 0.02, 8);
+    const stone = new THREE.Mesh(stoneGeo, stonePathMat);
+    const pz = doorFZ + 0.55 + p * 0.48 + (Math.random() - 0.5) * 0.1;
+    const px = (Math.random() - 0.5) * 0.2;
+    stone.position.set(px, 0.01, pz);
+    stone.receiveShadow = true;
+    group.add(stone);
+  }
+
+  // ── PLAQUE ─────────────────────────────────────────────────────────────────
+  buildPlaque(group, building, R + 0.1, 2.5);
+};
+
 // Distant hills
 export function createHills() {
   const group = new THREE.Group();
