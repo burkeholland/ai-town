@@ -208,6 +208,19 @@
     "added": "2026-02-27"
   },
   {
+    "id": "tacos-el-cochi",
+    "name": "Tacos el Cochi",
+    "type": "restaurant",
+    "description": "A sun-baked street-corner taquería with fiesta-bright papel picado banners, a hand-painted wooden sign, and warm golden light pouring through large front windows. Colorful with bright red trim, a metal awning, bistro tables outside, and a luchador mask good-luck charm visible through the window.",
+    "plot": 9,
+    "contributor": {
+      "username": "alexcarrilloar",
+      "avatar": "https://github.com/alexcarrilloar.png"
+    },
+    "issue": 49,
+    "added": "2026-03-02"
+  },
+  {
     "id": "verdant-fitness-grove",
     "name": "The Verdant Fitness Grove",
     "type": "nature",

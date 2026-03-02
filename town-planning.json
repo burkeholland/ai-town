@@ -111,9 +111,12 @@
     "date": "2026-02-27"
   },
   {
-    "plot": 26,
-    "building": "verdant-fitness-grove",
-    "type": "nature",
-    "reasoning": "NE quadrant outdoor fitness area. Nature spots need space and fresh air on the outskirts."
+    "plot": 9,
+    "building": "tacos-el-cochi",
+    "type": "restaurant",
+    "zone": "Main Street West",
+    "reasoning": "Tacos el Cochi is a lively street taquería — it belongs on Main Street West's commercial strip at the west terminus (x=0). The cluster of restaurants and shops (Pierce's Pub, The Cinnamon Roll, Motz Coffee) along Main Street West creates a vibrant food corridor; adding Tacos el Cochi at the far-west anchor extends the strip and draws visitors all the way to the end.",
+    "vision": "The west terminus of Main Street now has character — a colorful taquería with papel picado banners and a luchador mask in the window marks the end of the commercial strip. Walking west down Main Street, visitors smell carne asada before they see it.",
+    "date": "2026-03-02"
   }
 ]
