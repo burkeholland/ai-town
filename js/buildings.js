@@ -6061,158 +6061,289 @@ CUSTOM_BUILDERS['verdant-fitness-grove'] = function (group, building) {
   buildPlaque(group, building, 2.85, 1.1);
 };
 
-// ─── Custom Building: Fountain of Happiness ────────────────────────────────
+// ─── Custom Building: Eye of Sauron ────────────────────────────────────────
 
-CUSTOM_BUILDERS['fountain-of-happiness'] = function (group, building) {
-  // Materials
-  const marbleMat   = new THREE.MeshStandardMaterial({ color: 0xF5F0E8, roughness: 0.5 });
-  const warmStoneMat = new THREE.MeshStandardMaterial({ color: 0xE0D8CC, roughness: 0.6 });
-  const darkPoolMat  = new THREE.MeshStandardMaterial({ color: 0x1A1A2E, roughness: 0.2, metalness: 0.3 });
-  const goldMat      = new THREE.MeshStandardMaterial({ color: 0xD4AF37, emissive: 0xD4AF37, emissiveIntensity: 0.4, roughness: 0.3, metalness: 0.4 });
-  const waterMat     = new THREE.MeshStandardMaterial({ color: 0x4FC3F7, transparent: true, opacity: 0.25, roughness: 0.1 });
-  const waterSheetMat = new THREE.MeshStandardMaterial({ color: 0x4FC3F7, transparent: true, opacity: 0.4, roughness: 0.1 });
-  const jetMat       = new THREE.MeshStandardMaterial({ color: 0xD6EAF8, transparent: true, opacity: 0.75, roughness: 0.1 });
-  const splashMat    = new THREE.MeshStandardMaterial({ color: 0x4FC3F7, transparent: true, opacity: 0.5, roughness: 0.1 });
-  const arcStreamMat = new THREE.MeshStandardMaterial({ color: 0xB3E5FC, transparent: true, opacity: 0.35, roughness: 0.1 });
-  const haloMat      = new THREE.MeshStandardMaterial({ color: 0xFFFACD, transparent: true, opacity: 0.15, roughness: 0.1 });
-  const bollardMat   = new THREE.MeshStandardMaterial({ color: 0x9CA3AF, roughness: 0.7 });
+CUSTOM_BUILDERS['eye-of-sauron'] = function (group, building) {
+  // ── MATERIALS ──────────────────────────────────────────────────────────────
+  const towerMat  = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.9 });
+  const stoneMat  = new THREE.MeshStandardMaterial({ color: 0x2d2d2d, roughness: 0.85 });
+  const ironMat   = new THREE.MeshStandardMaterial({ color: 0x4a4a4a, roughness: 0.7 });
+  const lavaMat   = new THREE.MeshStandardMaterial({ color: 0xff4500, emissive: 0xff4500, emissiveIntensity: 0.6 });
+  const eyeMat    = new THREE.MeshStandardMaterial({ color: 0xff4500, emissive: 0xff4500, emissiveIntensity: 0.9 });
+  const pupilMat  = new THREE.MeshStandardMaterial({ color: 0x8b0000, emissive: 0x8b0000, emissiveIntensity: 0.5 });
+  const haloMat   = new THREE.MeshStandardMaterial({ color: 0xff6600, emissive: 0xff6600, emissiveIntensity: 0.7 });
+  const orcSkin   = new THREE.MeshStandardMaterial({ color: 0x556b2f });
+  const orcArmor  = new THREE.MeshStandardMaterial({ color: 0x3d3d3d });
+  const spearWood = new THREE.MeshStandardMaterial({ color: 0x5c4033 });
+  const spearTip  = new THREE.MeshStandardMaterial({ color: 0x808080, roughness: 0.4 });
+  const shieldMat = new THREE.MeshStandardMaterial({ color: 0x8b0000 });
+  const bannerMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, side: THREE.DoubleSide });
+  const sigilMat  = new THREE.MeshStandardMaterial({ color: 0xff4500, emissive: 0xff4500, emissiveIntensity: 0.5 });
+  const poleMat   = new THREE.MeshStandardMaterial({ color: 0x2d2d2d });
+  const postMat   = new THREE.MeshStandardMaterial({ color: 0x333333 });
+  const lavaPoolMat = new THREE.MeshStandardMaterial({ color: 0xff4500, emissive: 0xff4500, emissiveIntensity: 0.5 });
 
-  // ── BASE PLATFORM (marble plaza) ──
-  const plaza = new THREE.Mesh(new THREE.CylinderGeometry(6.0, 6.0, 0.08, 16), marbleMat);
-  plaza.position.y = 0.04;
-  plaza.receiveShadow = true;
-  group.add(plaza);
+  const baseH = 1.5;  // fortress platform height
+  const baseR = 3.5;  // platform radius
+  const segH  = 3.0;  // height of each tower segment
+  const nSegs = 6;    // number of stacked segments
+  // Per-segment bottom and top radii (tapers from 2.5 → 0.7)
+  const bRadii = [2.5, 2.2, 1.9, 1.6, 1.2, 0.9];
+  const tRadii = [2.2, 1.9, 1.6, 1.2, 0.9, 0.7];
+  const towerTopY = baseH + nSegs * segH; // ≈ 19.5
 
-  const plazaStep = new THREE.Mesh(new THREE.CylinderGeometry(5.8, 5.8, 0.04, 16), warmStoneMat);
-  plazaStep.position.y = 0.1;
-  plazaStep.receiveShadow = true;
-  group.add(plazaStep);
+  // ── BASE FORTRESS PLATFORM (octagonal) ────────────────────────────────────
+  const platform = new THREE.Mesh(
+    new THREE.CylinderGeometry(baseR, baseR * 1.08, baseH, 8),
+    stoneMat
+  );
+  platform.position.y = baseH / 2;
+  platform.castShadow = true;
+  platform.receiveShadow = true;
+  group.add(platform);
 
-  // ── BASIN ──
-  const basinOuter = new THREE.Mesh(new THREE.CylinderGeometry(4.5, 4.5, 0.6, 24), marbleMat);
-  basinOuter.position.y = 0.42;
-  basinOuter.castShadow = true;
-  basinOuter.receiveShadow = true;
-  group.add(basinOuter);
-
-  const basinFloor = new THREE.Mesh(new THREE.CylinderGeometry(4.2, 4.2, 0.02, 24), darkPoolMat);
-  basinFloor.position.y = 0.63;
-  group.add(basinFloor);
-
-  const basinRim = new THREE.Mesh(new THREE.CylinderGeometry(4.5, 4.5, 0.15, 24), warmStoneMat);
-  basinRim.position.y = 0.795;
-  group.add(basinRim);
-
-  // ── WATER SURFACE ──
-  const waterSurf = new THREE.Mesh(new THREE.CylinderGeometry(4.2, 4.2, 0.02, 24), waterMat);
-  waterSurf.position.y = 0.75;
-  group.add(waterSurf);
-
-  // ── CENTRAL WINGS ──
-  // Two tapered box columns angled inward (~8° from vertical)
-  const wingAngle = 0.14; // radians (~8°)
-  for (const side of [-1, 1]) {
-    const wing = new THREE.Mesh(new THREE.BoxGeometry(0.4, 7.0, 0.8), marbleMat);
-    wing.position.set(side * 0.5, 3.85, 0);
-    wing.rotation.z = -side * wingAngle;
-    wing.castShadow = true;
-    group.add(wing);
-
-    // Water-sheet inner faces (3 thin slabs per wing)
-    for (let s = 0; s < 3; s++) {
-      const sheetY = 1.5 + s * 1.8;
-      const sheet = new THREE.Mesh(new THREE.BoxGeometry(0.05, 1.4, 0.7), waterSheetMat);
-      sheet.position.set(side * 0.25, sheetY, 0);
-      group.add(sheet);
-    }
-
-    // Gold sphere at outer wing tip (~5.5m height)
-    const wingTip = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 8), goldMat);
-    wingTip.position.set(side * 1.1, 5.5, 0);
-    group.add(wingTip);
-  }
-
-  // Gold detail band just below orb
-  const goldBand = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.1, 16), goldMat);
-  goldBand.position.y = 6.5;
-  group.add(goldBand);
-
-  // ── APEX GOLDEN ORB ──
-  const orb = new THREE.Mesh(new THREE.SphereGeometry(0.4, 16, 12), goldMat);
-  orb.position.y = 7.2;
-  group.add(orb);
-
-  // Halo sphere
-  const halo = new THREE.Mesh(new THREE.SphereGeometry(0.6, 16, 12), haloMat);
-  halo.position.y = 7.2;
-  group.add(halo);
-
-  // Glow orb beacon at apex
-  const apexGlow = createGlowOrb(0xD4AF37);
-  apexGlow.scale.setScalar(3.0);
-  apexGlow.position.y = 7.2;
-  group.add(apexGlow);
-
-  // ── CROWN WATER JETS (12) ──
-  for (let i = 0; i < 12; i++) {
-    const angle = (i / 12) * Math.PI * 2;
-    const jx = Math.cos(angle) * 4.0;
-    const jz = Math.sin(angle) * 4.0;
-
-    const jet = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 2.0, 6), jetMat);
-    jet.position.set(jx, 1.87, jz);
-    group.add(jet);
-
-    const splash = new THREE.Mesh(new THREE.SphereGeometry(0.08, 6, 6), splashMat);
-    splash.position.set(jx, 2.97, jz);
-    group.add(splash);
-  }
-
-  // ── ARCHED DOME STREAMS (6) ──
-  for (let i = 0; i < 6; i++) {
-    const angle = ((i * 2) / 12) * Math.PI * 2; // every other jet
-    const ax = Math.cos(angle) * 4.0;
-    const az = Math.sin(angle) * 4.0;
-
-    const stream = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 3.5, 6), arcStreamMat);
-    stream.position.set(ax * 0.6, 3.5, az * 0.6);
-    // Tilt inward at ~55° from vertical, toward center
-    stream.rotation.z = (Math.PI / 180) * 55 * Math.sign(ax) || 0;
-    stream.rotation.x = (Math.PI / 180) * -55 * Math.sign(az) || 0;
-    group.add(stream);
-  }
-
-  // ── PERIMETER UPLIGHTS (8) ──
+  // Battlements (merlons) along top of platform
   for (let i = 0; i < 8; i++) {
-    const angle = (i / 8) * Math.PI * 2;
-    const ux = Math.cos(angle) * 5.0;
-    const uz = Math.sin(angle) * 5.0;
-    const uplight = createGlowOrb(0x4FC3F7);
-    uplight.scale.setScalar(1.5);
-    uplight.position.set(ux, 0.12, uz);
-    group.add(uplight);
-  }
-
-  // ── COLUMN BASE UPLIGHTS (4) ──
-  for (const [cx, cz] of [[0.8, 0], [-0.8, 0], [0, 0.8], [0, -0.8]]) {
-    const baseLight = createGlowOrb(0xD4AF37);
-    baseLight.scale.setScalar(1.2);
-    baseLight.position.set(cx, 0.1, cz);
-    group.add(baseLight);
-  }
-
-  // ── DECORATIVE BOLLARDS (4) ──
-  for (const [bx, bz] of [[5.5, 0], [-5.5, 0], [0, 5.5], [0, -5.5]]) {
-    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.5, 8), bollardMat);
-    post.position.set(bx, 0.37, bz);
-    group.add(post);
-    const cap = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 8), goldMat);
-    cap.position.set(bx, 0.67, bz);
+    const a = (i / 8) * Math.PI * 2;
+    const mx = Math.cos(a) * (baseR - 0.3);
+    const mz = Math.sin(a) * (baseR - 0.3);
+    const merlon = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.35, 0.35), towerMat);
+    merlon.position.set(mx, baseH + 0.175, mz);
+    group.add(merlon);
+    const cap = new THREE.Mesh(new THREE.ConeGeometry(0.14, 0.2, 4), towerMat);
+    cap.position.set(mx, baseH + 0.45, mz);
     group.add(cap);
   }
 
-  // ── CONTRIBUTOR PLAQUE ──
-  buildPlaque(group, building, 4.6, 1.2);
+  // ── MAIN TOWER SPIRE (stacked tapered octagonal segments) ─────────────────
+  for (let i = 0; i < nSegs; i++) {
+    const seg = new THREE.Mesh(
+      new THREE.CylinderGeometry(tRadii[i], bRadii[i], segH, 8),
+      towerMat
+    );
+    seg.position.y = baseH + i * segH + segH / 2;
+    seg.castShadow = true;
+    group.add(seg);
+    // Stone banding at each segment join
+    const band = new THREE.Mesh(
+      new THREE.CylinderGeometry(bRadii[i] + 0.06, bRadii[i] + 0.06, 0.09, 8),
+      stoneMat
+    );
+    band.position.y = baseH + i * segH;
+    group.add(band);
+  }
+
+  // ── LAVA VEINS ON TOWER ───────────────────────────────────────────────────
+  for (let i = 0; i < 5; i++) {
+    const a = (i / 5) * Math.PI * 2;
+    const veinH = 7 + (i % 3) * 2; // 7, 9, 11, 7, 9
+    const vein = new THREE.Mesh(new THREE.BoxGeometry(0.07, veinH, 0.07), lavaMat);
+    vein.position.set(Math.cos(a) * 2.3, baseH + veinH / 2 + 0.5, Math.sin(a) * 2.3);
+    group.add(vein);
+  }
+
+  // ── GATE (front face: local +Z, pointed arch with portcullis) ─────────────
+  const gateZ = baseR - 0.12;
+
+  // Gate pillars
+  for (const sx of [-0.6, 0.6]) {
+    const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.28, baseH, 0.22), ironMat);
+    pillar.position.set(sx, baseH / 2, gateZ);
+    group.add(pillar);
+  }
+  // Pointed arch
+  const gateArch = new THREE.Mesh(new THREE.TorusGeometry(0.52, 0.09, 6, 10, Math.PI), stoneMat);
+  gateArch.position.set(0, baseH - 0.08, gateZ);
+  group.add(gateArch);
+  // Portcullis vertical bars
+  const barMat = new THREE.MeshStandardMaterial({ color: 0x4a4a4a, roughness: 0.7 });
+  for (let ix = -2; ix <= 2; ix++) {
+    const vBar = new THREE.Mesh(new THREE.BoxGeometry(0.05, 1.0, 0.04), barMat);
+    vBar.position.set(ix * 0.22, baseH - 0.5, gateZ + 0.04);
+    group.add(vBar);
+  }
+  // Portcullis horizontal bars
+  for (const hy of [0.3, 0.65]) {
+    const hBar = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.05, 0.04), barMat);
+    hBar.position.set(0, hy, gateZ + 0.04);
+    group.add(hBar);
+  }
+  // Portcullis downward spike tips
+  for (let ix = -2; ix <= 2; ix++) {
+    const spike = new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.12, 4), ironMat);
+    spike.rotation.x = Math.PI;
+    spike.position.set(ix * 0.22, -0.02, gateZ + 0.04);
+    group.add(spike);
+  }
+
+  // ── CROWN PRONGS (two tapered cylinders curving inward at tower top) ───────
+  for (const sx of [-0.7, 0.7]) {
+    const prong = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.24, 2.5, 6), stoneMat);
+    prong.position.set(sx, towerTopY + 1.0, 0);
+    prong.rotation.z = sx > 0 ? 0.28 : -0.28;
+    prong.castShadow = true;
+    group.add(prong);
+  }
+
+  // ── THE EYE ───────────────────────────────────────────────────────────────
+  const eyeY = towerTopY + 1.8;
+
+  // Eye sphere (almond shape via scale)
+  const eyeMesh = new THREE.Mesh(new THREE.SphereGeometry(0.75, 16, 8), eyeMat);
+  eyeMesh.scale.set(1.5, 0.75, 0.3);
+  eyeMesh.position.set(0, eyeY, 0);
+  group.add(eyeMesh);
+
+  // Pupil slit (vertical crimson bar)
+  const pupil = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.65, 0.06), pupilMat);
+  pupil.position.set(0, eyeY, 0.24);
+  group.add(pupil);
+
+  // Flaming halo ring (torus scaled to almond shape)
+  const halo = new THREE.Mesh(new THREE.TorusGeometry(0.82, 0.07, 8, 14), haloMat);
+  halo.scale.set(1.5, 0.75, 0.25);
+  halo.position.set(0, eyeY, 0);
+  group.add(halo);
+
+  // Glow orbs at the Eye
+  const eyeGlow1 = createGlowOrb(0xff4500);
+  eyeGlow1.position.set(0, eyeY, 0);
+  group.add(eyeGlow1);
+  const eyeGlow2 = createGlowOrb(0xff6600);
+  eyeGlow2.position.set(0, eyeY + 0.2, 0.1);
+  group.add(eyeGlow2);
+
+  // ── FLAME WISPS ABOVE THE EYE ─────────────────────────────────────────────
+  const wispData = [
+    { x:  0.3, z:  0.1, rz:  0.2,  color: 0xff4500 },
+    { x: -0.4, z: -0.1, rz: -0.25, color: 0xffaa00 },
+    { x:  0.0, z:  0.3, rz:  0.1,  color: 0xff4500 },
+    { x: -0.2, z: -0.3, rz: -0.15, color: 0xff6600 },
+  ];
+  for (const w of wispData) {
+    const wMat = new THREE.MeshStandardMaterial({
+      color: w.color, emissive: w.color, emissiveIntensity: 0.7,
+      transparent: true, opacity: 0.8,
+    });
+    const wisp = new THREE.Mesh(new THREE.ConeGeometry(0.1, 0.55, 6), wMat);
+    wisp.position.set(w.x, eyeY + 0.85, w.z);
+    wisp.rotation.z = w.rz;
+    group.add(wisp);
+  }
+
+  // ── ORC GUARDS FLANKING THE GATE ─────────────────────────────────────────
+  const guardZ   = baseR + 0.35;
+  const guardDefs = [{ x: -0.9, spearSide: -1 }, { x: 0.9, spearSide: 1 }];
+  for (const g of guardDefs) {
+    const gx = g.x, gz = guardZ, gy = baseH;
+    // Legs
+    for (const lx of [-0.11, 0.11]) {
+      const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.48, 5), orcSkin);
+      leg.position.set(gx + lx, gy + 0.24, gz);
+      group.add(leg);
+    }
+    // Torso
+    const torso = new THREE.Mesh(new THREE.BoxGeometry(0.33, 0.48, 0.19), orcArmor);
+    torso.position.set(gx, gy + 0.72, gz);
+    group.add(torso);
+    // Arms
+    for (const ax of [-0.23, 0.23]) {
+      const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 0.38, 5), orcSkin);
+      arm.position.set(gx + ax, gy + 0.72, gz);
+      arm.rotation.z = ax > 0 ? 0.3 : -0.3;
+      group.add(arm);
+    }
+    // Head
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.14, 8, 6), orcSkin);
+    head.position.set(gx, gy + 1.1, gz);
+    group.add(head);
+    // Helmet spike
+    const helmetSpike = new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.17, 4), ironMat);
+    helmetSpike.position.set(gx, gy + 1.3, gz);
+    group.add(helmetSpike);
+    // Spear shaft
+    const spear = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 1.9, 5), spearWood);
+    spear.position.set(gx + g.spearSide * 0.28, gy + 0.95, gz);
+    group.add(spear);
+    // Spear tip
+    const tip = new THREE.Mesh(new THREE.ConeGeometry(0.055, 0.18, 4), spearTip);
+    tip.position.set(gx + g.spearSide * 0.28, gy + 2.0, gz);
+    group.add(tip);
+  }
+  // Shield on right orc
+  const shieldMesh = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.32, 0.04), shieldMat);
+  shieldMesh.position.set(0.9 - 0.28, baseH + 0.72, guardZ + 0.12);
+  group.add(shieldMesh);
+  const emblem = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 0.02), sigilMat);
+  emblem.rotation.z = Math.PI / 4;
+  emblem.position.set(0.9 - 0.28, baseH + 0.72, guardZ + 0.15);
+  group.add(emblem);
+
+  // ── SPIKED PERIMETER FENCE ────────────────────────────────────────────────
+  const fenceR  = 4.6;
+  const nPosts  = 12;
+  const fencePositions = Array.from({ length: nPosts }, (_, i) => {
+    const a = (i / nPosts) * Math.PI * 2;
+    return { x: Math.cos(a) * fenceR, z: Math.sin(a) * fenceR };
+  });
+  for (let i = 0; i < nPosts; i++) {
+    const p = fencePositions[i];
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1.0, 6), postMat);
+    post.position.set(p.x, 0.5, p.z);
+    group.add(post);
+    const spike = new THREE.Mesh(new THREE.ConeGeometry(0.06, 0.18, 4), ironMat);
+    spike.position.set(p.x, 1.09, p.z);
+    group.add(spike);
+    // Horizontal rail to next post (closes loop)
+    const n = fencePositions[(i + 1) % nPosts];
+    const dx = n.x - p.x, dz = n.z - p.z;
+    const railLen = Math.sqrt(dx * dx + dz * dz);
+    const rail = new THREE.Mesh(new THREE.BoxGeometry(railLen, 0.04, 0.04), postMat);
+    rail.position.set((p.x + n.x) / 2, 0.5, (p.z + n.z) / 2);
+    rail.rotation.y = -Math.atan2(dz, dx);
+    group.add(rail);
+  }
+
+  // ── LAVA POOLS ────────────────────────────────────────────────────────────
+  const pools = [
+    { x:  2.5, z:  1.8, w: 0.75, d: 0.45 },
+    { x: -1.9, z:  1.5, w: 0.6,  d: 0.38 },
+    { x:  0.4, z: -2.3, w: 0.65, d: 0.4  },
+  ];
+  for (const p of pools) {
+    const pool = new THREE.Mesh(new THREE.BoxGeometry(p.w, 0.04, p.d), lavaPoolMat);
+    pool.position.set(p.x, 0.02, p.z);
+    group.add(pool);
+    const poolGlow = createGlowOrb(0xff4500);
+    poolGlow.position.set(p.x, 0.08, p.z);
+    group.add(poolGlow);
+  }
+
+  // ── DARK BANNERS FLANKING THE GATE ────────────────────────────────────────
+  for (const sx of [-2.0, 2.0]) {
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 2.0, 5), poleMat);
+    pole.position.set(sx, baseH + 1.0, baseR + 0.35);
+    group.add(pole);
+    const banner = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.75, 0.02), bannerMat);
+    banner.position.set(sx, baseH + 0.38, baseR + 0.36);
+    group.add(banner);
+    // Eye sigil diamond
+    const sigil = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.12, 0.02), sigilMat);
+    sigil.rotation.z = Math.PI / 4;
+    sigil.position.set(sx, baseH + 0.38, baseR + 0.38);
+    group.add(sigil);
+  }
+
+  // ── AMBIENT GLOW ORBS ─────────────────────────────────────────────────────
+  const forgeGlow = createGlowOrb(0xff4500);
+  forgeGlow.position.set(0, baseH * 0.6, 0);
+  group.add(forgeGlow);
+  const midGlow = createGlowOrb(0xff6600);
+  midGlow.position.set(0, towerTopY * 0.4, 0);
+  group.add(midGlow);
+
+  // ── PLAQUE ANCHOR ─────────────────────────────────────────────────────────
+  buildPlaque(group, building, baseR + 0.4, 5.0);
 };
 
 // Distant hills
@@ -6249,351 +6380,6 @@ export function createHills() {
 
   return group;
 }
-
-// ─── Custom Building: Tacos el Cochi ──────────────────────────────────────
-
-CUSTOM_BUILDERS['tacos-el-cochi'] = function (group, building) {
-  const W = 3.0;   // width (x)
-  const D = 2.8;   // depth (z)
-  const H = 2.6;   // wall height
-
-  // ── Materials ─────────────────────────────────────────────────────────────
-  const wallMat    = new THREE.MeshStandardMaterial({ color: 0xf9f3e3 });
-  const trimMat    = new THREE.MeshStandardMaterial({ color: 0xcc2936 });
-  const roofMat    = new THREE.MeshStandardMaterial({ color: 0xf9f3e3 });
-  const awningMat  = new THREE.MeshStandardMaterial({ color: 0xa8a8a8, metalness: 0.4, roughness: 0.6 });
-  const poleMat    = new THREE.MeshStandardMaterial({ color: 0x555555 });
-  const woodMat    = new THREE.MeshStandardMaterial({ color: 0x8B5E3C });
-  const signInset  = new THREE.MeshStandardMaterial({ color: 0xf9f3e3 });
-  const rodMat     = new THREE.MeshStandardMaterial({ color: 0x333333 });
-  const tableMat   = new THREE.MeshStandardMaterial({ color: 0x888888, metalness: 0.3, roughness: 0.6 });
-  const cactusGreen = new THREE.MeshStandardMaterial({ color: 0x2d936c });
-  const terracotta  = new THREE.MeshStandardMaterial({ color: 0xc1440e });
-  const counterMat  = new THREE.MeshStandardMaterial({ color: 0xa0522d });
-  const griddleMat  = new THREE.MeshStandardMaterial({ color: 0x444444 });
-  const steelMat    = new THREE.MeshStandardMaterial({ color: 0x999999, metalness: 0.5, roughness: 0.5 });
-  const trompoMat   = new THREE.MeshStandardMaterial({ color: 0x8B2500 });
-  const shelfMat    = new THREE.MeshStandardMaterial({ color: 0x8B5E3C });
-  const chalkMat    = new THREE.MeshStandardMaterial({ color: 0x2a2a2a });
-  const maskMat     = new THREE.MeshStandardMaterial({ color: 0xcc2936 });
-  const eyeMat      = new THREE.MeshStandardMaterial({ color: 0xffffff });
-  const winMat      = new THREE.MeshStandardMaterial({
-    color: 0xbfdbfe, emissive: 0x3b82f6, emissiveIntensity: 0.15,
-    transparent: true, opacity: 0.35, roughness: 0.1,
-  });
-  const bannerMats = [
-    new THREE.MeshStandardMaterial({ color: 0xe91e8c }),
-    new THREE.MeshStandardMaterial({ color: 0xf5a623 }),
-    new THREE.MeshStandardMaterial({ color: 0x2d936c }),
-    new THREE.MeshStandardMaterial({ color: 0x7b2d8e }),
-  ];
-
-  // ── Foundation ────────────────────────────────────────────────────────────
-  const base = new THREE.Mesh(
-    new THREE.BoxGeometry(W + 0.2, 0.1, D + 0.2),
-    new THREE.MeshStandardMaterial({ color: 0xd1d5db })
-  );
-  base.position.y = 0.05;
-  base.receiveShadow = true;
-  group.add(base);
-
-  // ── Main walls ────────────────────────────────────────────────────────────
-  // Back wall (full solid)
-  const backWall = new THREE.Mesh(new THREE.BoxGeometry(W, H, 0.12), wallMat);
-  backWall.position.set(0, H / 2, -D / 2);
-  backWall.castShadow = true;
-  backWall.receiveShadow = true;
-  group.add(backWall);
-
-  // Left side wall (solid with small window)
-  const leftWall = new THREE.Mesh(new THREE.BoxGeometry(0.12, H, D), wallMat);
-  leftWall.position.set(-W / 2, H / 2, 0);
-  leftWall.castShadow = true;
-  leftWall.receiveShadow = true;
-  group.add(leftWall);
-
-  // Right side wall (solid with small window)
-  const rightWall = new THREE.Mesh(new THREE.BoxGeometry(0.12, H, D), wallMat);
-  rightWall.position.set(W / 2, H / 2, 0);
-  rightWall.castShadow = true;
-  rightWall.receiveShadow = true;
-  group.add(rightWall);
-
-  // Front wall — three sections: left strip, right strip, top strip (doorway open)
-  // Left strip (left of doorway, doorway is centered at x=-0.3)
-  const fwLeft = new THREE.Mesh(new THREE.BoxGeometry(0.9, H, 0.12), wallMat);
-  fwLeft.position.set(-W / 2 + 0.45, H / 2, D / 2);
-  fwLeft.castShadow = true;
-  fwLeft.receiveShadow = true;
-  group.add(fwLeft);
-
-  // Right strip (right of doorway+windows, from x=0.55 to x=1.5)
-  const fwRight = new THREE.Mesh(new THREE.BoxGeometry(0.45, H, 0.12), wallMat);
-  fwRight.position.set(W / 2 - 0.225, H / 2, D / 2);
-  fwRight.castShadow = true;
-  fwRight.receiveShadow = true;
-  group.add(fwRight);
-
-  // Top strip above doorway
-  const fwTop = new THREE.Mesh(new THREE.BoxGeometry(0.9, H - 2.0, 0.12), wallMat);
-  fwTop.position.set(-0.3, 2.0 + (H - 2.0) / 2, D / 2);
-  fwTop.castShadow = true;
-  group.add(fwTop);
-
-  // Middle strip between door and windows
-  const fwMid = new THREE.Mesh(new THREE.BoxGeometry(0.15, H, 0.12), wallMat);
-  fwMid.position.set(0.225, H / 2, D / 2);
-  fwMid.castShadow = true;
-  group.add(fwMid);
-
-  // ── Flat roof + parapet ───────────────────────────────────────────────────
-  const roofSlab = new THREE.Mesh(new THREE.BoxGeometry(W + 0.12, 0.1, D + 0.12), roofMat);
-  roofSlab.position.y = H + 0.05;
-  roofSlab.castShadow = true;
-  group.add(roofSlab);
-
-  // Parapet walls
-  for (const [px, pz, pw, pd] of [
-    [0, D / 2 + 0.06, W + 0.12, 0.15],
-    [0, -D / 2 - 0.06, W + 0.12, 0.15],
-    [W / 2 + 0.06, 0, 0.15, D + 0.12],
-    [-W / 2 - 0.06, 0, 0.15, D + 0.12],
-  ]) {
-    const p = new THREE.Mesh(new THREE.BoxGeometry(pw, 0.15, pd), wallMat);
-    p.position.set(px, H + 0.1 + 0.075, pz);
-    group.add(p);
-  }
-
-  // ── Door trim (red frame around open doorway) ─────────────────────────────
-  // Top of doorway
-  const doorTrimTop = new THREE.Mesh(new THREE.BoxGeometry(0.9 + 0.12, 0.06, 0.12), trimMat);
-  doorTrimTop.position.set(-0.3, 2.0 + 0.03, D / 2);
-  group.add(doorTrimTop);
-  // Left door trim
-  const doorTrimL = new THREE.Mesh(new THREE.BoxGeometry(0.06, 2.0, 0.12), trimMat);
-  doorTrimL.position.set(-0.3 - 0.48, 1.0, D / 2);
-  group.add(doorTrimL);
-  // Right door trim
-  const doorTrimR = new THREE.Mesh(new THREE.BoxGeometry(0.06, 2.0, 0.12), trimMat);
-  doorTrimR.position.set(-0.3 + 0.48, 1.0, D / 2);
-  group.add(doorTrimR);
-
-  // ── Front windows (2) with red trim ──────────────────────────────────────
-  const winPositions = [0.6, 1.1]; // x positions of window centers
-  for (const wx of winPositions) {
-    // Glass pane
-    const win = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.6, 0.06), winMat);
-    win.position.set(wx, H * 0.5, D / 2 + 0.03);
-    group.add(win);
-    // Red frame (top, bottom, left, right strips)
-    for (const [fw, fh, fx, fy] of [
-      [0.7 + 0.12, 0.06, wx, H * 0.5 + 0.33],  // top
-      [0.7 + 0.12, 0.06, wx, H * 0.5 - 0.33],  // bottom
-      [0.06, 0.6 + 0.12, wx - 0.38, H * 0.5],  // left
-      [0.06, 0.6 + 0.12, wx + 0.38, H * 0.5],  // right
-    ]) {
-      const trim = new THREE.Mesh(new THREE.BoxGeometry(fw, fh, 0.06), trimMat);
-      trim.position.set(fx, fy, D / 2 + 0.03);
-      group.add(trim);
-    }
-  }
-
-  // ── Side windows (1 each side, 0.5×0.5) ──────────────────────────────────
-  for (const [sx, sz, ry] of [
-    [-W / 2 - 0.03, 0, Math.PI / 2],
-    [W / 2 + 0.03, 0, Math.PI / 2],
-  ]) {
-    const sWin = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.06), winMat);
-    sWin.rotation.y = ry;
-    sWin.position.set(sx, H * 0.55, sz);
-    group.add(sWin);
-    // Red trim strips for side windows
-    const sTop  = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.06, 0.5 + 0.12), trimMat);
-    sTop.position.set(sx, H * 0.55 + 0.28, sz);
-    group.add(sTop);
-    const sBot  = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.06, 0.5 + 0.12), trimMat);
-    sBot.position.set(sx, H * 0.55 - 0.28, sz);
-    group.add(sBot);
-    const sL = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.5 + 0.12, 0.06), trimMat);
-    sL.position.set(sx, H * 0.55, sz - 0.28);
-    group.add(sL);
-    const sR = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.5 + 0.12, 0.06), trimMat);
-    sR.position.set(sx, H * 0.55, sz + 0.28);
-    group.add(sR);
-  }
-
-  // ── Metal awning ──────────────────────────────────────────────────────────
-  const awning = new THREE.Mesh(new THREE.BoxGeometry(W + 0.2, 0.06, 0.8), awningMat);
-  awning.position.set(0, 2.3, D / 2 + 0.4);
-  group.add(awning);
-  // Support poles
-  for (const px of [-W / 2, W / 2]) {
-    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 2.3, 6), poleMat);
-    pole.position.set(px, 2.3 / 2, D / 2 + 0.78);
-    group.add(pole);
-  }
-
-  // ── Wooden sign ───────────────────────────────────────────────────────────
-  // Hanging rods
-  for (const rx of [-0.7, 0.7]) {
-    const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.18, 5), rodMat);
-    rod.rotation.z = Math.PI / 2;
-    rod.position.set(rx, 2.2, D / 2 + 0.13);
-    group.add(rod);
-  }
-  // Sign board
-  const sign = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.45, 0.06), woodMat);
-  sign.position.set(0, 2.1, D / 2 + 0.2);
-  group.add(sign);
-  // Sign inset cream panel
-  const signPanel = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.3, 0.04), signInset);
-  signPanel.position.set(0, 2.1, D / 2 + 0.24);
-  group.add(signPanel);
-
-  // ── Papel picado banners (7 banners) ──────────────────────────────────────
-  // String line
-  const stringGeo = new THREE.CylinderGeometry(0.005, 0.005, W + 0.2, 4);
-  const stringMat = new THREE.MeshStandardMaterial({ color: 0x333333 });
-  const string = new THREE.Mesh(stringGeo, stringMat);
-  string.rotation.z = Math.PI / 2;
-  string.position.set(0, 2.4, D / 2 + 0.05);
-  group.add(string);
-
-  const bannerColors = [0xe91e8c, 0xf5a623, 0x2d936c, 0x7b2d8e, 0xe91e8c, 0xf5a623, 0x2d936c];
-  const bannerSpacing = (W + 0.2) / 7;
-  for (let i = 0; i < 7; i++) {
-    const bx = -W / 2 - 0.1 + bannerSpacing * (i + 0.5);
-    const angle = (i % 2 === 0 ? 1 : -1) * 0.08;
-    const bMat = new THREE.MeshStandardMaterial({ color: bannerColors[i] });
-    const banner = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.22, 0.01), bMat);
-    banner.position.set(bx, 2.29, D / 2 + 0.05);
-    banner.rotation.z = angle;
-    group.add(banner);
-  }
-
-  // ── Bistro tables + chairs ────────────────────────────────────────────────
-  const tableData = [
-    { x: -0.9, z: D / 2 + 0.9 },
-    { x:  0.5, z: D / 2 + 0.9 },
-  ];
-  for (const td of tableData) {
-    // Table top
-    const top = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 0.02, 12), tableMat);
-    top.position.set(td.x, 0.67, td.z);
-    group.add(top);
-    // Table leg
-    const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.65, 6), tableMat);
-    leg.position.set(td.x, 0.33, td.z);
-    group.add(leg);
-    // Cross base
-    for (const rx of [0, Math.PI / 2]) {
-      const cb = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.02, 0.04), tableMat);
-      cb.rotation.y = rx;
-      cb.position.set(td.x, 0.01, td.z);
-      group.add(cb);
-    }
-    // Chairs (2 per table)
-    for (const [cx, cz] of [[td.x, td.z - 0.4], [td.x, td.z + 0.4]]) {
-      const seat = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.02, 0.2), tableMat);
-      seat.position.set(cx, 0.45, cz);
-      group.add(seat);
-      for (const lx of [-0.07, 0.07]) {
-        const legC = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.45, 0.02), tableMat);
-        legC.position.set(cx + lx, 0.225, cz);
-        group.add(legC);
-      }
-    }
-  }
-
-  // ── Potted cactus (right of doorway) ──────────────────────────────────────
-  const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.07, 0.08, 8), terracotta);
-  pot.position.set(0.05, 0.04, D / 2 + 0.1);
-  group.add(pot);
-  const cactusBody = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.15, 7), cactusGreen);
-  cactusBody.position.set(0.05, 0.16, D / 2 + 0.1);
-  group.add(cactusBody);
-  // Cactus arms
-  for (const [ax, az, ry] of [[-0.08, 0, 0.4], [0.08, 0, -0.4]]) {
-    const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.08, 5), cactusGreen);
-    arm.rotation.z = ry;
-    arm.position.set(0.05 + ax, 0.21, D / 2 + 0.1 + az);
-    group.add(arm);
-  }
-
-  // ── Interior details ──────────────────────────────────────────────────────
-  // Service counter (back wall, y-centered at 0.45)
-  const counter = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.9, 0.4), counterMat);
-  counter.position.set(0, 0.45, -D / 2 + 0.3);
-  group.add(counter);
-
-  // Griddle on stand
-  const griddle = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.1, 0.4), griddleMat);
-  griddle.position.set(-0.5, 0.95, -D / 2 + 0.3);
-  group.add(griddle);
-  const griddleStand = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.1, 0.35), steelMat);
-  griddleStand.position.set(-0.5, 0.85, -D / 2 + 0.3);
-  group.add(griddleStand);
-
-  // Trompo spit (al pastor cone)
-  const trompo = new THREE.Mesh(new THREE.ConeGeometry(0.1, 0.5, 8), trompoMat);
-  trompo.position.set(0.2, 1.15, -D / 2 + 0.3);
-  group.add(trompo);
-  const trompoRod = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.6, 5), rodMat);
-  trompoRod.position.set(0.2, 1.1, -D / 2 + 0.3);
-  group.add(trompoRod);
-
-  // Shelf on back wall
-  const shelf = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.08, 0.15), shelfMat);
-  shelf.position.set(0.6, 1.4, -D / 2 + 0.1);
-  group.add(shelf);
-
-  // Jarritos bottles on shelf (4)
-  const jarritoColors = [0x7ed321, 0xf5a623, 0xe91e8c, 0x8B4513];
-  for (let i = 0; i < 4; i++) {
-    const jMat = new THREE.MeshStandardMaterial({ color: jarritoColors[i] });
-    const bottle = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.08, 5), jMat);
-    bottle.position.set(0.35 + i * 0.13, 1.48, -D / 2 + 0.1);
-    group.add(bottle);
-  }
-
-  // Salsa bottles on counter (3)
-  const salsaColors = [0xcc2936, 0x2d936c, 0xf5a623];
-  for (let i = 0; i < 3; i++) {
-    const sMat = new THREE.MeshStandardMaterial({ color: salsaColors[i] });
-    const salsa = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.07, 5), sMat);
-    salsa.position.set(-0.3 + i * 0.18, 0.94, -D / 2 + 0.12);
-    group.add(salsa);
-  }
-
-  // Chalkboard menu on back wall
-  const chalk = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.3, 0.02), chalkMat);
-  chalk.position.set(0.6, 1.7, -D / 2 + 0.07);
-  group.add(chalk);
-
-  // Luchador mask on inside left wall (visible through front window)
-  const mask = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 6), maskMat);
-  mask.scale.z = 0.3;
-  mask.position.set(-W / 2 + 0.1, 1.5, 0.3);
-  group.add(mask);
-  // Eye holes
-  for (const ez of [-0.03, 0.05]) {
-    const eye = new THREE.Mesh(new THREE.SphereGeometry(0.025, 5, 4), eyeMat);
-    eye.position.set(-W / 2 + 0.06, 1.52, ez);
-    group.add(eye);
-  }
-
-  // ── Warm amber glow orbs (3 interior lights) ──────────────────────────────
-  const glowMat = new THREE.MeshBasicMaterial({ color: 0xfbbf24, transparent: true, opacity: 0.85 });
-  const glowGeo = new THREE.SphereGeometry(0.06, 6, 4);
-  for (const [gx, gy, gz] of [[-0.8, 1.9, 0], [0, 2.0, -0.3], [0.8, 1.85, 0.2]]) {
-    const orb = new THREE.Mesh(glowGeo, glowMat);
-    orb.position.set(gx, gy, gz);
-    group.add(orb);
-  }
-
-  // ── Plaque ────────────────────────────────────────────────────────────────
-  buildPlaque(group, building, D / 2 + 0.25, 0.6);
-};
 
 // Highlight a building (glow effect)
 export function highlightBuilding(group, highlight) {
