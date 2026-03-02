@@ -271,5 +271,18 @@
     },
     "issue": 51,
     "added": "2026-03-02"
+  },
+  {
+    "id": "eye-of-sauron",
+    "name": "Eye of Sauron",
+    "type": "other",
+    "description": "A towering black iron fortress crowned by a fiery almond-shaped Eye that burns above all other buildings. The dark octagonal spire rises far above every other structure in the village, engulfed in chaos and flame. Orc sentinels guard the fortified gate beneath lava-veined walls — Barad-dûr miniaturized into a menacing landmark visible from every corner of town.",
+    "plot": 37,
+    "contributor": {
+      "username": "EvanBoyle",
+      "avatar": "https://github.com/EvanBoyle.png"
+    },
+    "issue": 48,
+    "added": "2026-03-02"
   }
 ]

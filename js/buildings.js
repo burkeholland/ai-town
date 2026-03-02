@@ -6774,6 +6774,289 @@ CUSTOM_BUILDERS['sawasdi-baan-thai'] = function (group, building) {
   // ── PLAQUE ANCHOR ──────────────────────────────────────────────────────
   buildPlaque(group, building, D / 2 + verandaD, baseH + wallH * 0.65);
 };
+CUSTOM_BUILDERS['eye-of-sauron'] = function (group, building) {
+  // ── MATERIALS ──────────────────────────────────────────────────────────────
+  const towerMat  = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.9 });
+  const stoneMat  = new THREE.MeshStandardMaterial({ color: 0x2d2d2d, roughness: 0.85 });
+  const ironMat   = new THREE.MeshStandardMaterial({ color: 0x4a4a4a, roughness: 0.7 });
+  const lavaMat   = new THREE.MeshStandardMaterial({ color: 0xff4500, emissive: 0xff4500, emissiveIntensity: 0.6 });
+  const eyeMat    = new THREE.MeshStandardMaterial({ color: 0xff4500, emissive: 0xff4500, emissiveIntensity: 0.9 });
+  const pupilMat  = new THREE.MeshStandardMaterial({ color: 0x8b0000, emissive: 0x8b0000, emissiveIntensity: 0.5 });
+  const haloMat   = new THREE.MeshStandardMaterial({ color: 0xff6600, emissive: 0xff6600, emissiveIntensity: 0.7 });
+  const orcSkin   = new THREE.MeshStandardMaterial({ color: 0x556b2f });
+  const orcArmor  = new THREE.MeshStandardMaterial({ color: 0x3d3d3d });
+  const spearWood = new THREE.MeshStandardMaterial({ color: 0x5c4033 });
+  const spearTip  = new THREE.MeshStandardMaterial({ color: 0x808080, roughness: 0.4 });
+  const shieldMat = new THREE.MeshStandardMaterial({ color: 0x8b0000 });
+  const bannerMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, side: THREE.DoubleSide });
+  const sigilMat  = new THREE.MeshStandardMaterial({ color: 0xff4500, emissive: 0xff4500, emissiveIntensity: 0.5 });
+  const poleMat   = new THREE.MeshStandardMaterial({ color: 0x2d2d2d });
+  const postMat   = new THREE.MeshStandardMaterial({ color: 0x333333 });
+  const lavaPoolMat = new THREE.MeshStandardMaterial({ color: 0xff4500, emissive: 0xff4500, emissiveIntensity: 0.5 });
+
+  const baseH = 1.5;  // fortress platform height
+  const baseR = 3.5;  // platform radius
+  const segH  = 3.0;  // height of each tower segment
+  const nSegs = 6;    // number of stacked segments
+  // Per-segment bottom and top radii (tapers from 2.5 → 0.7)
+  const bRadii = [2.5, 2.2, 1.9, 1.6, 1.2, 0.9];
+  const tRadii = [2.2, 1.9, 1.6, 1.2, 0.9, 0.7];
+  const towerTopY = baseH + nSegs * segH; // ≈ 19.5
+
+  // ── BASE FORTRESS PLATFORM (octagonal) ────────────────────────────────────
+  const platform = new THREE.Mesh(
+    new THREE.CylinderGeometry(baseR, baseR * 1.08, baseH, 8),
+    stoneMat
+  );
+  platform.position.y = baseH / 2;
+  platform.castShadow = true;
+  platform.receiveShadow = true;
+  group.add(platform);
+
+  // Battlements (merlons) along top of platform
+  for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * Math.PI * 2;
+    const mx = Math.cos(a) * (baseR - 0.3);
+    const mz = Math.sin(a) * (baseR - 0.3);
+    const merlon = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.35, 0.35), towerMat);
+    merlon.position.set(mx, baseH + 0.175, mz);
+    group.add(merlon);
+    const cap = new THREE.Mesh(new THREE.ConeGeometry(0.14, 0.2, 4), towerMat);
+    cap.position.set(mx, baseH + 0.45, mz);
+    group.add(cap);
+  }
+
+  // ── MAIN TOWER SPIRE (stacked tapered octagonal segments) ─────────────────
+  for (let i = 0; i < nSegs; i++) {
+    const seg = new THREE.Mesh(
+      new THREE.CylinderGeometry(tRadii[i], bRadii[i], segH, 8),
+      towerMat
+    );
+    seg.position.y = baseH + i * segH + segH / 2;
+    seg.castShadow = true;
+    group.add(seg);
+    // Stone banding at each segment join
+    const band = new THREE.Mesh(
+      new THREE.CylinderGeometry(bRadii[i] + 0.06, bRadii[i] + 0.06, 0.09, 8),
+      stoneMat
+    );
+    band.position.y = baseH + i * segH;
+    group.add(band);
+  }
+
+  // ── LAVA VEINS ON TOWER ───────────────────────────────────────────────────
+  for (let i = 0; i < 5; i++) {
+    const a = (i / 5) * Math.PI * 2;
+    const veinH = 7 + (i % 3) * 2; // 7, 9, 11, 7, 9
+    const vein = new THREE.Mesh(new THREE.BoxGeometry(0.07, veinH, 0.07), lavaMat);
+    vein.position.set(Math.cos(a) * 2.3, baseH + veinH / 2 + 0.5, Math.sin(a) * 2.3);
+    group.add(vein);
+  }
+
+  // ── GATE (front face: local +Z, pointed arch with portcullis) ─────────────
+  const gateZ = baseR - 0.12;
+
+  // Gate pillars
+  for (const sx of [-0.6, 0.6]) {
+    const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.28, baseH, 0.22), ironMat);
+    pillar.position.set(sx, baseH / 2, gateZ);
+    group.add(pillar);
+  }
+  // Pointed arch
+  const gateArch = new THREE.Mesh(new THREE.TorusGeometry(0.52, 0.09, 6, 10, Math.PI), stoneMat);
+  gateArch.position.set(0, baseH - 0.08, gateZ);
+  group.add(gateArch);
+  // Portcullis vertical bars
+  const barMat = new THREE.MeshStandardMaterial({ color: 0x4a4a4a, roughness: 0.7 });
+  for (let ix = -2; ix <= 2; ix++) {
+    const vBar = new THREE.Mesh(new THREE.BoxGeometry(0.05, 1.0, 0.04), barMat);
+    vBar.position.set(ix * 0.22, baseH - 0.5, gateZ + 0.04);
+    group.add(vBar);
+  }
+  // Portcullis horizontal bars
+  for (const hy of [0.3, 0.65]) {
+    const hBar = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.05, 0.04), barMat);
+    hBar.position.set(0, hy, gateZ + 0.04);
+    group.add(hBar);
+  }
+  // Portcullis downward spike tips
+  for (let ix = -2; ix <= 2; ix++) {
+    const spike = new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.12, 4), ironMat);
+    spike.rotation.x = Math.PI;
+    spike.position.set(ix * 0.22, -0.02, gateZ + 0.04);
+    group.add(spike);
+  }
+
+  // ── CROWN PRONGS (two tapered cylinders curving inward at tower top) ───────
+  for (const sx of [-0.7, 0.7]) {
+    const prong = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.24, 2.5, 6), stoneMat);
+    prong.position.set(sx, towerTopY + 1.0, 0);
+    prong.rotation.z = sx > 0 ? 0.28 : -0.28;
+    prong.castShadow = true;
+    group.add(prong);
+  }
+
+  // ── THE EYE ───────────────────────────────────────────────────────────────
+  const eyeY = towerTopY + 1.8;
+
+  // Eye sphere (almond shape via scale)
+  const eyeMesh = new THREE.Mesh(new THREE.SphereGeometry(0.75, 16, 8), eyeMat);
+  eyeMesh.scale.set(1.5, 0.75, 0.3);
+  eyeMesh.position.set(0, eyeY, 0);
+  group.add(eyeMesh);
+
+  // Pupil slit (vertical crimson bar)
+  const pupil = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.65, 0.06), pupilMat);
+  pupil.position.set(0, eyeY, 0.24);
+  group.add(pupil);
+
+  // Flaming halo ring (torus scaled to almond shape)
+  const halo = new THREE.Mesh(new THREE.TorusGeometry(0.82, 0.07, 8, 14), haloMat);
+  halo.scale.set(1.5, 0.75, 0.25);
+  halo.position.set(0, eyeY, 0);
+  group.add(halo);
+
+  // Glow orbs at the Eye
+  const eyeGlow1 = createGlowOrb(0xff4500);
+  eyeGlow1.position.set(0, eyeY, 0);
+  group.add(eyeGlow1);
+  const eyeGlow2 = createGlowOrb(0xff6600);
+  eyeGlow2.position.set(0, eyeY + 0.2, 0.1);
+  group.add(eyeGlow2);
+
+  // ── FLAME WISPS ABOVE THE EYE ─────────────────────────────────────────────
+  const wispData = [
+    { x:  0.3, z:  0.1, rz:  0.2,  color: 0xff4500 },
+    { x: -0.4, z: -0.1, rz: -0.25, color: 0xffaa00 },
+    { x:  0.0, z:  0.3, rz:  0.1,  color: 0xff4500 },
+    { x: -0.2, z: -0.3, rz: -0.15, color: 0xff6600 },
+  ];
+  for (const w of wispData) {
+    const wMat = new THREE.MeshStandardMaterial({
+      color: w.color, emissive: w.color, emissiveIntensity: 0.7,
+      transparent: true, opacity: 0.8,
+    });
+    const wisp = new THREE.Mesh(new THREE.ConeGeometry(0.1, 0.55, 6), wMat);
+    wisp.position.set(w.x, eyeY + 0.85, w.z);
+    wisp.rotation.z = w.rz;
+    group.add(wisp);
+  }
+
+  // ── ORC GUARDS FLANKING THE GATE ─────────────────────────────────────────
+  const guardZ   = baseR + 0.35;
+  const guardDefs = [{ x: -0.9, spearSide: -1 }, { x: 0.9, spearSide: 1 }];
+  for (const g of guardDefs) {
+    const gx = g.x, gz = guardZ, gy = baseH;
+    // Legs
+    for (const lx of [-0.11, 0.11]) {
+      const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.48, 5), orcSkin);
+      leg.position.set(gx + lx, gy + 0.24, gz);
+      group.add(leg);
+    }
+    // Torso
+    const torso = new THREE.Mesh(new THREE.BoxGeometry(0.33, 0.48, 0.19), orcArmor);
+    torso.position.set(gx, gy + 0.72, gz);
+    group.add(torso);
+    // Arms
+    for (const ax of [-0.23, 0.23]) {
+      const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 0.38, 5), orcSkin);
+      arm.position.set(gx + ax, gy + 0.72, gz);
+      arm.rotation.z = ax > 0 ? 0.3 : -0.3;
+      group.add(arm);
+    }
+    // Head
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.14, 8, 6), orcSkin);
+    head.position.set(gx, gy + 1.1, gz);
+    group.add(head);
+    // Helmet spike
+    const helmetSpike = new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.17, 4), ironMat);
+    helmetSpike.position.set(gx, gy + 1.3, gz);
+    group.add(helmetSpike);
+    // Spear shaft
+    const spear = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 1.9, 5), spearWood);
+    spear.position.set(gx + g.spearSide * 0.28, gy + 0.95, gz);
+    group.add(spear);
+    // Spear tip
+    const tip = new THREE.Mesh(new THREE.ConeGeometry(0.055, 0.18, 4), spearTip);
+    tip.position.set(gx + g.spearSide * 0.28, gy + 2.0, gz);
+    group.add(tip);
+  }
+  // Shield on right orc
+  const shieldMesh = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.32, 0.04), shieldMat);
+  shieldMesh.position.set(0.9 - 0.28, baseH + 0.72, guardZ + 0.12);
+  group.add(shieldMesh);
+  const emblem = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 0.02), sigilMat);
+  emblem.rotation.z = Math.PI / 4;
+  emblem.position.set(0.9 - 0.28, baseH + 0.72, guardZ + 0.15);
+  group.add(emblem);
+
+  // ── SPIKED PERIMETER FENCE ────────────────────────────────────────────────
+  const fenceR  = 4.6;
+  const nPosts  = 12;
+  const fencePositions = Array.from({ length: nPosts }, (_, i) => {
+    const a = (i / nPosts) * Math.PI * 2;
+    return { x: Math.cos(a) * fenceR, z: Math.sin(a) * fenceR };
+  });
+  for (let i = 0; i < nPosts; i++) {
+    const p = fencePositions[i];
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1.0, 6), postMat);
+    post.position.set(p.x, 0.5, p.z);
+    group.add(post);
+    const spike = new THREE.Mesh(new THREE.ConeGeometry(0.06, 0.18, 4), ironMat);
+    spike.position.set(p.x, 1.09, p.z);
+    group.add(spike);
+    // Horizontal rail to next post (closes loop)
+    const n = fencePositions[(i + 1) % nPosts];
+    const dx = n.x - p.x, dz = n.z - p.z;
+    const railLen = Math.sqrt(dx * dx + dz * dz);
+    const rail = new THREE.Mesh(new THREE.BoxGeometry(railLen, 0.04, 0.04), postMat);
+    rail.position.set((p.x + n.x) / 2, 0.5, (p.z + n.z) / 2);
+    rail.rotation.y = -Math.atan2(dz, dx);
+    group.add(rail);
+  }
+
+  // ── LAVA POOLS ────────────────────────────────────────────────────────────
+  const pools = [
+    { x:  2.5, z:  1.8, w: 0.75, d: 0.45 },
+    { x: -1.9, z:  1.5, w: 0.6,  d: 0.38 },
+    { x:  0.4, z: -2.3, w: 0.65, d: 0.4  },
+  ];
+  for (const p of pools) {
+    const pool = new THREE.Mesh(new THREE.BoxGeometry(p.w, 0.04, p.d), lavaPoolMat);
+    pool.position.set(p.x, 0.02, p.z);
+    group.add(pool);
+    const poolGlow = createGlowOrb(0xff4500);
+    poolGlow.position.set(p.x, 0.08, p.z);
+    group.add(poolGlow);
+  }
+
+  // ── DARK BANNERS FLANKING THE GATE ────────────────────────────────────────
+  for (const sx of [-2.0, 2.0]) {
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 2.0, 5), poleMat);
+    pole.position.set(sx, baseH + 1.0, baseR + 0.35);
+    group.add(pole);
+    const banner = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.75, 0.02), bannerMat);
+    banner.position.set(sx, baseH + 0.38, baseR + 0.36);
+    group.add(banner);
+    // Eye sigil diamond
+    const sigil = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.12, 0.02), sigilMat);
+    sigil.rotation.z = Math.PI / 4;
+    sigil.position.set(sx, baseH + 0.38, baseR + 0.38);
+    group.add(sigil);
+  }
+
+  // ── AMBIENT GLOW ORBS ─────────────────────────────────────────────────────
+  const forgeGlow = createGlowOrb(0xff4500);
+  forgeGlow.position.set(0, baseH * 0.6, 0);
+  group.add(forgeGlow);
+  const midGlow = createGlowOrb(0xff6600);
+  midGlow.position.set(0, towerTopY * 0.4, 0);
+  group.add(midGlow);
+
+  // ── PLAQUE ANCHOR ─────────────────────────────────────────────────────────
+  buildPlaque(group, building, baseR + 0.4, 5.0);
+};
+
 
 // Distant hills
 export function createHills() {
