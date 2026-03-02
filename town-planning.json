@@ -117,12 +117,12 @@
     "reasoning": "NE quadrant outdoor fitness area. Nature spots need space and fresh air on the outskirts."
   },
   {
-    "plot": 9,
+    "plot": 39,
     "building": "the-aussie-escape",
     "type": "shop",
-    "zone": "Main Street West (terminus)",
-    "reasoning": "The Aussie Escape is a quirky, eye-catching souvenir shop that earns the west-end anchor spot at x=0, z=21.5. Its Opera House sails and Harbour Bridge arch make it a landmark destination at the terminus of Main Street West. Visitors walking west from the plaza discover the town's most distinctively Australian building right at the edge of town.",
-    "vision": "Plot 9 anchors the far west of Main Street. The Aussie Escape's iconic Australian architecture (Opera House sails, bridge arch, church spire) reads clearly from a distance, drawing walkers to the end of the commercial strip. Its platypus, kangaroo, and koala add a zoo-like delight.",
+    "zone": "Main Street West (far western terminus)",
+    "reasoning": "The Aussie Escape is a quirky, eye-catching souvenir shop placed at the far western terminus of Main Street at x=-5, z=26. Its Opera House sails and Harbour Bridge arch make it a landmark destination visible from the road. Visitors walking west from the plaza discover the town's most distinctively Australian building right at the edge of town — the last stop before the outskirts.",
+    "vision": "Plot 39 anchors the far west end of Main Street. The Aussie Escape's iconic Australian architecture (Opera House sails, bridge arch, church spire) reads clearly from a distance, drawing walkers to the end of the commercial strip. Its platypus, kangaroo, and koala add a zoo-like delight.",
     "date": "2026-03-02"
   }
 ]
