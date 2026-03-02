@@ -111,12 +111,6 @@
     "date": "2026-02-27"
   },
   {
-    "plot": 26,
-    "building": "verdant-fitness-grove",
-    "type": "nature",
-    "reasoning": "NE quadrant outdoor fitness area. Nature spots need space and fresh air on the outskirts."
-  },
-  {
     "plot": 9,
     "building": "sawasdi-baan-thai",
     "type": "restaurant",
@@ -124,5 +118,11 @@
     "reasoning": "The Thai street-food eatery anchors the far-west terminus of Main Street North at (0, 21.5). A street-facing shophouse with a covered veranda and open wok counter belongs on a commercial strip where foot-traffic is high. Plot 9 marks the edge of town — the aroma of pad thai drawing visitors all the way to the end of the street.",
     "vision": "Plot 9 closes the west end of Main Street with an exotic culinary destination. Between Pierce's Pub (plot 5), Motz Coffee (plot 8), and now S̄wạs̄dī Bāan Thai (plot 9), the north side of Main Street West becomes a lively restaurant row. Visitors walk west and discover it as a rewarding terminus.",
     "date": "2026-03-02"
+  },
+  {
+    "plot": 26,
+    "building": "verdant-fitness-grove",
+    "type": "nature",
+    "reasoning": "NE quadrant outdoor fitness area. Nature spots need space and fresh air on the outskirts."
   }
 ]
