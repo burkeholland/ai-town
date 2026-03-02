@@ -6620,6 +6620,540 @@ CUSTOM_BUILDERS['the-aussie-escape'] = function (group, building) {
 
   // ── CONTRIBUTOR PLAQUE ──
   buildPlaque(group, building, D / 2 + 0.1, 1.5);
+
+CUSTOM_BUILDERS['federal-bureau-of-ai-investigation'] = function (group, building) {
+  // ── DIMENSIONS ──────────────────────────────────────────────────────────────
+  const W      = 6.0;   // full width of upper body
+  const D      = 2.5;   // full depth of upper body
+  const gndH   = 1.2;   // ground floor height
+  const flrH   = 1.5;   // each upper floor height
+  const upperH = flrH * 2;       // 3.0 — two upper floors
+  const totalH = gndH + upperH;  // 4.2
+  const overhang = 0.3;
+  const gndW   = W - 2 * overhang;  // 5.4 — ground floor width
+  const gndD   = D - 2 * overhang;  // 1.9 — ground floor depth
+  const baseY  = 0.1;               // foundation height
+
+  // ── MATERIALS ────────────────────────────────────────────────────────────────
+  const concMat    = new THREE.MeshStandardMaterial({ color: 0x8C8C8C, roughness: 0.9 });
+  const gndBodyMat = new THREE.MeshStandardMaterial({ color: 0x6B6B6B, roughness: 0.9 });
+  const bayMat     = new THREE.MeshStandardMaterial({ color: 0x4A4A4A, roughness: 0.9 });
+  const limeMat    = new THREE.MeshStandardMaterial({ color: 0xB0A89A, roughness: 0.8 });
+  const doorMat    = new THREE.MeshStandardMaterial({ color: 0x2C3E50, roughness: 0.5 });
+  const goldMat    = new THREE.MeshStandardMaterial({ color: 0xDAA520, metalness: 0.4, roughness: 0.4 });
+  const dkGoldMat  = new THREE.MeshStandardMaterial({ color: 0xB8860B, metalness: 0.3, roughness: 0.5 });
+  const roofMat    = new THREE.MeshStandardMaterial({ color: 0x7A7A7A, roughness: 0.9 });
+  const mechMat    = new THREE.MeshStandardMaterial({ color: 0x5A5A5A, roughness: 0.8 });
+  const antMat     = new THREE.MeshStandardMaterial({ color: 0x404040, roughness: 0.6 });
+  const barrMat    = new THREE.MeshStandardMaterial({ color: 0x999999, roughness: 0.9 });
+  const poleMat    = new THREE.MeshStandardMaterial({ color: 0xC0C0C0, metalness: 0.5, roughness: 0.3 });
+  const starMat    = new THREE.MeshStandardMaterial({ color: 0xFFD700, metalness: 0.3, roughness: 0.3 });
+  const winMat     = new THREE.MeshStandardMaterial({
+    color: 0xbfdbfe, emissive: 0x3b82f6, emissiveIntensity: 0.12,
+    transparent: true, opacity: 0.35, roughness: 0.1,
+  });
+  const deskMat    = new THREE.MeshStandardMaterial({ color: 0x8B7355 });
+  const detectorMat = new THREE.MeshStandardMaterial({ color: 0x404040 });
+  const walnutMat  = new THREE.MeshStandardMaterial({ color: 0x5C4033 });
+  const boardMat   = new THREE.MeshStandardMaterial({ color: 0xF5F5DC });
+  const cabinetMat = new THREE.MeshStandardMaterial({ color: 0x3A3A3A });
+
+  // ── FOUNDATION SLAB ──────────────────────────────────────────────────────────
+  const found = new THREE.Mesh(new THREE.BoxGeometry(W + 0.1, 0.1, D + 0.1), concMat);
+  found.position.y = 0.05;
+  found.castShadow = true;
+  found.receiveShadow = true;
+  group.add(found);
+
+  // ── GROUND FLOOR BODY (recessed) ─────────────────────────────────────────────
+  const gndBody = new THREE.Mesh(new THREE.BoxGeometry(gndW, gndH, gndD), gndBodyMat);
+  gndBody.position.y = baseY + gndH / 2;
+  gndBody.castShadow = true;
+  gndBody.receiveShadow = true;
+  group.add(gndBody);
+
+  // ── UPPER BODY (cantilevered — spans both upper floors) ──────────────────────
+  const upperBody = new THREE.Mesh(new THREE.BoxGeometry(W, upperH, D), concMat);
+  upperBody.position.y = baseY + gndH + upperH / 2;
+  upperBody.castShadow = true;
+  upperBody.receiveShadow = true;
+  group.add(upperBody);
+
+  // Limestone trim band at base of upper body (overhang soffit line)
+  const soffit = new THREE.Mesh(new THREE.BoxGeometry(W + 0.05, 0.08, D + 0.05), limeMat);
+  soffit.position.y = baseY + gndH + 0.04;
+  group.add(soffit);
+
+  // ── WAFFLE GRID FACADE — FRONT (6 columns × 2 rows) ──────────────────────────
+  const bayW_f  = 0.70;
+  const bayH_f  = 0.80;
+  const colStep = W / 6;       // 1.0 per column
+  const rowStep = upperH / 2;  // 1.5 per row (one per floor)
+  const frontZ  = D / 2 + 0.01;
+
+  for (let row = 0; row < 2; row++) {
+    const bayY = baseY + gndH + rowStep * (row + 0.5);
+    for (let col = 0; col < 6; col++) {
+      const bayX = -(W / 2) + colStep * (col + 0.5);
+      // Recessed bay panel (dark, mounted proud of wall to simulate indentation)
+      const panel = new THREE.Mesh(new THREE.BoxGeometry(bayW_f, bayH_f, 0.07), bayMat);
+      panel.position.set(bayX, bayY, frontZ);
+      group.add(panel);
+      // Window inside the bay
+      const win = new THREE.Mesh(new THREE.BoxGeometry(bayW_f * 0.64, bayH_f * 0.64, 0.04), winMat);
+      win.position.set(bayX, bayY, frontZ + 0.04);
+      group.add(win);
+    }
+  }
+
+  // ── WAFFLE GRID FACADE — SIDES (3 columns × 2 rows per side) ─────────────────
+  const sideBayW = 0.52;
+  const sideStep = D / 3;
+
+  for (const side of [-1, 1]) {
+    const sideX = side * (W / 2) + side * 0.01;
+    for (let row = 0; row < 2; row++) {
+      const bayY = baseY + gndH + rowStep * (row + 0.5);
+      for (let col = 0; col < 3; col++) {
+        const bayZ = -(D / 2) + sideStep * (col + 0.5);
+        const sp = new THREE.Mesh(new THREE.BoxGeometry(0.07, bayH_f, sideBayW), bayMat);
+        sp.position.set(sideX, bayY, bayZ);
+        group.add(sp);
+        const sw = new THREE.Mesh(new THREE.BoxGeometry(0.04, bayH_f * 0.64, sideBayW * 0.64), winMat);
+        sw.position.set(sideX + side * 0.04, bayY, bayZ);
+        group.add(sw);
+      }
+    }
+  }
+
+  // ── GROUND FLOOR PILLARS (5 thick concrete pilasters at front) ────────────────
+  const pilW = 0.32, pilD = 0.32;
+  for (let i = 0; i < 5; i++) {
+    const px = -(gndW / 2) + (gndW / 4) * i;
+    const pillar = new THREE.Mesh(new THREE.BoxGeometry(pilW, gndH + 0.06, pilD), concMat);
+    pillar.position.set(px, baseY + gndH / 2, gndD / 2 + pilD / 2);
+    pillar.castShadow = true;
+    group.add(pillar);
+  }
+
+  // ── DOUBLE DOORS ─────────────────────────────────────────────────────────────
+  for (const dx of [-0.38, 0.38]) {
+    const door = new THREE.Mesh(new THREE.BoxGeometry(0.56, 0.86, 0.06), doorMat);
+    door.position.set(dx, baseY + 0.43, gndD / 2 + 0.04);
+    group.add(door);
+  }
+
+  // Concrete lintel above doors
+  const lintel = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.09, 0.14), concMat);
+  lintel.position.set(0, baseY + 0.9, gndD / 2 + 0.04);
+  group.add(lintel);
+
+  // Sidelight windows beside doors
+  for (const sx of [-1.0, 1.0]) {
+    const sl = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.7, 0.05), winMat);
+    sl.position.set(sx, baseY + 0.42, gndD / 2 + 0.03);
+    group.add(sl);
+  }
+
+  // ── SIGN PLAQUE (just above overhang soffit, front center) ───────────────────
+  const signPlaque = new THREE.Mesh(new THREE.BoxGeometry(4.4, 0.22, 0.08), limeMat);
+  signPlaque.position.set(0, baseY + gndH + 0.22, D / 2 + 0.04);
+  group.add(signPlaque);
+
+  // ── AGENCY SEAL (above sign, centered between columns 3 & 4) ─────────────────
+  const sealR = 0.42;
+  const sealY = baseY + gndH + rowStep * 0.5;
+  const sealZ = D / 2 + 0.05;
+
+  const sealOuter = new THREE.Mesh(new THREE.CylinderGeometry(sealR, sealR, 0.07, 24), dkGoldMat);
+  sealOuter.rotation.x = Math.PI / 2;
+  sealOuter.position.set(0, sealY, sealZ);
+  group.add(sealOuter);
+
+  const sealInner = new THREE.Mesh(new THREE.CylinderGeometry(sealR * 0.72, sealR * 0.72, 0.09, 24), goldMat);
+  sealInner.rotation.x = Math.PI / 2;
+  sealInner.position.set(0, sealY, sealZ + 0.02);
+  group.add(sealInner);
+
+  // Five star rays radiating from seal center
+  for (let i = 0; i < 5; i++) {
+    const a = (i / 5) * Math.PI * 2;
+    const ray = new THREE.Mesh(new THREE.ConeGeometry(0.028, 0.13, 3), starMat);
+    ray.rotation.z = a - Math.PI / 2;
+    ray.position.set(Math.cos(a) * 0.09, sealY + Math.sin(a) * 0.09, sealZ + 0.07);
+    group.add(ray);
+  }
+
+  // ── FLAT ROOF ────────────────────────────────────────────────────────────────
+  const roofSlab = new THREE.Mesh(new THREE.BoxGeometry(W + 0.12, 0.15, D + 0.12), roofMat);
+  roofSlab.position.y = baseY + totalH + 0.075;
+  roofSlab.castShadow = true;
+  roofSlab.receiveShadow = true;
+  group.add(roofSlab);
+
+  // Low parapet around roof edge
+  const parH = 0.22, parT = 0.08;
+  const parY = baseY + totalH + 0.15 + parH / 2;
+  for (const [pw, pd, ox, oz] of [
+    [W + 0.12, parT, 0,              D / 2 + 0.06 - parT / 2],
+    [W + 0.12, parT, 0,             -(D / 2 + 0.06 - parT / 2)],
+    [parT, D + 0.12, -(W / 2 + 0.06 - parT / 2), 0],
+    [parT, D + 0.12,  (W / 2 + 0.06 - parT / 2), 0],
+  ]) {
+    const par = new THREE.Mesh(new THREE.BoxGeometry(pw, parH, pd), concMat);
+    par.position.set(ox, parY, oz);
+    group.add(par);
+  }
+
+  // Mechanical equipment boxes on roof
+  for (const mx of [-1.6, 1.6]) {
+    const mbox = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.38, 0.48), mechMat);
+    mbox.position.set(mx, baseY + totalH + 0.15 + 0.19, -0.3);
+    group.add(mbox);
+  }
+
+  // Antenna mast with red aircraft-warning orb at tip
+  const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.035, 1.6, 8), antMat);
+  mast.position.set(-0.8, baseY + totalH + 0.15 + 0.8, 0.2);
+  group.add(mast);
+
+  const mastOrb = createGlowOrb(0xFF0000);
+  mastOrb.position.set(-0.8, baseY + totalH + 0.15 + 1.62, 0.2);
+  group.add(mastOrb);
+
+  // ── SURVEILLANCE CAMERAS — red glow orbs under overhang ───────────────────────
+  // Center above entrance
+  const cam1 = createGlowOrb(0xFF0000);
+  cam1.position.set(0, baseY + gndH - 0.07, D / 2 - 0.06);
+  group.add(cam1);
+
+  // Opposite far corner (always watching)
+  const cam2 = createGlowOrb(0xFF0000);
+  cam2.position.set(W / 2 - 0.15, baseY + gndH - 0.07, -(D / 2 - 0.06));
+  group.add(cam2);
+
+  // ── SECURITY BOLLARDS (6 across the front) ────────────────────────────────────
+  const bStep = gndW / 5;
+  for (let i = 0; i < 6; i++) {
+    const bx = -(gndW / 2) + bStep * i;
+    const bollard = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.13, 0.5, 8), concMat);
+    bollard.position.set(bx, 0.25, D / 2 + 0.75);
+    group.add(bollard);
+  }
+
+  // Jersey barriers flanking the entrance path
+  for (const bx of [-0.88, 0.88]) {
+    const jb = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.38, 0.55), barrMat);
+    jb.position.set(bx, 0.19, D / 2 + 0.46);
+    group.add(jb);
+  }
+
+  // ── ENTRANCE WALKWAY ─────────────────────────────────────────────────────────
+  const walkway = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.04, 1.4), limeMat);
+  walkway.position.set(0, 0.02, D / 2 + 0.72);
+  walkway.receiveShadow = true;
+  group.add(walkway);
+
+  // Two shallow concrete steps up to door level
+  for (let s = 0; s < 2; s++) {
+    const step = new THREE.Mesh(new THREE.BoxGeometry(1.5 - s * 0.15, 0.055, 0.22), limeMat);
+    step.position.set(0, baseY + s * 0.055 + 0.028, D / 2 + 0.13 - s * 0.2);
+    group.add(step);
+  }
+
+  // ── FLAGPOLE (right of entrance, rises above roofline) ────────────────────────
+  const poleH = 5.0;
+  const poleX = gndW / 2 + 0.45;   // right of building
+  const poleZ = gndD / 2 + 0.25;
+  const pole  = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.035, poleH, 8), poleMat);
+  pole.position.set(poleX, poleH / 2, poleZ);
+  group.add(pole);
+
+  // Flag: blue top, white stripe, red bottom — at top of pole
+  const flagTopY = poleH - 0.14;
+  const flagOffX = poleX + 0.3;
+
+  const flagBlue = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.22, 0.02),
+    new THREE.MeshStandardMaterial({ color: 0x002868 }));
+  flagBlue.position.set(flagOffX, flagTopY, poleZ);
+  group.add(flagBlue);
+
+  const flagWhite = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.04, 0.02),
+    new THREE.MeshStandardMaterial({ color: 0xFFFFFF }));
+  flagWhite.position.set(flagOffX, flagTopY - 0.13, poleZ);
+  group.add(flagWhite);
+
+  const flagRed = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.22, 0.02),
+    new THREE.MeshStandardMaterial({ color: 0xBF0A30 }));
+  flagRed.position.set(flagOffX, flagTopY - 0.295, poleZ);
+  group.add(flagRed);
+
+  // ── INTERIOR DETAILS (visible through glass) ──────────────────────────────────
+  // Security arch (metal detector) just inside the doors
+  const archMesh = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.78, 0.05), detectorMat);
+  archMesh.position.set(0, baseY + 0.39, gndD / 2 - 0.26);
+  group.add(archMesh);
+
+  // Reception desk
+  const recDesk = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.28, 0.36), walnutMat);
+  recDesk.position.set(0, baseY + 0.14, gndD / 2 - 0.72);
+  group.add(recDesk);
+
+  // Glowing computer orb on desk
+  const compOrb = createGlowOrb(0x00CC66);
+  compOrb.position.set(0.28, baseY + 0.3, gndD / 2 - 0.72);
+  group.add(compOrb);
+
+  // Second floor — agent bullpen (3 rows × 4 desks)
+  for (let row = 0; row < 3; row++) {
+    for (let col = 0; col < 4; col++) {
+      const desk = new THREE.Mesh(new THREE.BoxGeometry(0.30, 0.04, 0.17), deskMat);
+      desk.position.set(-1.15 + col * 0.82, baseY + gndH + 0.3, -(D / 2) + 0.3 + row * 0.42);
+      group.add(desk);
+    }
+  }
+
+  // Evidence board on back wall (second floor)
+  const board = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.64, 0.04), boardMat);
+  board.position.set(-1.4, baseY + gndH + 0.58, -(D / 2) + 0.03);
+  group.add(board);
+
+  // Case file pins on evidence board
+  for (const [px, py, c] of [
+    [-1.72, baseY + gndH + 0.74, 0xCC0000],
+    [-1.44, baseY + gndH + 0.54, 0x2255AA],
+    [-1.16, baseY + gndH + 0.70, 0xCC0000],
+    [-0.94, baseY + gndH + 0.56, 0x2255AA],
+  ]) {
+    const pin = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.09, 0.02),
+      new THREE.MeshStandardMaterial({ color: c }));
+    pin.position.set(px, py, -(D / 2) + 0.06);
+    group.add(pin);
+  }
+
+  // Third floor — executive office
+  const execDesk = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.05, 0.30), deskMat);
+  execDesk.position.set(0, baseY + gndH + flrH + 0.28, 0.1);
+  group.add(execDesk);
+
+  const nameplate = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.034, 0.034),
+    new THREE.MeshStandardMaterial({ color: 0xFFD700, metalness: 0.5 }));
+  nameplate.position.set(0, baseY + gndH + flrH + 0.30, 0.2);
+  group.add(nameplate);
+
+  const cabinet = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.65, 0.18), cabinetMat);
+  cabinet.position.set(1.4, baseY + gndH + flrH + 0.33, -(D / 2) + 0.12);
+  group.add(cabinet);
+
+  // ── FLUORESCENT GLOW ORBS (soul-crushing office lighting) ────────────────────
+  // Second floor: 4 orbs
+  for (let i = 0; i < 4; i++) {
+    const orb = createGlowOrb(0xE8E4D9);
+    orb.position.set(-1.5 + i * 1.0, baseY + gndH + flrH - 0.1, 0);
+    group.add(orb);
+  }
+
+  // Third floor: 2 orbs
+  for (let i = 0; i < 2; i++) {
+    const orb = createGlowOrb(0xE8E4D9);
+    orb.position.set(-0.7 + i * 1.4, baseY + gndH + upperH - 0.1, 0);
+    group.add(orb);
+  }
+
+  // ── PLAQUE ANCHOR ────────────────────────────────────────────────────────────
+  buildPlaque(group, building, D / 2 + 0.12, 2.2);
+};
+
+
+
+// ─── Custom Building: Tacos el Cochi ───────────────────────────────────────
+
+CUSTOM_BUILDERS['tacos-el-cochi'] = function (group, building) {
+  const W = 2.4;        // building width
+  const D = 2.0;        // building depth
+  const wallH = 2.0;    // wall height
+  const baseH = 0.1;    // foundation height
+
+  // Materials
+  const wallMat = new THREE.MeshStandardMaterial({ color: 0xFEF3C7, roughness: 0.85 });
+  const redTrimMat = new THREE.MeshStandardMaterial({ color: 0xDC2626, roughness: 0.7 });
+  const roofMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.8 });
+  const awningMat = new THREE.MeshStandardMaterial({ color: 0x6B7280, roughness: 0.6, metalness: 0.4 });
+  const doorMat = new THREE.MeshStandardMaterial({ color: 0x92400e, roughness: 0.8 });
+  const woodSignMat = new THREE.MeshStandardMaterial({ color: 0x8B4513, roughness: 0.85 });
+  const bannerMat1 = new THREE.MeshStandardMaterial({ color: 0xF59E0B, roughness: 0.6 });
+  const bannerMat2 = new THREE.MeshStandardMaterial({ color: 0xEF4444, roughness: 0.6 });
+  const bannerMat3 = new THREE.MeshStandardMaterial({ color: 0x10B981, roughness: 0.6 });
+  const tableMat = new THREE.MeshStandardMaterial({ color: 0x374151, roughness: 0.5, metalness: 0.5 });
+  const chairMat = new THREE.MeshStandardMaterial({ color: 0x1F2937, roughness: 0.6, metalness: 0.4 });
+  const luchaMat = new THREE.MeshStandardMaterial({ color: 0xDC2626, emissive: 0xDC2626, emissiveIntensity: 0.2 });
+  const winMat = new THREE.MeshStandardMaterial({
+    color: 0xbfdbfe, emissive: 0x3b82f6, emissiveIntensity: 0.15,
+    transparent: true, opacity: 0.35, roughness: 0.1,
+  });
+
+  // ── FOUNDATION ──
+  const found = new THREE.Mesh(new THREE.BoxGeometry(W + 0.1, baseH, D + 0.1), wallMat);
+  found.position.y = baseH / 2;
+  found.castShadow = true;
+  found.receiveShadow = true;
+  group.add(found);
+
+  // ── MAIN WALLS ──
+  const walls = new THREE.Mesh(new THREE.BoxGeometry(W, wallH, D), wallMat);
+  walls.position.y = baseH + wallH / 2;
+  walls.castShadow = true;
+  walls.receiveShadow = true;
+  group.add(walls);
+
+  // Red trim strips
+  const trimTop = new THREE.Mesh(new THREE.BoxGeometry(W + 0.05, 0.15, D + 0.05), redTrimMat);
+  trimTop.position.y = baseH + wallH;
+  group.add(trimTop);
+
+  const trimBase = new THREE.Mesh(new THREE.BoxGeometry(W + 0.05, 0.08, D + 0.05), redTrimMat);
+  trimBase.position.y = baseH + 0.04;
+  group.add(trimBase);
+
+  // ── LOW ROOF ──
+  const roofH = 0.4;
+  const roof = new THREE.Mesh(new THREE.BoxGeometry(W + 0.2, roofH, D + 0.2), roofMat);
+  roof.position.y = baseH + wallH + roofH / 2;
+  roof.castShadow = true;
+  group.add(roof);
+
+  // ── METAL AWNING (front) ──
+  const awningW = W * 0.85;
+  const awningD = 0.6;
+  const awning = new THREE.Mesh(new THREE.BoxGeometry(awningW, 0.04, awningD), awningMat);
+  awning.position.set(0, baseH + wallH * 0.85, D / 2 + awningD / 2 - 0.05);
+  awning.rotation.x = -0.15;
+  awning.castShadow = true;
+  group.add(awning);
+
+  // Awning support posts
+  for (const ax of [-awningW / 2 + 0.15, awningW / 2 - 0.15]) {
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.35, 6), awningMat);
+    post.position.set(ax, baseH + wallH * 0.67, D / 2 + awningD - 0.15);
+    group.add(post);
+  }
+
+  // ── LARGE FRONT WINDOWS ──
+  for (const wx of [-W / 2 + 0.6, W / 2 - 0.6]) {
+    const win = new THREE.Mesh(new THREE.PlaneGeometry(0.7, 1.0), winMat);
+    win.position.set(wx, baseH + wallH * 0.5, D / 2 + 0.01);
+    win.renderOrder = 1;
+    group.add(win);
+    // Window frame
+    const frame = new THREE.Mesh(new THREE.BoxGeometry(0.75, 1.05, 0.04), redTrimMat);
+    frame.position.set(wx, baseH + wallH * 0.5, D / 2 + 0.02);
+    group.add(frame);
+  }
+
+  // ── DOOR (center front) ──
+  const door = new THREE.Mesh(new THREE.BoxGeometry(0.5, 1.4, 0.05), doorMat);
+  door.position.set(0, baseH + 0.7, D / 2 + 0.02);
+  group.add(door);
+  // Door frame
+  const doorFrame = new THREE.Mesh(new THREE.BoxGeometry(0.56, 1.48, 0.04), redTrimMat);
+  doorFrame.position.set(0, baseH + 0.7, D / 2 + 0.025);
+  group.add(doorFrame);
+
+  // ── HAND-PAINTED WOODEN SIGN ──
+  const sign = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.35, 0.05), woodSignMat);
+  sign.position.set(0, baseH + wallH + 0.5, D / 2 + 0.08);
+  sign.castShadow = true;
+  group.add(sign);
+  // Sign text bar (painted yellow/amber text area)
+  const signText = new THREE.Mesh(new THREE.BoxGeometry(1.25, 0.22, 0.02), bannerMat1);
+  signText.position.set(0, baseH + wallH + 0.5, D / 2 + 0.11);
+  group.add(signText);
+
+  // ── PAPEL PICADO BANNERS (colorful tissue-paper flags) ──
+  for (let i = 0; i < 8; i++) {
+    const bx = -0.9 + i * 0.26;
+    const bannerMat = [bannerMat1, bannerMat2, bannerMat3][i % 3];
+    const banner = new THREE.Mesh(new THREE.PlaneGeometry(0.18, 0.15), bannerMat);
+    banner.position.set(bx, baseH + wallH + 0.75, D / 2 + 0.03);
+    banner.rotation.z = Math.sin(i * 0.8) * 0.15;
+    group.add(banner);
+    // Triangle cutout effect - add small decorative points
+    if (i % 2 === 0) {
+      const tri = new THREE.Mesh(
+        new THREE.ConeGeometry(0.03, 0.06, 3),
+        bannerMat
+      );
+      tri.rotation.z = Math.PI;
+      tri.position.set(bx, baseH + wallH + 0.68, D / 2 + 0.03);
+      group.add(tri);
+    }
+  }
+
+  // Banner string
+  const string = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.008, 0.008, W * 0.9, 4),
+    new THREE.MeshStandardMaterial({ color: 0x4B5563 })
+  );
+  string.rotation.z = Math.PI / 2;
+  string.position.set(0, baseH + wallH + 0.78, D / 2 + 0.02);
+  group.add(string);
+
+  // ── LUCHADOR MASK (good luck charm in window) ──
+  const maskWin = W / 2 - 0.6; // right window
+  const mask = new THREE.Mesh(new THREE.SphereGeometry(0.12, 8, 7), luchaMat);
+  mask.scale.set(1.0, 1.2, 0.6);
+  mask.position.set(maskWin + 0.15, baseH + wallH * 0.6, D / 2 - 0.05);
+  group.add(mask);
+  // Eye holes (dark)
+  for (const ex of [-0.06, 0.06]) {
+    const eyeHole = new THREE.Mesh(
+      new THREE.SphereGeometry(0.025, 6, 5),
+      new THREE.MeshStandardMaterial({ color: 0x1a1a1a })
+    );
+    eyeHole.position.set(maskWin + 0.15 + ex, baseH + wallH * 0.62, D / 2 - 0.02);
+    group.add(eyeHole);
+  }
+
+  // ── OUTDOOR BISTRO TABLES (2 small metal tables) ──
+  for (let i = 0; i < 2; i++) {
+    const tx = -0.5 + i * 1.0;
+    const tz = D / 2 + 0.95;
+
+    // Table top
+    const tableTop = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.03, 8), tableMat);
+    tableTop.position.set(tx, baseH + 0.48, tz);
+    tableTop.castShadow = true;
+    group.add(tableTop);
+
+    // Table pedestal
+    const pedestal = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.05, 0.45, 6), tableMat);
+    pedestal.position.set(tx, baseH + 0.225, tz);
+    group.add(pedestal);
+
+    // Two chairs per table
+    for (const cx of [-0.28, 0.28]) {
+      const chair = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.04, 0.18), chairMat);
+      chair.position.set(tx + cx, baseH + 0.2, tz);
+      chair.castShadow = true;
+      group.add(chair);
+      // Chair back
+      const back = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.22, 0.03), chairMat);
+      back.position.set(tx + cx, baseH + 0.32, tz - 0.08);
+      group.add(back);
+      // Chair legs (simplified - single center post)
+      const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.18, 4), chairMat);
+      leg.position.set(tx + cx, baseH + 0.1, tz);
+      group.add(leg);
+    }
+  }
+
+  // ── WARM INTERIOR GLOW ──
+  const glow = createGlowOrb(0xfbbf24);
+  glow.position.set(0, baseH + wallH * 0.5, 0);
+  group.add(glow);
+
+  // ── CONTRIBUTOR PLAQUE ──
+  buildPlaque(group, building, D / 2 + 0.05, 1.6);
 };
 
 // Distant hills
