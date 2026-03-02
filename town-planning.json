@@ -124,7 +124,7 @@
     "reasoning": "The Aussie Escape is a quirky, eye-catching souvenir shop placed at the far western terminus of Main Street at x=-5, z=26. Its Opera House sails and Harbour Bridge arch make it a landmark destination visible from the road. Visitors walking west from the plaza discover the town's most distinctively Australian building right at the edge of town — the last stop before the outskirts.",
     "vision": "Plot 39 anchors the far west end of Main Street. The Aussie Escape's iconic Australian architecture (Opera House sails, bridge arch, church spire) reads clearly from a distance, drawing walkers to the end of the commercial strip. Its platypus, kangaroo, and koala add a zoo-like delight.",
     "date": "2026-03-02"
-  },
+[
   {
     "plot": 17,
     "building": "ivproduced-tech-corner",
@@ -141,6 +141,15 @@
     "zone": "North Road",
     "reasoning": "The Arasaka pop-up kiosk is placed on the North Road east side (plot 18, x=28.5, z=8) — tucked between Bobby's House and Hilbert's Hotel along the quiet residential lane. A glossy corporate kiosk that clearly wandered in from a megacity mall feels perfectly out-of-place nestled in the neighborhood, which is exactly the vibe the contributor requested.",
     "vision": "The North Road gains a delightfully incongruous corporate intruder. Residents heading to Hilbert's Hotel pass a suspiciously spotless kiosk offering 'Personal Security Solutions for Everyday Life', survey drone hovering hopefully outside.",
+    "date": "2026-03-02"
+  },
+  {
+    "plot": 29,
+    "building": "the-b",
+    "type": "entertainment",
+    "zone": "Outskirts far west north",
+    "reasoning": "The B is a neon-drenched arcade bunker themed around Dragon's Lair. Main Street East entertainment plots (10-14) are fully occupied, so this unique dark-facade landmark gets plot 29 (x=4, z=15) at the far west outskirts near the junction of Main Street and North Road. Its dramatic midnight-blue exterior and glowing neon marquee will draw visitors from the road as a distinctive landmark.",
+    "vision": "Plot 29 gives The B room to be a standalone spectacle — its neon glow visible from the Main Street West strip. The hot pink and teal neon tubes contrast dramatically with the surrounding village aesthetic, making it an unmissable destination for anyone exploring the western edge of town.",
     "date": "2026-03-02"
   }
 ]
