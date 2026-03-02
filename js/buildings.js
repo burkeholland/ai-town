@@ -6753,7 +6753,7 @@ CUSTOM_BUILDERS['the-b'] = function (group, building) {
       [0.06, sideWinH + 0.06, wx - sideWinW / 2 - 0.03, sideWinY],
       [0.06, sideWinH + 0.06, wx + sideWinW / 2 + 0.03, sideWinY],
     ]) {
-      const tube = new THREE.Mesh(new THREE.BoxGeometry(bw, 0.06, bh), neonBlue);
+      const tube = new THREE.Mesh(new THREE.BoxGeometry(bw, bh, 0.06), neonBlue);
       tube.position.set(bx, by, D / 2 + 0.04);
       group.add(tube);
     }
