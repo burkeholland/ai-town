@@ -111,12 +111,6 @@
     "date": "2026-02-27"
   },
   {
-    "plot": 26,
-    "building": "verdant-fitness-grove",
-    "type": "nature",
-    "reasoning": "NE quadrant outdoor fitness area. Nature spots need space and fresh air on the outskirts."
-  },
-  {
     "plot": 37,
     "building": "eye-of-sauron",
     "type": "other",
@@ -124,5 +118,11 @@
     "reasoning": "The Eye of Sauron needs to dominate the entire town skyline — no neighboring buildings should compete with its 20+ unit spire. Plot 37 (far north outskirts, x=35, z=4) places the dark tower at the northern horizon, visible from every road in the village. Its menacing Eye gazes south over the entire settlement.",
     "vision": "The far north of the map is now owned by darkness. The Eye's fiery glow is visible on the horizon as visitors approach from Main Street, creating narrative tension in an otherwise cozy town.",
     "date": "2026-03-02"
+  },
+  {
+    "plot": 26,
+    "building": "verdant-fitness-grove",
+    "type": "nature",
+    "reasoning": "NE quadrant outdoor fitness area. Nature spots need space and fresh air on the outskirts."
   }
 ]

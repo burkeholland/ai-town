@@ -208,19 +208,6 @@
     "added": "2026-02-27"
   },
   {
-    "id": "verdant-fitness-grove",
-    "name": "The Verdant Fitness Grove",
-    "type": "nature",
-    "description": "A vibrant, open-air fitness park where brushed-steel calisthenics rigs rise from deep-green lawns like sculptural trees. Framed by leafy oaks, a warm cedar stretching deck, a sleek hydration station, and softly glowing bollard lights create a space where the community can break a sweat surrounded by greenery.",
-    "plot": 26,
-    "contributor": {
-      "username": "arishrehmankhan",
-      "avatar": "https://github.com/arishrehmankhan.png"
-    },
-    "issue": 45,
-    "added": "2026-02-28"
-  },
-  {
     "id": "eye-of-sauron",
     "name": "Eye of Sauron",
     "type": "other",
@@ -232,5 +219,18 @@
     },
     "issue": 48,
     "added": "2026-03-02"
+  },
+  {
+    "id": "verdant-fitness-grove",
+    "name": "The Verdant Fitness Grove",
+    "type": "nature",
+    "description": "A vibrant, open-air fitness park where brushed-steel calisthenics rigs rise from deep-green lawns like sculptural trees. Framed by leafy oaks, a warm cedar stretching deck, a sleek hydration station, and softly glowing bollard lights create a space where the community can break a sweat surrounded by greenery.",
+    "plot": 26,
+    "contributor": {
+      "username": "arishrehmankhan",
+      "avatar": "https://github.com/arishrehmankhan.png"
+    },
+    "issue": 45,
+    "added": "2026-02-28"
   }
 ]
