@@ -111,39 +111,18 @@
     "date": "2026-02-27"
   },
   {
-    "plot": 15,
-    "building": "sawasdi-baan-thai",
-    "type": "restaurant",
-    "zone": "North Road",
-    "reasoning": "Plot 9 (Main Street West terminus) was claimed by Tacos el Cochi, so the Thai eatery moves to plot 15 — the first building on North Road west side (x=21.5, z=15). A warm neighborhood restaurant at the junction between Main Street and North Road, welcoming residents and visitors as they turn off the main drag.",
-    "vision": "S̄wạs̄dī Bāan Thai anchors the corner where North Road branches from Main Street. The aroma of lemongrass and pad thai drifts south toward the commercial strip, drawing curious diners north. A Thai eatery at this junction diversifies the food scene beyond the Main Street corridor.",
-    "date": "2026-03-02"
-  },
-  {
-    "plot": 9,
-    "building": "tacos-el-cochi",
-    "type": "restaurant",
-    "zone": "Main Street West",
-    "reasoning": "Tacos el Cochi is a lively street taquería — it belongs on Main Street West's commercial strip at the west terminus (x=0). The cluster of restaurants and shops (Pierce's Pub, The Cinnamon Roll, Motz Coffee) along Main Street West creates a vibrant food corridor; adding Tacos el Cochi at the far-west anchor extends the strip and draws visitors all the way to the end.",
-    "vision": "The west terminus of Main Street now has character — a colorful taquería with papel picado banners and a luchador mask in the window marks the end of the commercial strip. Walking west down Main Street, visitors smell carne asada before they see it.",
-    "date": "2026-03-02"
+    "plot": 26,
+    "building": "verdant-fitness-grove",
+    "type": "nature",
+    "reasoning": "NE quadrant outdoor fitness area. Nature spots need space and fresh air on the outskirts."
   },
   {
     "plot": 39,
-    "building": "federal-bureau-of-ai-investigation",
-    "type": "other",
-    "zone": "Outskirts Far West",
-    "reasoning": "The Federal Bureau of AI Investigation is a massive Brutalist fortress — it needs space and isolation befitting federal authority. Plot 39 in the far western outskirts provides visual separation from residential/commercial zones, establishing government presence at the edge of town.",
-    "vision": "Plot 39 anchors the western outskirts with institutional gravitas. The waffle-grid facade and concrete overhang make it unmistakable from a distance. Future government buildings (courthouse, archives) could form a federal district here — away from Main Street, where authority observes from the periphery.",
-    "date": "2026-03-02"
-  },
-  {
-    "plot": 37,
-    "building": "eye-of-sauron",
-    "type": "other",
-    "zone": "Outskirts Far North",
-    "reasoning": "The Eye of Sauron needs to dominate the entire town skyline — no neighboring buildings should compete with its 20+ unit spire. Plot 37 (far north outskirts, x=35, z=4) places the dark tower at the northern horizon, visible from every road in the village. Its menacing Eye gazes south over the entire settlement.",
-    "vision": "The far north of the map is now owned by darkness. The Eye's fiery glow is visible on the horizon as visitors approach from Main Street, creating narrative tension in an otherwise cozy town.",
+    "building": "the-aussie-escape",
+    "type": "shop",
+    "zone": "Main Street West (far western terminus)",
+    "reasoning": "The Aussie Escape is a quirky, eye-catching souvenir shop placed at the far western terminus of Main Street at x=-5, z=26. Its Opera House sails and Harbour Bridge arch make it a landmark destination visible from the road. Visitors walking west from the plaza discover the town's most distinctively Australian building right at the edge of town — the last stop before the outskirts.",
+    "vision": "Plot 39 anchors the far west end of Main Street. The Aussie Escape's iconic Australian architecture (Opera House sails, bridge arch, church spire) reads clearly from a distance, drawing walkers to the end of the commercial strip. Its platypus, kangaroo, and koala add a zoo-like delight.",
     "date": "2026-03-02"
   }
 ]

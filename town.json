@@ -284,5 +284,18 @@
     },
     "issue": 48,
     "added": "2026-03-02"
+  },
+  {
+    "id": "the-aussie-escape",
+    "name": "The Aussie Escape",
+    "type": "shop",
+    "description": "A sun-bleached outback souvenir shop that crams the Sydney Opera House, Harbour Bridge, and a church spire into one gloriously kitschy roadside attraction. White Opera House sails sprout from the rear roof corner, a Harbour Bridge arch spans the verandah entrance, and an Adelaide church spire guards the front. A kangaroo poses out front, a koala clings to the eucalyptus tree, and a platypus wanders the path. Inside: Vegemite jars, Akubra hats, a boomerang on the wall, and the smell of Fair Dinkum Souvenirs.",
+    "plot": 39,
+    "contributor": {
+      "username": "aaronpowell",
+      "avatar": "https://github.com/aaronpowell.png"
+    },
+    "issue": 52,
+    "added": "2026-03-02"
   }
 ]
