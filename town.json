@@ -336,5 +336,18 @@
     },
     "issue": 62,
     "added": "2026-03-02"
+  },
+  {
+    "id": "mumi-house",
+    "name": "Mumi House",
+    "type": "house",
+    "description": "A tall, sky-blue cylindrical wooden house rising from a meadow of wildflowers — the Moomin House of Mumidalen. Three to four floors of warm golden-glowing windows promise tea, stories, and a warm welcome. A red conical roof crowns the tower, and a slightly crooked chimney leans gently as if shaped by decades of friendly Nordic weather.",
+    "plot": 20,
+    "contributor": {
+      "username": "frerus",
+      "avatar": "https://github.com/frerus.png"
+    },
+    "issue": 69,
+    "added": "2026-03-02"
   }
 ]
