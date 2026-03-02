@@ -208,19 +208,6 @@
     "added": "2026-02-27"
   },
   {
-    "id": "tacos-el-cochi",
-    "name": "Tacos el Cochi",
-    "type": "restaurant",
-    "description": "A sun-baked street-corner taquería with fiesta-bright papel picado banners, a hand-painted wooden sign, and warm golden light pouring through large front windows. Colorful with bright red trim, a metal awning, bistro tables outside, and a luchador mask good-luck charm visible through the window.",
-    "plot": 9,
-    "contributor": {
-      "username": "alexcarrilloar",
-      "avatar": "https://github.com/alexcarrilloar.png"
-    },
-    "issue": 49,
-    "added": "2026-03-02"
-  },
-  {
     "id": "verdant-fitness-grove",
     "name": "The Verdant Fitness Grove",
     "type": "nature",
@@ -234,16 +221,16 @@
     "added": "2026-02-28"
   },
   {
-    "id": "fountain-of-happiness",
-    "name": "Fountain of Happiness",
-    "type": "nature",
-    "description": "A celestial sculptural fountain — twin marble wings rising 7 meters to cradle a radiant golden orb, surrounded by a dark reflecting basin ringed with glowing water-jet columns. Twelve slim jets form a crown of light; six arched streams create a water-dome canopy. At night the golden apex glows like a star, a luminous beacon pulling every eye toward the heavens.",
-    "plot": 28,
+    "id": "sawasdi-baan-thai",
+    "name": "S̄wạs̄dī Bāan Thai",
+    "type": "restaurant",
+    "description": "A warm, bustling street-side Thai eatery with a teak-toned shophouse body, a low-pitched gable roof with upswept gold eave tips, and a covered front veranda with low dining tables. An open wok kitchen counter billows emissive steam, amber lanterns glow along the eaves, and a striped street-food cart sits to the side.",
+    "plot": 9,
     "contributor": {
-      "username": "Pavel-Piha",
-      "avatar": "https://github.com/Pavel-Piha.png"
+      "username": "ritthikrairw",
+      "avatar": "https://github.com/ritthikrairw.png"
     },
-    "issue": 50,
+    "issue": 47,
     "added": "2026-03-02"
   }
 ]
