@@ -5,16 +5,17 @@ body:
   - type: markdown
     attributes:
       value: |
-        You can only modify buildings you own. If you don't have a building yet, please use the **🏘️ Add a Building** template instead.
+        **Important:** You can only modify buildings you own (where your GitHub username is the contributor). If you don't have a building yet, use **🏘️ Add a Building** instead.
+        
+        **Note:** You cannot change your plot number. Describe what visual changes you want — colors, details, architectural modifications, etc.
+  
   - type: textarea
     id: changes
     attributes:
-      label: "What changes do you want?"
-      placeholder: "I'd like to add a rooftop garden with some potted plants, and change the door color to blue."
+      label: "Describe the changes you want"
+      description: "Tell Copilot exactly what to modify about your existing building. Be specific about colors, shapes, and details."
+      placeholder: |
+        I'd like to modify my building to add a rooftop garden with terracotta planters and some greenery. Also change the front door from red to navy blue, and add some hanging lanterns by the entrance. Keep the overall style the same.
+      value: ""
     validations:
       required: true
-  - type: textarea
-    id: details
-    attributes:
-      label: "Any other details?"
-      placeholder: "Keep the overall style the same, just add these new elements."

@@ -2,36 +2,20 @@ name: "🏘️ Add a Building"
 description: "Propose a new building for the town"
 labels: ["building-request"]
 body:
-  - type: input
-    id: name
+  - type: markdown
     attributes:
-      label: "Building Name"
-      placeholder: "The Cat Bookstore"
-    validations:
-      required: true
-  - type: dropdown
-    id: type
-    attributes:
-      label: "Building Type"
-      options:
-        - Shop
-        - House
-        - Restaurant
-        - Public Building (library, school, etc.)
-        - Entertainment (theater, arcade, etc.)
-        - Nature (park, garden, fountain)
-        - Other
-    validations:
-      required: true
+      value: |
+        **How this works:** Describe your building below. The AI planning committee will review your request, assign a plot based on zoning rules, and Copilot will construct it. You'll get a shareable URL with an OG image when it's merged.
+        
+        **Tips:** Be specific about colors, shapes, and architectural style. Family-friendly content only. One building per GitHub user.
+  
   - type: textarea
-    id: description
+    id: prompt
     attributes:
       label: "Describe your building"
-      placeholder: "A cozy bookstore with a big window. There's an orange cat sleeping on a stack of books in the window display."
+      description: "Give Copilot a clear description of what you want built. Include building name, type (shop/house/restaurant/public/entertainment/nature), colors, architectural details, and any unique features."
+      placeholder: |
+        I want a cozy bookstore called "The Cat Bookstore". It should be a two-story shop with cream-colored walls and a coral roof. Big front window with an orange tabby cat sleeping on a stack of books. Hand-painted wooden sign hanging above the door. Maybe some potted plants by the entrance and warm light glowing from inside.
+      value: ""
     validations:
       required: true
-  - type: textarea
-    id: details
-    attributes:
-      label: "Any special details?"
-      placeholder: "The sign should be hand-painted. Maybe some potted plants by the door."

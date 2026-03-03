@@ -1,0 +1,143 @@
+name: Dispatch Bot
+
+on:
+  schedule:
+    # Run every 5 minutes
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+    inputs:
+      debug:
+        description: 'Run in debug mode (single cycle)'
+        required: false
+        type: boolean
+        default: false
+      phase:
+        description: 'Debug phase (leave empty for all)'
+        required: false
+        type: choice
+        options:
+          - ''
+          - review
+          - signoff
+          - human-review
+          - assign
+          - verify
+  issues:
+    types: [opened, labeled, reopened]
+  issue_comment:
+    types: [created]
+  pull_request:
+    types: [opened, synchronize, ready_for_review]
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    # Only run for building-related issues/PRs or on schedule
+    if: |
+      github.event_name == 'schedule' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'issues' && contains(github.event.issue.labels.*.name, 'building-request')) ||
+      (github.event_name == 'issues' && contains(github.event.issue.labels.*.name, 'building-modification')) ||
+      (github.event_name == 'issue_comment' && (contains(github.event.issue.labels.*.name, 'building-request') || contains(github.event.issue.labels.*.name, 'building-modification'))) ||
+      (github.event_name == 'pull_request' && contains(github.event.pull_request.body, 'Closes #'))
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install GitHub CLI
+        run: |
+          type -p gh >/dev/null || (
+            type -p curl >/dev/null || sudo apt-get update && sudo apt-get install -y curl
+            curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+            sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+            sudo apt-get update
+            sudo apt-get install -y gh
+          )
+
+      - name: Configure git
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+
+      - name: Authenticate GitHub CLI
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh auth status
+
+      - name: Install dependencies
+        run: |
+          # Install jq for JSON parsing
+          sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Check Copilot availability
+        id: check-copilot
+        run: |
+          if command -v copilot &>/dev/null; then
+            echo "copilot_available=true" >> $GITHUB_OUTPUT
+            echo "✅ Copilot CLI available"
+          else
+            echo "copilot_available=false" >> $GITHUB_OUTPUT
+            echo "⚠️  Copilot CLI not available - AI features will be disabled"
+            echo "   Using deterministic plot assignment only"
+          fi
+
+      - name: Run dispatch bot  
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Make dispatch.sh executable
+          chmod +x dispatch.sh
+          
+          # Build command based on inputs
+          CMD="./dispatch.sh"
+          
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            if [ "${{ inputs.debug }}" = "true" ]; then
+              CMD="$CMD --debug"
+              if [ -n "${{ inputs.phase }}" ]; then
+                CMD="$CMD-phase=${{ inputs.phase }}"
+              fi
+            fi
+          else
+            # For event-triggered runs, use debug mode (single cycle)
+            CMD="$CMD --debug"
+          fi
+          
+          echo "Running: $CMD"
+          $CMD || {
+            echo "⚠️ Dispatch bot encountered an error but continuing..."
+            exit 0
+          }
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "### Dispatch Bot Run Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ github.event_name }}" = "issues" ]; then
+            echo "**Issue**: #${{ github.event.issue.number }}" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "**PR**: #${{ github.event.pull_request.number }}" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Show recent activity
+          if [ -f logger.txt ]; then
+            echo "#### Recent Activity" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            tail -20 logger.txt >> $GITHUB_STEP_SUMMARY || echo "No log entries" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
