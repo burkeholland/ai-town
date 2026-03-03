@@ -1,0 +1,93 @@
+name: Plot Validation
+
+on:
+  pull_request:
+    paths:
+      - 'town.json'
+
+jobs:
+  validate-plots:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate plot assignments
+        run: |
+          echo "🗺️ Validating plot assignments..."
+          
+          # Install jq for JSON parsing
+          sudo apt-get update && sudo apt-get install -y jq
+          
+          VIOLATIONS=""
+          
+          # Check for reserved plots (1-4)
+          RESERVED_PLOTS=$(jq -r '.[] | select(.plot >= 1 and .plot <= 4) | .plot' town.json)
+          if [ -n "$RESERVED_PLOTS" ]; then
+            VIOLATIONS="${VIOLATIONS}❌ PROHIBITED: Buildings on reserved plots 1-4 (Town Square): $RESERVED_PLOTS\n"
+          fi
+          
+          # Check for duplicate plot numbers
+          DUPLICATES=$(jq -r '.[].plot' town.json | sort | uniq -d)
+          if [ -n "$DUPLICATES" ]; then
+            VIOLATIONS="${VIOLATIONS}❌ ERROR: Duplicate plot assignments detected: $DUPLICATES\n"
+          fi
+          
+          # Check for invalid plot numbers (must be 5-40)
+          INVALID=$(jq -r '.[] | select(.plot < 5 or .plot > 40) | .plot' town.json)
+          if [ -n "$INVALID" ]; then
+            VIOLATIONS="${VIOLATIONS}❌ ERROR: Invalid plot numbers (must be 5-40): $INVALID\n"
+          fi
+          
+          # Check for missing required fields
+          MISSING=$(jq -r '.[] | select(.id == null or .name == null or .type == null or .plot == null or .contributor == null) | .id // .name // "unknown"' town.json)
+          if [ -n "$MISSING" ]; then
+            VIOLATIONS="${VIOLATIONS}❌ ERROR: Buildings with missing required fields: $MISSING\n"
+          fi
+          
+          # Check contributor format
+          INVALID_CONTRIB=$(jq -r '.[] | select(.contributor.username == null or .contributor.avatar == null) | .id' town.json)
+          if [ -n "$INVALID_CONTRIB" ]; then
+            VIOLATIONS="${VIOLATIONS}❌ ERROR: Buildings with invalid contributor data: $INVALID_CONTRIB\n"
+          fi
+          
+          # Check for multiple buildings per contributor (warning only)
+          DUPLICATES=$(jq -r '.[].contributor.username' town.json | sort | uniq -d)
+          if [ -n "$DUPLICATES" ]; then
+            echo "⚠️ WARNING: Multiple buildings per contributor: $DUPLICATES"
+            echo "   (Each user should have exactly one building)"
+          fi
+          
+          if [ -n "$VIOLATIONS" ]; then
+            echo -e "\n🚨 Plot Validation Failed:\n"
+            echo -e "$VIOLATIONS"
+            exit 1
+          else
+            echo "✅ Plot validation passed"
+            echo "📊 Total buildings: $(jq length town.json)"
+            echo "📍 Occupied plots: $(jq -r '.[].plot' town.json | sort -n | tr '\n' ', ' | sed 's/,$//')"
+          fi
+
+      - name: Check zoning guidelines
+        run: |
+          echo "🏙️ Checking zoning guidelines..."
+          
+          # This is advisory - doesn't fail the build
+          echo "Zone distribution:"
+          echo "  Main Street West (plots 5-9): $(jq -r '.[] | select(.plot >= 5 and .plot <= 9) | .name' town.json | wc -l) buildings"
+          echo "  Main Street East (plots 10-14): $(jq -r '.[] | select(.plot >= 10 and .plot <= 14) | .name' town.json | wc -l) buildings"
+          echo "  North Road (plots 15-19): $(jq -r '.[] | select(.plot >= 15 and .plot <= 19) | .name' town.json | wc -l) buildings"
+          echo "  South Road (plots 20-24): $(jq -r '.[] | select(.plot >= 20 and .plot <= 24) | .name' town.json | wc -l) buildings"
+          echo "  Outskirts (plots 25-40): $(jq -r '.[] | select(.plot >= 25 and .plot <= 40) | .name' town.json | wc -l) buildings"
+
+      - name: Comment on PR
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '🚨 **Plot Validation Failed**\n\nThis PR has plot assignment issues:\n\n**Rules:**\n- Plots 1-4 are permanently reserved (Town Square)\n- Plot numbers must be unique (no duplicates)\n- Valid range is 5-40\n- Each contributor gets exactly one building\n- All buildings need: id, name, type, plot, contributor (username + avatar)\n\nPlease review the [town planning guide](.github/copilot-instructions.md#town-layout--city-planning) and fix the issues.'
+            })
