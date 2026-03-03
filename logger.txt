@@ -1,0 +1,28 @@
+AI Town Fix Log
+================
+
+[14:26:57] FIX #1: Added hash navigation (#building=slug) to main.js and navigateToBuilding() to renderer.js. Share page visitors now navigate to their building's camera position.
+[14:27:54] FIX #2: Generated missing share pages for fountain-of-happiness and ivproduced-tech-corner.
+[14:31:42] FIX #3: Generated missing OG images for all 7 buildings: tacos-el-cochi, sawasdi-baan-thai, fountain-of-happiness, federal-bureau-of-ai-investigation, ivproduced-tech-corner, arasaka-customer-experience-center, the-aussie-escape.
+[20:35:00] FIX #4: Replaced duplicate generate_share_page() in dispatch.sh with delegation to verify-browser.mjs. Now uses a single canonical share page generator with consistent meta-refresh redirect.
+[20:35:00] FIX #5: Hash format now consistently uses #building=slug (verify-browser.mjs is canonical, dispatch.sh delegates to it).
+[20:35:00] FIX #7: Modified building slug detection now also finds buildings changed in the diff (not just new "id" additions).
+[20:35:00] FIX #8: Share page generation now happens AFTER merge (on main with final state), not before (on PR branch where it gets lost).
+[14:34:47] FIX #6: Added explicit 'gh issue close' after merge to handle local merge fallback (which doesn't auto-close linked issues).
+[14:36:00] FIX #9: phase_assign now checks for and adds build context comment (plot assignment, contributor info) when assigning issues that don't have one (e.g. human-reviewed issues from phase 2).
+[14:38:43] FIX #10: JSON merge conflict resolution now handles comma separation between concurrent array entries. Non-JSON files still use simple marker removal.
+[14:39:53] FIX #11: mayor_merged() now only includes OG image in comment if og.png was actually generated.
+[20:43:00] FIX TEST: Updated test-dispatch.sh slug validation test to match verify-browser.mjs output format ("All done").
+[20:43:00] VERIFICATION: All 30 tests pass. bash -n dispatch.sh passes. node verify-browser.mjs passes. All 25 buildings have share pages and OG images.
+[20:43:00] SUMMARY: All 11 issues from review.md have been fixed:
+  1. Share page hash navigation (#building=slug) — added to main.js + renderer.js
+  2. Missing share pages — generated for fountain-of-happiness, ivproduced-tech-corner
+  3. Missing OG images — generated for 7 buildings
+  4. Duplicate share page generator — removed from dispatch.sh, delegates to verify-browser.mjs
+  5. Hash format standardized — #building=slug everywhere, main.js handles both formats
+  6. Issue auto-close — explicit gh issue close added after merge
+  7. Modified building detection — now detects changes, not just new additions
+  8. Share page commit flow — now generates after merge on main, not before on PR branch
+  9. Human-review build context — phase_assign now generates build context if missing
+  10. JSON merge conflicts — JSON-aware resolution with proper comma handling
+  11. OG image link check — mayor_merged only includes image if og.png exists

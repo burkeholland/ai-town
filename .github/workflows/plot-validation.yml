@@ -19,6 +19,12 @@ jobs:
           # Install jq for JSON parsing
           sudo apt-get update && sudo apt-get install -y jq
           
+          # Validate JSON syntax first
+          if ! jq empty town.json 2>/dev/null; then
+            echo "❌ ERROR: town.json is not valid JSON"
+            exit 1
+          fi
+          
           VIOLATIONS=""
           
           # Check for reserved plots (1-4)

@@ -13,12 +13,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
-      - name: Get changed files
-        id: changed-files
+      - name: Fetch base branch
         run: |
-          echo "files=$(git diff --name-only HEAD^..HEAD | tr '\n' ' ')" >> $GITHUB_OUTPUT
+          git fetch origin ${{ github.base_ref }}
 
       - name: Check for prohibited patterns
         run: |
@@ -26,33 +25,37 @@ jobs:
           
           VIOLATIONS=""
           
+          # Compare PR branch with base branch
+          BASE_SHA="origin/${{ github.base_ref }}"
+          HEAD_SHA="${{ github.sha }}"
+          
           # Check for external resource loaders
-          if git diff HEAD^..HEAD -- js/buildings.js town.json | grep -E "(TextureLoader|ImageLoader|FileLoader|GLTFLoader|OBJLoader)" | grep -v "^-"; then
+          if git diff "$BASE_SHA"..."$HEAD_SHA" -- js/buildings.js town.json | grep -E "(TextureLoader|ImageLoader|FileLoader|GLTFLoader|OBJLoader)" | grep -v "^-"; then
             VIOLATIONS="${VIOLATIONS}❌ PROHIBITED: External resource loaders detected (TextureLoader, ImageLoader, etc.)\n"
           fi
           
           # Check for network requests
-          if git diff HEAD^..HEAD -- js/buildings.js | grep -E "(fetch\(|XMLHttpRequest|new Image\()" | grep -v "^-"; then
+          if git diff "$BASE_SHA"..."$HEAD_SHA" -- js/buildings.js | grep -E "(fetch\(|XMLHttpRequest|new Image\()" | grep -v "^-"; then
             VIOLATIONS="${VIOLATIONS}❌ PROHIBITED: Network requests detected (fetch, XMLHttpRequest, Image())\n"
           fi
           
           # Check for external URLs in code (not in contributor.avatar)
-          if git diff HEAD^..HEAD -- js/buildings.js | grep -E "https?://" | grep -v "^-" | grep -v "github.com/.*.png"; then
+          if git diff "$BASE_SHA"..."$HEAD_SHA" -- js/buildings.js | grep -E "https?://" | grep -v "^-" | grep -v "github.com/.*.png"; then
             VIOLATIONS="${VIOLATIONS}❌ PROHIBITED: External URLs detected in building code\n"
           fi
           
           # Check for data URIs
-          if git diff HEAD^..HEAD -- js/buildings.js town.json | grep -E "data:image" | grep -v "^-"; then
+          if git diff "$BASE_SHA"..."$HEAD_SHA" -- js/buildings.js town.json | grep -E "data:image" | grep -v "^-"; then
             VIOLATIONS="${VIOLATIONS}❌ PROHIBITED: Base64 data URIs detected\n"
           fi
           
           # Check for PointLight usage
-          if git diff HEAD^..HEAD -- js/buildings.js | grep -E "new THREE\.PointLight" | grep -v "^-"; then
+          if git diff "$BASE_SHA"..."$HEAD_SHA" -- js/buildings.js | grep -E "new THREE\.PointLight" | grep -v "^-"; then
             VIOLATIONS="${VIOLATIONS}⚠️ WARNING: PointLight usage detected (prefer createGlowOrb for performance)\n"
           fi
           
           # Check for MeshPhysicalMaterial usage
-          if git diff HEAD^..HEAD -- js/buildings.js | grep -E "MeshPhysicalMaterial" | grep -v "^-"; then
+          if git diff "$BASE_SHA"..."$HEAD_SHA" -- js/buildings.js | grep -E "MeshPhysicalMaterial" | grep -v "^-"; then
             VIOLATIONS="${VIOLATIONS}⚠️ WARNING: MeshPhysicalMaterial usage detected (prefer MeshStandardMaterial)\n"
           fi
           
