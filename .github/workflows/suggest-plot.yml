@@ -1,0 +1,74 @@
+name: Suggest Plot Assignment
+
+on:
+  workflow_dispatch:
+    inputs:
+      building_type:
+        description: 'Building type (shop, restaurant, entertainment, house, nature, public, other)'
+        required: true
+        type: choice
+        options:
+          - shop
+          - restaurant
+          - entertainment
+          - house
+          - nature
+          - public
+          - other
+      building_name:
+        description: 'Building name (optional)'
+        required: false
+        type: string
+      building_desc:
+        description: 'Building description (optional)'
+        required: false
+        type: string
+
+jobs:
+  suggest-plot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Suggest plot assignment
+        run: |
+          cat > suggest.mjs << 'EOF'
+          import { assignPlot, getZoneStats } from './.github/scripts/plot-assignment.mjs';
+          
+          const type = process.argv[2];
+          const name = process.argv[3] || 'New Building';
+          const desc = process.argv[4] || '';
+          
+          console.log('🗺️ Plot Assignment Suggestion\n');
+          console.log(`Building: ${name}`);
+          console.log(`Type: ${type}\n`);
+          
+          try {
+            const result = await assignPlot(type, name, desc);
+            console.log('✅ Suggested Assignment:');
+            console.log(`   Plot: ${result.plot}`);
+            console.log(`   Zone: ${result.zone}`);
+            console.log(`   Reasoning: ${result.reasoning}\n`);
+            
+            console.log('📊 Current Zone Availability:');
+            const stats = await getZoneStats();
+            for (const [key, stat] of Object.entries(stats)) {
+              if (stat.reserved) {
+                console.log(`   ${stat.name}: RESERVED`);
+              } else {
+                console.log(`   ${stat.name}: ${stat.occupied}/${stat.total} occupied, ${stat.available} available`);
+              }
+            }
+          } catch (error) {
+            console.error('❌ Error:', error.message);
+            process.exit(1);
+          }
+          EOF
+          
+          node suggest.mjs "${{ inputs.building_type }}" "${{ inputs.building_name }}" "${{ inputs.building_desc }}"

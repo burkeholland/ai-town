@@ -41,7 +41,7 @@ Each building is an object:
    - `name`: the building's display name
    - `type`: one of `shop`, `house`, `restaurant`, `public`, `entertainment`, `nature`, `other`
    - `description`: brief description of the building
-   - `plot`: You **MUST** check `town.json` for occupied plots and select an available number (5-40). Never use plots 1-4 (reserved) or duplicate existing plot assignments. The `plot-validation.yml` workflow enforces this.
+   - `plot`: Use the deterministic plot assignment system (see **Plot Assignment** section below). In build context comments, the dispatch system will suggest a plot number based on the building type and current zone availability. Use that suggestion. If no suggestion is provided, manually choose an available plot from `town.json` (plots 5-40, avoiding 1-4 and duplicates).
    - `contributor`: `{ "username": "...", "avatar": "https://github.com/{username}.png" }`
    - `issue`: the issue number this building was requested in
    - `added`: today's date in YYYY-MM-DD format
@@ -49,6 +49,34 @@ Each building is an object:
 2. Buildings can be any shape or size — use the CUSTOM_BUILDERS registry in `js/buildings.js` for unique structures. Register a builder function keyed by the building's `id`.
 
 3. Each plot has a `facing` direction — buildings are automatically rotated to face the nearest road.
+
+## Plot Assignment System
+
+AI Town uses a **deterministic zone-based plot assignment algorithm** to ensure buildings are placed appropriately:
+
+### Zone Rules
+- **Town Square (plots 1-4)**: RESERVED — no buildings allowed
+- **Main Street West (plots 5-9)**: Preferred for `shop`, `restaurant`
+- **Main Street East (plots 10-14)**: Preferred for `entertainment`, `restaurant`, `shop`
+- **North Residential (plots 15-19)**: Preferred for `house`, `nature`, `other`
+- **South Residential (plots 20-24)**: Preferred for `house`, `nature`, `public`, `other`
+- **Village Outskirts (plots 25-40)**: Preferred for `other`, `nature`, `public` — large or unique structures
+
+### Assignment Process
+The algorithm in `.github/scripts/plot-assignment.mjs` scores all available plots based on:
+1. Zone type match (100 points for preferred types)
+2. Plot position within zone (earlier plots preferred)
+3. Building size considerations (larger plots for monuments/landmarks)
+
+When the dispatch system creates a "build context" comment, it will include a suggested plot number. **Use that plot number** unless there's a compelling reason to override.
+
+### Current Availability
+Check `.github/workflows/suggest-plot.yml` for a workflow that shows current zone availability. As of the last commit:
+- Main Street West: **FULL** (5/5 occupied)
+- Main Street East: **FULL** (5/5 occupied)
+- North Residential: **FULL** (5/5 occupied)
+- South Residential: 2/5 occupied, 3 available
+- Village Outskirts: 10/16 occupied, 6 available
 
 ## When Modifying a Building
 
