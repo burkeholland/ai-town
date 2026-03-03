@@ -362,5 +362,18 @@
     },
     "issue": 71,
     "added": "2026-03-03"
+  },
+  {
+    "id": "vibes-coffee-shop",
+    "name": "Vibes Coffee Shop",
+    "type": "shop",
+    "description": "This is a coffee shop for vibe coders with all the memes.",
+    "plot": 21,
+    "contributor": {
+      "username": "microsoftnorman",
+      "avatar": "https://github.com/microsoftnorman.png"
+    },
+    "issue": 74,
+    "added": "2026-03-03"
   }
 ]
