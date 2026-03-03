@@ -9065,6 +9065,244 @@ CUSTOM_BUILDERS['mumi-house'] = function (group, building) {
   buildPlaque(group, building, R + 0.1, 2.5);
 };
 
+// ─── Custom Building: Dump Tower ───────────────────────────────────────────
+
+CUSTOM_BUILDERS['dump-tower'] = function (group, building) {
+  // ── MATERIALS ──
+  const graphiteMat   = new THREE.MeshStandardMaterial({ color: 0x2d2d2d, roughness: 0.85 });
+  const darkSteelMat  = new THREE.MeshStandardMaterial({ color: 0x4a5568, roughness: 0.75, metalness: 0.2 });
+  const nearBlackMat  = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.9 });
+  const gunmetalMat   = new THREE.MeshStandardMaterial({ color: 0x374151, roughness: 0.8 });
+  const yellowMat     = new THREE.MeshStandardMaterial({ color: 0xfacc15, roughness: 0.6 });
+  const rampMat       = new THREE.MeshStandardMaterial({ color: 0x3a3a3a, roughness: 0.9 });
+  const padMat        = new THREE.MeshStandardMaterial({ color: 0x1f2937, roughness: 0.95 });
+  const mastMat       = new THREE.MeshStandardMaterial({ color: 0x9ca3af, metalness: 0.4, roughness: 0.5 });
+  const ringMat       = new THREE.MeshStandardMaterial({ color: 0x4a5568, roughness: 0.7, metalness: 0.3 });
+  const winMat        = new THREE.MeshStandardMaterial({
+    color: 0x60a5fa, emissive: 0x3b82f6, emissiveIntensity: 0.2,
+    transparent: true, opacity: 0.35, roughness: 0.1,
+  });
+  const lightLineMat  = new THREE.MeshStandardMaterial({
+    color: 0x60a5fa, emissive: 0x60a5fa, emissiveIntensity: 0.3,
+  });
+  const glowDiscMat   = new THREE.MeshStandardMaterial({
+    color: 0x60a5fa, emissive: 0x60a5fa, emissiveIntensity: 0.4,
+    transparent: true, opacity: 0.4,
+  });
+  const crownRingMat  = new THREE.MeshStandardMaterial({
+    color: 0x60a5fa, emissive: 0x60a5fa, emissiveIntensity: 0.3,
+  });
+  const beaconMat     = new THREE.MeshStandardMaterial({
+    color: 0xbfdbfe, emissive: 0x60a5fa, emissiveIntensity: 0.6,
+  });
+
+  // ── CONCRETE PAD ──
+  const pad = new THREE.Mesh(new THREE.BoxGeometry(3.8, 0.05, 3.8), padMat);
+  pad.position.y = 0.025;
+  pad.receiveShadow = true;
+  group.add(pad);
+
+  // ── BASE (y≈0.05 to y≈3.05, 3.0×3.0×3.0) ──
+  const baseW = 3.0, baseD = 3.0, baseH = 3.0;
+  const baseY = 0.05 + baseH / 2;
+  const base = new THREE.Mesh(new THREE.BoxGeometry(baseW, baseH, baseD), graphiteMat);
+  base.position.y = baseY;
+  base.castShadow = true;
+  base.receiveShadow = true;
+  group.add(base);
+
+  // Two hangar-style service doors on front face (+Z)
+  for (const dx of [-0.75, 0.75]) {
+    const door = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.8, 0.05), nearBlackMat);
+    door.position.set(dx, 0.05 + 0.9, baseD / 2 + 0.03);
+    group.add(door);
+    // Yellow safety stripe across top of each door
+    const stripe = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.06, 0.04), yellowMat);
+    stripe.position.set(dx, 0.05 + 1.83, baseD / 2 + 0.04);
+    group.add(stripe);
+  }
+
+  // Personnel door between the two hangar doors
+  const persoDoor = new THREE.Mesh(new THREE.BoxGeometry(0.4, 1.0, 0.05), nearBlackMat);
+  persoDoor.position.set(0, 0.05 + 0.5, baseD / 2 + 0.03);
+  group.add(persoDoor);
+
+  // Vehicle ramp on left side (local -X) — angled box from ground to y≈2.0
+  const ramp = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.1, 2.0), rampMat);
+  ramp.rotation.z = 0.38;  // ~22° tilt
+  ramp.position.set(-baseW / 2 - 0.28, 0.9, -0.3);
+  ramp.castShadow = true;
+  group.add(ramp);
+  // Yellow chevron stripes on ramp
+  for (const rz of [-0.4, 0.4]) {
+    const chevron = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.04, 0.1), yellowMat);
+    chevron.rotation.z = 0.38;
+    chevron.position.set(-baseW / 2 - 0.28, 0.9 + rz * 0.1, -0.3 + rz);
+    group.add(chevron);
+  }
+
+  // Shipping containers near base (right side, local +X)
+  const containerData = [
+    { cx: baseW / 2 + 0.42, cz: 0.6, color: 0x4a5568 },
+    { cx: baseW / 2 + 0.42, cz: 0.0, color: 0x4a5568 },
+    { cx: baseW / 2 + 0.42, cz: -0.6, color: 0x374151 },
+  ];
+  for (const { cx, cz, color } of containerData) {
+    const container = new THREE.Mesh(
+      new THREE.BoxGeometry(0.6, 0.3, 0.3),
+      new THREE.MeshStandardMaterial({ color, roughness: 0.8 })
+    );
+    container.position.set(cx, 0.05 + 0.15, cz);
+    container.castShadow = true;
+    group.add(container);
+    // Yellow label stripe on end
+    const label = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.1, 0.22), yellowMat);
+    label.position.set(cx + 0.32, 0.05 + 0.18, cz);
+    group.add(label);
+  }
+  // Small crate
+  const crate = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.25, 0.25), gunmetalMat);
+  crate.position.set(baseW / 2 + 0.85, 0.05 + 0.125, 0.9);
+  crate.rotation.y = 0.3;
+  group.add(crate);
+
+  // Yellow corner safety markings (front-left and front-right corners of base)
+  for (const dx of [-baseW / 2 + 0.04, baseW / 2 - 0.04]) {
+    const marking = new THREE.Mesh(new THREE.BoxGeometry(0.08, baseH, 0.08), yellowMat);
+    marking.position.set(dx, 0.05 + baseH / 2, baseD / 2);
+    group.add(marking);
+  }
+
+  // ── CORE / MAIN TOWER (y≈3.05 to y≈13.05, 2.5×2.5) ──
+  const coreW = 2.5, coreD = 2.5;
+  const coreBaseY = 0.05 + baseH;  // y = 3.05
+  const bandDefs = [
+    { h: 1.7, color: 0x4a5568 },   // Band 1 dark steel
+    { h: 1.6, color: 0x2d2d2d },   // Band 2 graphite
+    { h: 1.7, color: 0x4a5568 },   // Band 3 dark steel
+    { h: 1.5, color: 0x2d2d2d },   // Band 4 graphite
+    { h: 1.7, color: 0x4a5568 },   // Band 5 dark steel
+    { h: 1.8, color: 0x2d2d2d },   // Band 6 graphite
+  ];
+  let bandY = coreBaseY;
+  for (const { h, color } of bandDefs) {
+    const band = new THREE.Mesh(
+      new THREE.BoxGeometry(coreW, h, coreD),
+      new THREE.MeshStandardMaterial({ color, roughness: 0.8 })
+    );
+    band.position.y = bandY + h / 2;
+    band.castShadow = true;
+    group.add(band);
+    bandY += h;
+  }
+  const coreTotalH = bandY - coreBaseY;  // ≈10.0
+
+  // Horizontal glowing window seams between bands
+  let seamY = coreBaseY;
+  for (let i = 0; i < bandDefs.length - 1; i++) {
+    seamY += bandDefs[i].h;
+    const seam = new THREE.Mesh(new THREE.BoxGeometry(coreW + 0.02, 0.07, coreD + 0.02), winMat);
+    seam.position.y = seamY;
+    group.add(seam);
+  }
+
+  // Four vertical light lines on core corners (emphasise height)
+  for (const [lx, lz] of [
+    [-coreW / 2, -coreD / 2],
+    [-coreW / 2,  coreD / 2],
+    [ coreW / 2, -coreD / 2],
+    [ coreW / 2,  coreD / 2],
+  ]) {
+    const lightLine = new THREE.Mesh(
+      new THREE.BoxGeometry(0.05, coreTotalH, 0.05), lightLineMat
+    );
+    lightLine.position.set(lx, coreBaseY + coreTotalH / 2, lz);
+    group.add(lightLine);
+  }
+
+  // ── SORTING RINGS — signature feature ──
+  for (const ringY of [coreBaseY + coreTotalH * 0.33, coreBaseY + coreTotalH * 0.66]) {
+    // Torus ring around tower exterior
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(2.2, 0.12, 12, 16), ringMat);
+    ring.rotation.x = Math.PI / 2;
+    ring.position.y = ringY;
+    ring.castShadow = true;
+    group.add(ring);
+    // Under-glow disc (makes ring appear to levitate)
+    const disc = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.2, 0.04, 16), glowDiscMat);
+    disc.position.y = ringY - 0.1;
+    group.add(disc);
+    // Ambient glow orb at ring level
+    const gOrb = createGlowOrb(0x60a5fa);
+    gOrb.position.y = ringY;
+    group.add(gOrb);
+  }
+
+  // ── CROWN PLATFORM (y≈13.05 to y≈13.35) ──
+  const crownBaseY = coreBaseY + coreTotalH;
+  const crownPlatform = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.3, 2.4), gunmetalMat);
+  crownPlatform.position.y = crownBaseY + 0.15;
+  crownPlatform.castShadow = true;
+  group.add(crownPlatform);
+
+  // Crown ring — glowing halo around spire base
+  const crownRing = new THREE.Mesh(new THREE.TorusGeometry(0.8, 0.06, 8, 16), crownRingMat);
+  crownRing.rotation.x = Math.PI / 2;
+  crownRing.position.y = crownBaseY + 1.0;
+  group.add(crownRing);
+
+  // Central antenna mast
+  const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 2.5, 8), mastMat);
+  mast.position.y = crownBaseY + 0.3 + 1.25;
+  group.add(mast);
+
+  // Beacon sphere at apex
+  const beacon = new THREE.Mesh(new THREE.SphereGeometry(0.2, 8, 8), beaconMat);
+  beacon.position.y = crownBaseY + 0.3 + 2.5 + 0.2;
+  group.add(beacon);
+  const beaconGlow = createGlowOrb(0x60a5fa);
+  beaconGlow.position.y = crownBaseY + 0.3 + 2.5 + 0.2;
+  group.add(beaconGlow);
+
+  // ── INTERIOR GLOW ──
+  // Amber work lights in service bay
+  for (const dx of [-0.55, 0.55]) {
+    const workLight = createGlowOrb(0xf59e0b);
+    workLight.position.set(dx, 1.0, 0);
+    group.add(workLight);
+  }
+  // Blue elevator-shaft glow through core
+  const shaftGlow = createGlowOrb(0x60a5fa);
+  shaftGlow.position.y = coreBaseY + coreTotalH / 2;
+  group.add(shaftGlow);
+  // Crown beacon interior
+  const crownGlow = createGlowOrb(0x60a5fa);
+  crownGlow.position.y = crownBaseY + 0.5;
+  group.add(crownGlow);
+
+  // ── BOLLARD LIGHTS at front pad corners ──
+  for (const dx of [-1.7, 1.7]) {
+    const bollard = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.3, 6), gunmetalMat);
+    bollard.position.set(dx, 0.15, baseD / 2 + 0.4);
+    group.add(bollard);
+    const bGlow = createGlowOrb(0x60a5fa);
+    bGlow.position.set(dx, 0.35, baseD / 2 + 0.4);
+    group.add(bGlow);
+  }
+
+  // ── SIGN: "DUMP TOWER" on front face of base ──
+  const signBoard = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.4, 0.05), nearBlackMat);
+  signBoard.position.set(0, 0.05 + 2.4, baseD / 2 + 0.04);
+  group.add(signBoard);
+  // Yellow inset bar (represents lettering)
+  const signText = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.18, 0.04), yellowMat);
+  signText.position.set(0, 0.05 + 2.4, baseD / 2 + 0.07);
+  group.add(signText);
+
+  // ── PLAQUE (right of personnel door) ──
+  buildPlaque(group, building, baseD / 2 + 0.04, 1.2, 0.65);
+};
+
 // Distant hills
 export function createHills() {
   const group = new THREE.Group();
