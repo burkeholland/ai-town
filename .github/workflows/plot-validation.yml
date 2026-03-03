@@ -39,10 +39,16 @@ jobs:
             VIOLATIONS="${VIOLATIONS}❌ ERROR: Duplicate plot assignments detected: $DUPLICATES\n"
           fi
           
-          # Check for invalid plot numbers (must be 5-40)
-          INVALID=$(jq -r '.[] | select(.plot < 5 or .plot > 40) | .plot' town.json)
+          # Check for invalid plot numbers (must be 0 for Town Hall or 5-40)
+          INVALID=$(jq -r '.[] | select((.plot != 0 and .plot < 5) or .plot > 40) | .plot' town.json)
           if [ -n "$INVALID" ]; then
-            VIOLATIONS="${VIOLATIONS}❌ ERROR: Invalid plot numbers (must be 5-40): $INVALID\n"
+            VIOLATIONS="${VIOLATIONS}❌ ERROR: Invalid plot numbers (must be 0 for Town Hall or 5-40): $INVALID\n"
+          fi
+          
+          # Check that only Town Hall uses plot 0
+          NON_TOWN_HALL_ZERO=$(jq -r '.[] | select(.plot == 0 and .id != "town-hall") | .id' town.json)
+          if [ -n "$NON_TOWN_HALL_ZERO" ]; then
+            VIOLATIONS="${VIOLATIONS}❌ ERROR: Only Town Hall may use plot 0: $NON_TOWN_HALL_ZERO\n"
           fi
           
           # Check for missing required fields

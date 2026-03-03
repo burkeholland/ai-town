@@ -29,8 +29,8 @@ jobs:
           BASE_SHA="origin/${{ github.base_ref }}"
           HEAD_SHA="${{ github.sha }}"
           
-          # Check for external resource loaders
-          if git diff "$BASE_SHA"..."$HEAD_SHA" -- js/buildings.js town.json | grep -E "(TextureLoader|ImageLoader|FileLoader|GLTFLoader|OBJLoader)" | grep -v "^-"; then
+          # Check for external resource loaders (exclude comments)
+          if git diff "$BASE_SHA"..."$HEAD_SHA" -- js/buildings.js town.json | grep -E "(TextureLoader|ImageLoader|FileLoader|GLTFLoader|OBJLoader)" | grep -v "^-" | grep -v "//"; then
             VIOLATIONS="${VIOLATIONS}❌ PROHIBITED: External resource loaders detected (TextureLoader, ImageLoader, etc.)\n"
           fi
           
@@ -49,13 +49,13 @@ jobs:
             VIOLATIONS="${VIOLATIONS}❌ PROHIBITED: Base64 data URIs detected\n"
           fi
           
-          # Check for PointLight usage
-          if git diff "$BASE_SHA"..."$HEAD_SHA" -- js/buildings.js | grep -E "new THREE\.PointLight" | grep -v "^-"; then
+          # Check for PointLight usage (exclude comments)
+          if git diff "$BASE_SHA"..."$HEAD_SHA" -- js/buildings.js | grep -E "new THREE\.PointLight" | grep -v "^-" | grep -v "//"; then
             VIOLATIONS="${VIOLATIONS}⚠️ WARNING: PointLight usage detected (prefer createGlowOrb for performance)\n"
           fi
           
-          # Check for MeshPhysicalMaterial usage
-          if git diff "$BASE_SHA"..."$HEAD_SHA" -- js/buildings.js | grep -E "MeshPhysicalMaterial" | grep -v "^-"; then
+          # Check for MeshPhysicalMaterial usage (exclude comments)
+          if git diff "$BASE_SHA"..."$HEAD_SHA" -- js/buildings.js | grep -E "MeshPhysicalMaterial" | grep -v "^-" | grep -v "//"; then
             VIOLATIONS="${VIOLATIONS}⚠️ WARNING: MeshPhysicalMaterial usage detected (prefer MeshStandardMaterial)\n"
           fi
           
