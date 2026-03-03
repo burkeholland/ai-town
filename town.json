@@ -349,5 +349,18 @@
     },
     "issue": 69,
     "added": "2026-03-02"
+  },
+  {
+    "id": "dump-tower",
+    "name": "Dump Tower",
+    "type": "shop",
+    "description": "AI Town's tallest structure and most iconic landmark — a sleek industrial-futurist skyscraper built from compacted, recycled strata. A graphite base with hangar-style service doors and a vehicle ramp gives way to a banded core shaft circled by two floating sorting rings that glow cool blue. A beacon crown and antenna spire pierce the sky above all other buildings. The quiet joke: the tallest, sleekest, most impressive building in town is literally called Dump Tower.",
+    "plot": 36,
+    "contributor": {
+      "username": "kjellix",
+      "avatar": "https://github.com/kjellix.png"
+    },
+    "issue": 71,
+    "added": "2026-03-03"
   }
 ]
