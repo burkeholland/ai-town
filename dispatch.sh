@@ -13,7 +13,7 @@
 #   ./dispatch.sh --debug      # Run one cycle then exit
 #   ./dispatch.sh --debug-phase=review  # Run only one phase
 #
-# Requirements: gh, copilot, jq, node, npx (for puppeteer)
+# Requirements: gh, jq, node, npx (for puppeteer)
 
 set -euo pipefail
 
@@ -91,6 +91,27 @@ ensure_label "$LABEL_NEEDS_REVIEW" "f59e0b" "Building needs human review"
 ensure_label "$LABEL_REVIEWED" "6b7280" "Issue has been reviewed"
 ensure_label "$LABEL_MODIFICATION" "818cf8" "Request to modify an existing building"
 ensure_label "$LABEL_AWAITING_SIGNOFF" "d946ef" "Waiting for contributor to sign off on architectural plans"
+
+# ─── AI Helper Function ──────────────────────────────────────────────────────
+
+call_ai() {
+  local prompt="$1"
+  local model="${2:-gpt-4o-mini}"
+  # GitHub Models API - works in Actions with GITHUB_TOKEN, falls back gracefully
+  if [ -n "${GITHUB_TOKEN:-}" ] || [ -n "${GH_TOKEN:-}" ]; then
+    local token="${GITHUB_TOKEN:-$GH_TOKEN}"
+    local payload
+    payload=$(jq -n --arg content "$prompt" --arg model "$model" \
+      '{model: $model, messages: [{role: "user", content: $content}], max_tokens: 2048}')
+    curl -s -X POST "https://models.inference.ai.azure.com/chat/completions" \
+      -H "Authorization: Bearer $token" \
+      -H "Content-Type: application/json" \
+      -d "$payload" \
+      | jq -r '.choices[0].message.content // empty' 2>/dev/null || echo ""
+  else
+    echo ""
+  fi
+}
 
 # ─── Keyword Blocklist ──────────────────────────────────────────────────────
 
@@ -421,10 +442,8 @@ CITY PLANNING PRINCIPLES (based on real urban design):
 Pick the BEST available plot. Respond with ONLY this JSON, no other text:
 {\"plot\": <number>, \"zone\": \"<zone name>\", \"reasoning\": \"<2-3 sentences: why this is the perfect spot AND how it fits the town's evolving vision>\"}"
 
-  local ai_result=""
-  if command -v copilot &>/dev/null; then
-    ai_result="$(echo "$prompt" | copilot -p "$(cat /dev/stdin)" --model claude-opus-4.6 --silent 2>/dev/null)" || ai_result=""
-  fi
+  local ai_result
+  ai_result="$(call_ai "$prompt" "gpt-4o")"
 
   # Parse the AI response
   local parsed
@@ -688,10 +707,8 @@ PUSHBACK: <A warm, encouraging 1-2 sentence note explaining the specific conflic
 
 Respond with APPROVED or PUSHBACK: only. No other text."
 
-  local ai_result=""
-  if command -v copilot &>/dev/null; then
-    ai_result="$(echo "$prompt" | copilot -p "$(cat /dev/stdin)" --model claude-opus-4.6 --silent 2>/dev/null)" || ai_result=""
-  fi
+  local ai_result
+  ai_result="$(call_ai "$prompt" "gpt-4o")"
   
   if [ -z "$ai_result" ]; then
     echo "approved"
@@ -740,10 +757,8 @@ Research this type of building/establishment. Respond with a concise JSON object
   \"atmosphere\": \"One sentence describing the vibe/mood this place should convey\"
 }"
 
-  local research=""
-  if command -v copilot &>/dev/null; then
-    research="$(copilot -p "$prompt" --model claude-opus-4.6 --silent 2>/dev/null)" || research=""
-  fi
+  local research
+  research="$(call_ai "$prompt" "gpt-4o")"
 
   if [ -z "$research" ] || [ ${#research} -lt 50 ]; then
     echo ""
@@ -811,10 +826,8 @@ Structure your response exactly like this:
 
 Be opinionated and specific. Don't say 'decorative elements' — say 'a wrought-iron bicycle rack shaped like a treble clef.' Don't say 'warm lighting' — say 'three amber glass pendant lamps (0xfbbf24) hanging at staggered heights.'"
 
-  local enriched=""
-  if command -v copilot &>/dev/null; then
-    enriched="$(copilot -p "$prompt" --model claude-opus-4.6 --silent 2>/dev/null)" || enriched=""
-  fi
+  local enriched
+  enriched="$(call_ai "$prompt" "gpt-4o")"
 
   # If enrichment fails or returns empty, fall back
   if [ -z "$enriched" ] || [ ${#enriched} -lt 50 ]; then
@@ -874,14 +887,12 @@ or
 or
 {\"verdict\": \"ambiguous\", \"reason\": \"...\"}"
 
-  local result1="" result2=""
-  if command -v copilot &>/dev/null; then
-    result1="$(copilot -p "$prompt1" --model claude-opus-4.6 --silent 2>/dev/null)" || result1=""
-    result2="$(copilot -p "$prompt2" --model claude-opus-4.6 --silent 2>/dev/null)" || result2=""
-  fi
+  local result1 result2
+  result1="$(call_ai "$prompt1" "gpt-4o")"
+  result2="$(call_ai "$prompt2" "gpt-4o")"
   
   if [ -z "$result1" ] || [ -z "$result2" ]; then
-    echo "error|Copilot CLI not available"
+    echo "error|AI service not available"
     return
   fi
 

@@ -80,15 +80,15 @@ jobs:
           # Install jq for JSON parsing
           sudo apt-get update && sudo apt-get install -y jq
 
-      - name: Check Copilot availability
-        id: check-copilot
+      - name: Check AI availability
+        id: check-ai
         run: |
-          if command -v copilot &>/dev/null; then
-            echo "copilot_available=true" >> $GITHUB_OUTPUT
-            echo "✅ Copilot CLI available"
+          if [ -n "${GITHUB_TOKEN:-}" ]; then
+            echo "ai_available=true" >> $GITHUB_OUTPUT
+            echo "✅ GitHub Models API available"
           else
-            echo "copilot_available=false" >> $GITHUB_OUTPUT
-            echo "⚠️  Copilot CLI not available - AI features will be disabled"
+            echo "ai_available=false" >> $GITHUB_OUTPUT
+            echo "⚠️  GITHUB_TOKEN not available - AI features will be disabled"
             echo "   Using deterministic plot assignment only"
           fi
 
