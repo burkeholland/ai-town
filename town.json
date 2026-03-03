@@ -375,5 +375,18 @@
     },
     "issue": 74,
     "added": "2026-03-03"
+  },
+  {
+    "id": "the-aiffel-tower",
+    "name": "The Aiffel Tower",
+    "type": "public",
+    "description": "Rising gracefully into the sky, this bronze-and-gold lattice tower is a loving tribute to the Eiffel Tower. Four tapered legs join at sweeping parabolic arches; three tiered platforms host a Parisian café, a gallery, and a panoramic observation deck. A constellation of golden sparkle lights makes it shimmer like a jewel at dusk — an homage to beauty, courage, and artistry.",
+    "plot": 33,
+    "contributor": {
+      "username": "yoannchaudet",
+      "avatar": "https://github.com/yoannchaudet.png"
+    },
+    "issue": 77,
+    "added": "2026-03-03"
   }
 ]

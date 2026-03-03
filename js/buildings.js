@@ -9563,6 +9563,280 @@ CUSTOM_BUILDERS['vibes-coffee-shop'] = function (group, building) {
   buildPlaque(group, building, D / 2 + 0.03, 2.1);
 };
 
+// ─── Custom Building: The Aiffel Tower ──────────────────────────────────────
+CUSTOM_BUILDERS['the-aiffel-tower'] = function (group, building) {
+  // ── Materials ──
+  const darkBronze  = new THREE.MeshStandardMaterial({ color: 0x8B6914, roughness: 0.8 });
+  const warmBronze  = new THREE.MeshStandardMaterial({ color: 0xC4913A, roughness: 0.75 });
+  const lightBronze = new THREE.MeshStandardMaterial({ color: 0xA07D1A, roughness: 0.8 });
+  const wheatGold   = new THREE.MeshStandardMaterial({ color: 0xF5DEB3, roughness: 0.7, metalness: 0.1 });
+  const ironBlack   = new THREE.MeshStandardMaterial({ color: 0x2C1A0A, roughness: 0.9 });
+  const deepGreen   = new THREE.MeshStandardMaterial({ color: 0x2d5a1e, roughness: 0.9 });
+  const darkWood    = new THREE.MeshStandardMaterial({ color: 0x3b2507, roughness: 0.9 });
+
+  // ── Ground plate ──
+  const pad = new THREE.Mesh(
+    new THREE.BoxGeometry(5.5, 0.06, 5.5),
+    new THREE.MeshStandardMaterial({ color: 0xb8a890, roughness: 0.9 })
+  );
+  pad.position.y = 0.03;
+  pad.receiveShadow = true;
+  group.add(pad);
+
+  // ── Legs: three tapered stages with cross-braces ──
+  const stages = [
+    { yBot: 0.06, yTop: 2.5, sBot: 1.8, sTop: 1.2 },
+    { yBot: 2.5,  yTop: 5.5, sBot: 1.2, sTop: 0.7 },
+    { yBot: 5.5,  yTop: 9.0, sBot: 0.7, sTop: 0.25 },
+  ];
+  const legW = 0.22;
+
+  for (const st of stages) {
+    const stH  = st.yTop - st.yBot;
+    const midY = (st.yBot + st.yTop) / 2;
+    const avgS = (st.sBot + st.sTop) / 2;
+    const tilt = Math.atan2(st.sBot - st.sTop, stH);
+
+    // Four corner legs, each leaning inward
+    for (const [sx, sz] of [[-1, -1], [-1, 1], [1, -1], [1, 1]]) {
+      const leg = new THREE.Mesh(new THREE.BoxGeometry(legW, stH + 0.05, legW), darkBronze);
+      leg.position.set(sx * avgS, midY, sz * avgS);
+      leg.rotation.z = sx * tilt;
+      leg.rotation.x = -sz * tilt;
+      leg.castShadow = true;
+      group.add(leg);
+    }
+
+    // Cross-braces: X pattern on each face
+    const nB  = Math.max(1, Math.round(stH / 0.9));
+    const brH = stH / nB;
+    for (let b = 0; b < nB; b++) {
+      const by   = st.yBot + b * brH + brH / 2;
+      const ft   = (by - st.yBot) / stH;
+      const hs   = st.sBot + (st.sTop - st.sBot) * ft;
+      const span = hs * 2;
+      const ang  = Math.atan2(brH, span);
+      const bLen = Math.hypot(span, brH);
+
+      // Front and back faces (braces along X axis)
+      for (const fz of [hs, -hs]) {
+        for (const sign of [1, -1]) {
+          const br = new THREE.Mesh(
+            new THREE.BoxGeometry(bLen + 0.02, 0.065, 0.065), lightBronze
+          );
+          br.position.set(0, by, fz);
+          br.rotation.z = sign * ang;
+          group.add(br);
+        }
+      }
+      // Left and right faces (braces along Z axis)
+      for (const fx of [hs, -hs]) {
+        for (const sign of [1, -1]) {
+          const br = new THREE.Mesh(
+            new THREE.BoxGeometry(0.065, 0.065, bLen + 0.02), lightBronze
+          );
+          br.position.set(fx, by, 0);
+          br.rotation.x = sign * ang;
+          group.add(br);
+        }
+      }
+    }
+  }
+
+  // ── Parabolic arches at base (y=0→2.5, one per face) ──
+  const nArchSeg = 7;
+  const archSpan = 1.8;
+  for (const face of [
+    { axis: 'z', pos:  archSpan },
+    { axis: 'z', pos: -archSpan },
+    { axis: 'x', pos:  archSpan },
+    { axis: 'x', pos: -archSpan },
+  ]) {
+    for (let i = 0; i < nArchSeg; i++) {
+      const t1 = i / nArchSeg;
+      const t2 = (i + 1) / nArchSeg;
+      const u1 = 2 * t1 - 1; const u2 = 2 * t2 - 1;
+      const a1 = (t1 - 0.5) * archSpan * 2;
+      const a2 = (t2 - 0.5) * archSpan * 2;
+      const h1 = 2.5 * (1 - u1 * u1);
+      const h2 = 2.5 * (1 - u2 * u2);
+      const ma = (a1 + a2) / 2;
+      const mh = (h1 + h2) / 2;
+      const sLen = Math.hypot(a2 - a1, h2 - h1);
+      const ang  = Math.atan2(h2 - h1, a2 - a1);
+
+      if (face.axis === 'z') {
+        const seg = new THREE.Mesh(
+          new THREE.BoxGeometry(sLen + 0.01, 0.1, 0.12), warmBronze
+        );
+        seg.position.set(ma, mh, face.pos);
+        seg.rotation.z = ang;
+        seg.castShadow = true;
+        group.add(seg);
+      } else {
+        const seg = new THREE.Mesh(
+          new THREE.BoxGeometry(0.12, 0.1, sLen + 0.01), warmBronze
+        );
+        seg.position.set(face.pos, mh, ma);
+        seg.rotation.x = -ang;
+        seg.castShadow = true;
+        group.add(seg);
+      }
+    }
+  }
+
+  // ── Platforms with railings ──
+  const platDefs = [
+    { y: 2.5, size: 3.2,  h: 0.15, nPosts: 7 },
+    { y: 5.5, size: 1.8,  h: 0.12, nPosts: 5 },
+    { y: 9.0, size: 0.9,  h: 0.10, nPosts: 3 },
+  ];
+  for (const pd of platDefs) {
+    const plat = new THREE.Mesh(new THREE.BoxGeometry(pd.size, pd.h, pd.size), warmBronze);
+    plat.position.y = pd.y;
+    plat.castShadow = true;
+    group.add(plat);
+
+    const postH = 0.18;
+    const half  = pd.size / 2 - 0.06;
+    const step  = pd.size / pd.nPosts;
+    const topY  = pd.y + pd.h / 2 + postH / 2;
+    for (let i = 0; i < pd.nPosts; i++) {
+      const off = -half + i * step;
+      for (const [px, pz] of [[off, half], [off, -half], [half, off], [-half, off]]) {
+        const post = new THREE.Mesh(new THREE.BoxGeometry(0.04, postH, 0.04), warmBronze);
+        post.position.set(px, topY, pz);
+        group.add(post);
+      }
+    }
+    // Top rails
+    const railY = pd.y + pd.h / 2 + postH;
+    for (const r of [half, -half]) {
+      const rx = new THREE.Mesh(new THREE.BoxGeometry(pd.size, 0.025, 0.025), warmBronze);
+      rx.position.set(0, railY, r);
+      group.add(rx);
+      const rz = new THREE.Mesh(new THREE.BoxGeometry(0.025, 0.025, pd.size), warmBronze);
+      rz.position.set(r, railY, 0);
+      group.add(rz);
+    }
+  }
+
+  // ── Summit spire ──
+  const spireBase = 9.1;
+  const spire = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.09, 3.0, 8), darkBronze);
+  spire.position.y = spireBase + 1.5;
+  spire.castShadow = true;
+  group.add(spire);
+  const mastCone = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.28, 8), darkBronze);
+  mastCone.position.y = spireBase + 3.14;
+  group.add(mastCone);
+  const summitSphere = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 6), wheatGold);
+  summitSphere.position.y = spireBase + 3.28;
+  group.add(summitSphere);
+
+  // ── Tricolor pennant (French flag: blue / white / red) ──
+  const flagY = spireBase + 2.7;
+  for (const [i, fc] of [[0, 0x0055A4], [1, 0xFFFFFF], [2, 0xEF4135]]) {
+    const strip = new THREE.Mesh(
+      new THREE.BoxGeometry(0.15, 0.07, 0.02),
+      new THREE.MeshStandardMaterial({ color: fc })
+    );
+    strip.position.set(0.08, flagY - i * 0.07, 0);
+    group.add(strip);
+  }
+
+  // ── Ground details ──
+  // Hedges flanking each leg
+  for (const [hx, hz] of [[-2.2, 2.2], [2.2, 2.2], [-2.2, -2.2], [2.2, -2.2]]) {
+    const hedge = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.25, 0.3), deepGreen);
+    hedge.position.set(hx, 0.125, hz);
+    group.add(hedge);
+  }
+  // Park bench between front legs
+  const benchSeat = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.04, 0.18), darkWood);
+  benchSeat.position.set(0, 0.28, 1.4);
+  group.add(benchSeat);
+  for (const bx of [-0.24, 0.24]) {
+    const bl = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.28, 0.05), darkWood);
+    bl.position.set(bx, 0.14, 1.4);
+    group.add(bl);
+  }
+  const backRest = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.14, 0.03), darkWood);
+  backRest.position.set(0, 0.37, 1.31);
+  group.add(backRest);
+
+  // ── First platform — Le Petit Café ──
+  const cafeY = 2.5 + 0.15 + 0.01;
+  for (const [tx, tz] of [[-0.55, 0.38], [0.55, -0.3]]) {
+    const tLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.22, 6), ironBlack);
+    tLeg.position.set(tx, cafeY + 0.11, tz);
+    group.add(tLeg);
+    const tTop = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.018, 10), wheatGold);
+    tTop.position.set(tx, cafeY + 0.23, tz);
+    group.add(tTop);
+  }
+  const counter = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.28, 0.12), darkWood);
+  counter.position.set(0, cafeY + 0.14, -0.9);
+  group.add(counter);
+  const cafeLamp = createGlowOrb(0xfbbf24);
+  cafeLamp.position.set(0, cafeY + 0.3, -0.9);
+  group.add(cafeLamp);
+
+  // ── Second platform — Gallery ──
+  const galY = 5.5 + 0.12 + 0.01;
+  const telescope = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.14, 6), warmBronze);
+  telescope.rotation.z = 0.5;
+  telescope.position.set(0.35, galY + 0.14, 0);
+  group.add(telescope);
+  for (const gx of [-0.25, 0.25]) {
+    const galOrb = createGlowOrb(0xf59e0b);
+    galOrb.position.set(gx, galY + 0.18, 0);
+    group.add(galOrb);
+  }
+
+  // ── Third platform — Observation deck ──
+  const obsY = 9.0 + 0.10 + 0.01;
+  const beaconOrb = createGlowOrb(0xfbbf24);
+  beaconOrb.position.set(0, obsY + 0.1, 0);
+  group.add(beaconOrb);
+  // Spiral staircase hint descending from platform underside
+  const poleY = obsY - 0.32;
+  const spiralPole = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.6, 6), ironBlack);
+  spiralPole.position.set(0, poleY, 0);
+  group.add(spiralPole);
+  for (let s = 0; s < 5; s++) {
+    const a = (s / 5) * Math.PI * 2;
+    const stairStep = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.025, 0.065), ironBlack);
+    stairStep.position.set(Math.cos(a) * 0.09, poleY - 0.25 + s * 0.11, Math.sin(a) * 0.09);
+    stairStep.rotation.y = -a;
+    group.add(stairStep);
+  }
+
+  // ── Sparkle glow orbs (constellation of lights along legs) ──
+  const sparkles = [
+    [  0,    0.7,  1.65], [-1.55, 1.3,   0  ], [  0,    1.9, -1.5 ], [ 1.55, 2.2,   0  ],
+    [  1.1,  3.2,  0   ], [  0,   3.8,   1.0], [ -1.0,  4.0,  0   ], [  0,   4.8,  -0.9],
+    [  0.6,  6.2,  0   ], [  0,   7.0,   0.55],[ -0.45, 7.8,  0   ], [  0,   8.4,  -0.35],
+    [  0.15, 9.7,  0.15],
+  ];
+  for (const [sx, sy, sz] of sparkles) {
+    const orb = createGlowOrb(0xfbbf24);
+    orb.position.set(sx, sy, sz);
+    group.add(orb);
+  }
+
+  // ── Gustave Eiffel honor plaque on inner face of front-right leg ──
+  const honorFrame = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.34, 0.025), ironBlack);
+  honorFrame.position.set(1.72, 1.2, 0.1);
+  group.add(honorFrame);
+  const honorPlaque = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.3, 0.025), wheatGold);
+  honorPlaque.position.set(1.72, 1.2, 0.12);
+  group.add(honorPlaque);
+
+  // ── Contributor plaque anchor ──
+  buildPlaque(group, building, 2.0, 1.5);
+};
+
 // Distant hills
 export function createHills() {
   const group = new THREE.Group();
