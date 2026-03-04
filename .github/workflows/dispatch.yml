@@ -28,6 +28,8 @@ on:
     types: [created]
   pull_request:
     types: [opened, synchronize, ready_for_review]
+  push:
+    branches: [main]
 
 jobs:
   dispatch:
@@ -140,4 +142,62 @@ jobs:
             echo '```' >> $GITHUB_STEP_SUMMARY
             tail -20 logger.txt >> $GITHUB_STEP_SUMMARY || echo "No log entries" >> $GITHUB_STEP_SUMMARY
             echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
+
+  generate-og-images:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install puppeteer
+
+      - name: Generate missing OG images
+        run: |
+          # Find buildings without og.png
+          missing_images=()
+          for dir in town/*/; do
+            if [ -d "$dir" ]; then
+              slug=$(basename "$dir")
+              if [ ! -f "${dir}og.png" ]; then
+                echo "Missing OG image for: $slug"
+                missing_images+=("$slug")
+              fi
+            fi
+          done
+          
+          # Generate OG images for missing buildings
+          if [ ${#missing_images[@]} -gt 0 ]; then
+            echo "Generating ${#missing_images[@]} OG image(s)..."
+            for slug in "${missing_images[@]}"; do
+              echo "Generating OG image for $slug..."
+              node verify-browser.mjs "$slug" || echo "Failed to generate OG image for $slug"
+            done
+          else
+            echo "No missing OG images — all buildings have og.png"
+          fi
+
+      - name: Commit OG images
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+          
+          if [ -n "$(git status --porcelain town/*/og.png)" ]; then
+            git add town/*/og.png
+            git commit -m "Generate OG images for new buildings
+
+Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
+            git push
+            echo "✅ Committed new OG images"
+          else
+            echo "No new OG images to commit"
           fi
